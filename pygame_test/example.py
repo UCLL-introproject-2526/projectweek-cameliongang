@@ -64,7 +64,7 @@ while running:
 
     pg.display.flip()
 
-    dela_time = clock.tick(60) / 1000
+    delta_time = clock.tick(60) / 1000
     delta_time = max(0.001, min(0.1, delta_time))
 
 
