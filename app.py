@@ -6,10 +6,12 @@ from time import sleep
 pygame.init()
 
 
-class State
+class State:
+    def __init__(self):
+        self.x_circle = 0
 
-
-
+    def update_pos(self, x):
+        self.x_circle+=x
 
 
 
@@ -34,17 +36,24 @@ def clear_surface(surface):
 
 
 def main():
+    pos_state=State()
+    pos_state.x_circle = 500
+    
     clock = pygame.time.Clock()
-    x_circle = 500
     speed = 101   # pixles per seconde
+    
     surface = create_main_surface()
+
     
     while True:
-        dt = clock.tick(60)/1000
-        render_frame(surface, x_circle)
-        x_circle+=speed * dt
-        sleep(0.016)
+        dt = clock.tick(60)/1000 #seconds per frame
+
         clear_surface(surface)
+
+        render_frame(surface, pos_state.x_circle)
+
+        pos_state.update_pos(speed * dt)
+        
         # Basic event handling to keep the window responsive (best practice)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
