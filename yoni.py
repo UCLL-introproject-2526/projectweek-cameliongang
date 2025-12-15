@@ -15,10 +15,14 @@ def clear_surface(surface):
 class state:
     def __init__(self):
         self.xcoor = 0
+        self.ycoor = 0
 
     def xcoor_update(self, x):
         self.xcoor += x
     
+    def ycoor_update(self, y):
+        self.xcoor += y
+
     def render(self, surface):
         clear_surface(surface)
         pygame.draw.circle(surface, (255, 0, 0), (self.xcoor, 200), 200)
@@ -32,6 +36,7 @@ def main():
     surface = create_main_surface()
     clock = pygame.time.Clock()
     status = state()
+    keys = pygame.key.get_pressed()
     while True:
         status.render(surface)
         status.xcoor_update(2)
@@ -39,7 +44,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-        
+ #           if event.type == pygame.KEYDOWN:
+ #               if event.key == pygame.K_LEFT:
+ #                   print("left")
+ #                   status.xcoor_update(-1)
+ #               if event.key == pygame.K_RIGHT:
+ #                   status.xcoor_update(1)
+
+
 
 
 
