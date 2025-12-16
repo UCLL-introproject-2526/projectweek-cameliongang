@@ -21,6 +21,7 @@ class state:
         self.height = 50  # Approx player height
         self.on_ground = False
         self.on_wall = False
+        self.hanging = False # New state for ceiling stick
 
         # Load Level
         self.level = Level()
@@ -51,10 +52,11 @@ class state:
 
     # Consume buffered jump after collision resolution
     def try_consume_jump(self):
-        if (self.on_ground or self.coyote_timer > 0 or self.on_wall) and self.jump_buffer > 0:
+        if (self.on_ground or self.coyote_timer > 0 or self.on_wall or self.hanging) and self.jump_buffer > 0:
             self.velocity_y = self.jump_strength
             self.on_ground = False
             self.on_wall = False
+            self.hanging = False
             self.coyote_timer = 0
             self.jump_buffer = 0
             self.started_rise = False  # reset gating for a new jump
@@ -66,7 +68,14 @@ class state:
     def update_physics(self, dx, keys):
         # Reset contact flags for this frame
         self.on_ground = False
+        # Note: on_wall and hanging are persistent states until broken, 
+        # but we re-verify them each frame or break them if conditions fail.
+        # Actually, let's reset them and re-detect to rely on collision storage?
+        # No, "Stick" implies state. 
+        # Let's reset on_wall (side) because dx re-checks it.
         self.on_wall = False
+        
+        # We DO NOT reset self.hanging immediately. We check if it's valid below.
 
         # Horizontal Movement
         self.xcoor += dx
@@ -78,53 +87,75 @@ class state:
                 if getattr(tile, 'type', 'X') == 'S':
                     self.on_wall = True
                     self.velocity_y = 0  # Stick to wall
+                    self.hanging = False # Wall/Side overrides hanging?
 
                 if dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
                 if dx < 0:  # Moving Left
                     self.xcoor = tile.rect.right
 
-        # Vertical Movement
+        # Vertical Movement Calculation
+        dy = 0
+        
+        # Check if hanging is still valid (must be touching 'S' above)
+        if self.hanging:
+            # Create a sensor rect slightly above
+            sensor = pg.Rect(self.xcoor, self.ycoor - 1, self.width, 1)
+            still_touching = False
+            for tile in self.tiles:
+                if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
+                    still_touching = True
+                    break
+            if not still_touching:
+                self.hanging = False
+        
         if self.on_wall:
-            # Simple wall behavior: disable gravity, allow climbing with keys
+            # Wall Climb
             if keys[pg.K_UP]:
-                self.ycoor -= 5
+                dy = -5
             elif keys[pg.K_DOWN]:
-                self.ycoor += 5
+                dy = 5
+        elif self.hanging:
+            # Ceiling Stick
+            if keys[pg.K_DOWN]:
+                self.hanging = False # Drop
+                dy = 5
+            # UP does nothing while hanging? Or maybe clamber?
         else:
             # Gravity
             self.velocity_y += self.gravity
-            self.ycoor += self.velocity_y
+            dy = self.velocity_y
 
-        # Mark when upward motion begins (for jump-cut gating)
-        if self.velocity_y < 0:
-            self.started_rise = True
+            # Mark when upward motion begins (for jump-cut gating)
+            if self.velocity_y < 0:
+                self.started_rise = True
+    
+            # Jump cut
+            if self.started_rise and not self.jump_held and self.velocity_y < 0:
+                self.velocity_y = max(self.velocity_y, self.jump_cut)
+                dy = self.velocity_y
 
-        # Jump cut only if rising AND UP released after rise started
-        if self.started_rise and not self.jump_held and self.velocity_y < 0:
-            self.velocity_y = max(self.velocity_y, self.jump_cut)
-
-        # Recompute rect after vertical move
+        # Apply Vertical Move
+        self.ycoor += dy
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Vertical collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
-                if getattr(tile, 'type', 'X') == 'S':
-                    # Ceiling stick (moving up)
-                    if self.velocity_y < 0:
-                        self.ycoor = tile.rect.bottom
-                        self.velocity_y = 0
-                        self.on_wall = True  # reuse to disable gravity
-                if self.velocity_y > 0:  # Falling
+                if dy < 0: # Moving Up
+                     if getattr(tile, 'type', 'X') == 'S':
+                         # Ceiling stick
+                         self.ycoor = tile.rect.bottom
+                         self.velocity_y = 0
+                         self.hanging = True
+                     else:
+                         self.ycoor = tile.rect.bottom
+                         self.velocity_y = 0
+                elif dy > 0: # Falling / Moving Down
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
                     self.on_ground = True
-                elif self.velocity_y < 0:  # Jumping up (standard block)
-                    if getattr(tile, 'type', 'X') != 'S':
-                        self.ycoor = tile.rect.bottom
-                        self.velocity_y = 0
-
+        
         # Update coyote after collision resolution
         self.update_coyote()
 
