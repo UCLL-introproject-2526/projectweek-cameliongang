@@ -55,18 +55,28 @@ class state:
         self.jump_buffer = self.jump_buffer_time
 
     # Consume buffered jump after collision resolution
-    def try_consume_jump(self):
+    def try_consume_jump(self, keys):
         if (self.on_ground or self.coyote_timer > 0 or self.on_wall or self.hanging) and self.jump_buffer > 0:
-            self.velocity_y = self.jump_strength
-            # Wall Jump Logic
+            
+            # Wall Jump Logic: Only fire if holding AWAY from wall
             if self.on_wall:
-                # Add momentum away from the wall
                 kick_strength = 10
-                if self.wall_side == 1: # Wall on right
-                    self.momentum_x = -kick_strength
-                elif self.wall_side == -1: # Wall on left
-                    self.momentum_x = kick_strength
+                did_wall_jump = False
                 
+                if self.wall_side == 1: # Wall on right
+                    if keys[pg.K_LEFT]: # Must hold LEFT to jump off right wall
+                        self.momentum_x = -kick_strength
+                        did_wall_jump = True
+                elif self.wall_side == -1: # Wall on left
+                     if keys[pg.K_RIGHT]: # Must hold RIGHT to jump off left wall
+                        self.momentum_x = kick_strength
+                        did_wall_jump = True
+                
+                if not did_wall_jump:
+                    return # Do not consume jump if direction is wrong (allow climbing/holding)
+
+            # Execute Jump
+            self.velocity_y = self.jump_strength
             self.on_ground = False
             self.on_wall = False
             self.wall_side = 0
@@ -83,10 +93,8 @@ class state:
         # Validate existing wall stick (Persistent State)
         if self.on_wall:
             # Check for pull-off (Moving away from wall)
-            # Make sure we don't accidentally pull off instantly when jumping
-            # But try_consume_jump handles the detachment before this runs next frame usually?
-            # Actually input runs before physics.
-            if (dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1):
+            # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall state for the kick)
+            if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
                 self.on_wall = False
                 self.wall_side = 0
             else:
@@ -201,7 +209,7 @@ class state:
         self.update_coyote()
 
         # Consume buffered jump now that collision is resolved
-        self.try_consume_jump()
+        self.try_consume_jump(keys)
 
         # Decay jump buffer
         if self.jump_buffer > 0:
