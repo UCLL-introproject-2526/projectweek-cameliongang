@@ -1,8 +1,12 @@
+# Ref: http://projectweek.leone.ucll.be/reference/python/clean-code/index.html#no-magic-constants
+
 # Screen dimensions
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700
+# Aliases for compatibility
 WIDTH = SCREEN_WIDTH
 HEIGHT = SCREEN_HEIGHT
+
 TILE_SIZE = 32
 FPS = 60
 
@@ -14,6 +18,23 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 BG_COLOR = (30, 30, 30)
 TONGUE_COLOR = (255, 100, 100)
+
+# UI Colors (Ref: Clean Code - No Magic Numbers)
+HUD_BG_COLOR = (50, 50, 50)
+HUD_BORDER_COLOR = (200, 200, 200)
+TEXT_COLOR = WHITE
+TITLE_COLOR = (100, 255, 100)
+INFO_COLOR = (150, 150, 150)
+POWER_TEXT_COLOR_FIRE = (255, 100, 100)
+POWER_TEXT_COLOR_STICKY = (100, 255, 100)
+POWER_TEXT_COLOR_NONE = (200, 200, 200)
+LOADING_TEXT_COLOR = WHITE
+
+# UI Layout
+HUD_POS = (10, 10)
+HUD_SIZE = (150, 70)
+HUD_BORDER_RADIUS = 10
+HUD_BORDER_WIDTH = 3
 
 # Physics
 GRAVITY = 1.0       # Increased from 0.8 for weight

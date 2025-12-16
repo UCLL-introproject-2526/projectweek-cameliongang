@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chameleon Platformer - The Full Guide</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="sidebar">
+        <h3>Contents</h3>
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#p1">1. The Engine (Game Class)</a></li>
+            <li><a href="#p2">2. The Loop (Time)</a></li>
+            <li><a href="#p3">3. The Player (Sprites)</a></li>
+            <li><a href="#p4">4. The World (Map Parsing)</a></li>
+            <li><a href="#p5">5. The Camera</a></li>
+            <li><a href="#p6">6. Physics (Collision)</a></li>
+            <li><a href="#p7">7. Final Polish</a></li>
+        </ul>
+    </nav>
+
+    <main class="main-content">
+        <header id="intro">
+            <h1>Chameleon Platformer: Master Class</h1>
+            <p>From empty file to complex platformer. Understanding the <em>WHY</em> behind the code.</p>
+        </header>
+
+        <!-- Phase 1 -->
+        <div class="step" id="p1">
+            <h2>Phase 1: The Engine (OOP Foundation)</h2>
+            
+            <div class="theory-box">
+                <h4>Theory Corner: Why a Class?</h4>
+                <p>Beginners often write code in the global scope (top of the file). This works for small scripts, but becomes a nightmare for games. By wrapping our game in a <code>Game</code> class:</p>
+                <ul>
+                    <li><strong>Encapsulation</strong>: All game data (score, player, level) stays inside the object.</li>
+                    <li><strong>Control</strong>: We can easily restart the game by just creating a new <code>Game()</code> instance.</li>
+                    <li><strong>Compliance</strong>: This structure aligns with professional standards (and UCLL guidelines).</li>
+                </ul>
+            </div>
+
+            <div class="explanation">
+                <p>We need a robust foundation. We will create a class that manages the window and the main loop.</p>
+            </div>
+            
+            <div class="task-box">
+                <h3>Task</h3>
+                <p>Create `app.py`. Implement:</p>
+                <ol>
+                    <li>A function <code>create_main_surface()</code> that returns a 1280x720 display.</li>
+                    <li>A <code>Game</code> class. In its <code>__init__</code>, initialize `pygame` and `self.clock`.</li>
+                    <li>A <code>run()</code> method that loops forever, handling the `QUIT` event.</li>
+                </ol>
+            </div>
+
+            <button class="btn-toggle" data-target="code-1">Show Solution</button>
+            
+            <div id="code-1" class="code-solution">
+<pre><code><span class="keyword">import</span> pygame, sys
+
+<span class="keyword">def</span> <span class="function">create_main_surface</span>():
+    <span class="keyword">return</span> pygame.display.set_mode((1280, 720))
+
+<span class="keyword">class</span> <span class="function">Game</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        pygame.init()
+        self.surface = create_main_surface()
+        self.clock = pygame.time.Clock()
+        pygame.display.set_caption(<span class="string">"Chameleon Platformer"</span>)
+
+    <span class="keyword">def</span> <span class="function">run</span>(self):
+        <span class="keyword">while</span> <span class="keyword">True</span>:
+            <span class="keyword">for</span> event <span class="keyword">in</span> pygame.event.get():
+                <span class="keyword">if</span> event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+            
+            self.surface.fill((30, 30, 30))
+            pygame.display.update()
+            self.clock.tick(60)
+
+<span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:
+    game = Game()
+    game.run()</code></pre>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="step" id="p2">
+            <h2>Phase 2: The Loop (Delta Time)</h2>
+            
+            <div class="theory-box">
+                <h4>Theory Corner: The Loop & Delta Time</h4>
+                <p><strong>The Game Loop</strong> has three jobs: 1. Get Input, 2. Update World, 3. Draw World.</p>
+                <p><strong>Delta Time (dt)</strong>: Computers run at different speeds. If you say "move 5 pixels per frame", a fast computer moves the player huge distances instantly. If we say "move 300 pixels <em>per second</em>" and multiply by the time passed since the last frame (<code>dt</code>), movement becomes smooth and consistent on ALL computers.</p>
+            </div>
+
+            <div class="task-box">
+                <h3>Task</h3>
+                <p>Refactor <code>Game</code> to split responsibilities:</p>
+                <ol>
+                    <li><code>process_input()</code>: Only handles events.</li>
+                    <li><code>update(dt)</code>: Handles logic. (Empty for now).</li>
+                    <li><code>render(surface)</code>: Handles drawing.</li>
+                    <li>Modify <code>run()</code> calculate <code>dt</code> using <code>clock.tick(60) / 1000</code>.</li>
+                </ol>
+            </div>
+
+            <button class="btn-toggle" data-target="code-2">Show Solution</button>
+
+            <div id="code-2" class="code-solution">
+<pre><code><span class="keyword">class</span> <span class="function">Game</span>:
+    <span class="comment"># ... __init__ ...</span>
+
+    <span class="keyword">def</span> <span class="function">process_input</span>(self):
+        <span class="keyword">for</span> event <span class="keyword">in</span> pygame.event.get():
+            <span class="keyword">if</span> event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+    <span class="keyword">def</span> <span class="function">update</span>(self, dt):
+        <span class="keyword">pass</span>
+
+    <span class="keyword">def</span> <span class="function">render</span>(self, surface):
+        surface.fill((30, 30, 30))
+        pygame.display.update()
+
+    <span class="keyword">def</span> <span class="function">run</span>(self):
+        <span class="keyword">while</span> <span class="keyword">True</span>:
+            <span class="comment"># Get milliseconds since last frame, convert to seconds</span>
+            dt = self.clock.tick(60) / 1000.0 
+            
+            self.process_input()
+            self.update(dt)
+            self.render(self.surface)</code></pre>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="step" id="p3">
+            <h2>Phase 3: The Player (Sprite & Vectors)</h2>
+            
+            <div class="theory-box">
+                <h4>Theory Corner: Sprites & Vectors</h4>
+                <p><strong>Pygame Sprites</strong>: A built-in class that handles loading images (`self.image`) and positioning them (`self.rect`). It makes grouping and drawing thousands of objects easy.</p>
+                <p><strong>Vectors</strong>: Instead of managing `x` and `y` separately, we use `pygame.math.Vector2(x, y)`. This lets us do math easier (e.g., `position += velocity * dt`).</p>
+            </div>
+
+            <div class="task-box">
+                <h3>Task</h3>
+                <p>Create a `Player` class inheriting from `pygame.sprite.Sprite`.</p>
+                <ol>
+                    <li>In `__init__`, create a red 32x32 surface as `self.image`. define `self.rect`.</li>
+                    <li>Add `self.direction = pygame.math.Vector2()`.</li>
+                    <li>Implement `input()`: Set direction.x to 1, -1, or 0 based on keys.</li>
+                    <li>Implement `update(dt)`: Move the `self.rect.center` by `direction * speed * dt`.</li>
+                    <li>Add the player to a `pygame.sprite.GroupSingle` in Game and update/draw it.</li>
+                </ol>
+            </div>
+
+            <button class="btn-toggle" data-target="code-3">Show Solution</button>
+            <div id="code-3" class="code-solution">
+<pre><code><span class="keyword">class</span> <span class="function">Player</span>(pygame.sprite.Sprite):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, pos):
+        <span class="keyword">super</span>().__init__()
+        self.image = pygame.Surface((32, 32))
+        self.image.fill((255, 0, 0))
+        self.rect = self.image.get_rect(topleft=pos)
+        self.direction = pygame.math.Vector2()
+        self.speed = 400
+
+    <span class="keyword">def</span> <span class="function">input</span>(self):
+        keys = pygame.key.get_pressed()
+        <span class="keyword">if</span> keys[pygame.K_RIGHT]: self.direction.x = 1
+        <span class="keyword">elif</span> keys[pygame.K_LEFT]: self.direction.x = -1
+        <span class="keyword">else</span>: self.direction.x = 0
+
+    <span class="keyword">def</span> <span class="function">update</span>(self, dt):
+        self.input()
+        self.rect.center += self.direction * self.speed * dt
+
+<span class="comment"># In Game.__init__</span>
+<span class="comment"># self.player = pygame.sprite.GroupSingle(Player((100, 100)))</span>
+
+<span class="comment"># In Game.update</span>
+<span class="comment"># self.player.update(dt)</span>
+
+<span class="comment"># In Game.render</span>
+<span class="comment"># self.player.draw(surface)</span></code></pre>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="step" id="p4">
+            <h2>Phase 4: The World (Map Parsing)</h2>
+            <div class="theory-box">
+                <h4>Theory Corner: Grids & Tiles</h4>
+                <p>Levels are just grids. We can represent them as a list of strings, where 'X' is a wall and ' ' is empty space. We loop through the strings, and if we find an 'X', we calculate its pixel position: <code>x = column_index * tile_size</code>.</p>
+            </div>
+
+            <div class="task-box">
+                <h3>Task</h3>
+                <ol>
+                    <li>Create `level_map = ["XXXXX", "X   X", "XXXXX"]`.</li>
+                    <li>Create a `Tile` class (Sprite) with a grey image.</li>
+                    <li>Create a `Level` class. In its init, loop through `level_map`.</li>
+                    <li>For every 'X', create a `Tile` at the correct position and add it to `self.sprites`.</li>
+                    <li>Move the Player group into `Level`.</li>
+                </ol>
+            </div>
+            
+            <button class="btn-toggle" data-target="code-4">Show Solution</button>
+            <div id="code-4" class="code-solution">
+<pre><code><span class="keyword">class</span> <span class="function">Tile</span>(pygame.sprite.Sprite):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, pos, groups):
+        <span class="keyword">super</span>().__init__(groups)
+        self.image = pygame.Surface((64, 64))
+        self.image.fill((200, 200, 200))
+        self.rect = self.image.get_rect(topleft=pos)
+
+<span class="keyword">class</span> <span class="function">Level</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.visible_sprites = pygame.sprite.Group()
+        self.setup_level()
+
+    <span class="keyword">def</span> <span class="function">setup_level</span>(self):
+        map_data = [
+            <span class="string">"XXXXXXXXXXXXXXXXXXXX"</span>,
+            <span class="string">"X                  X"</span>,
+            <span class="string">"X        P         X"</span>,
+            <span class="string">"X      XXXXX       X"</span>,
+            <span class="string">"XXXXXXXXXXXXXXXXXXXX"</span>
+        ]
+        <span class="keyword">for</span> row_index, row <span class="keyword">in</span> enumerate(map_data):
+            <span class="keyword">for</span> col_index, cell <span class="keyword">in</span> enumerate(row):
+                x = col_index * 64
+                y = row_index * 64
+                <span class="keyword">if</span> cell == <span class="string">'X'</span>:
+                    Tile((x,y), [self.visible_sprites])
+                <span class="keyword">if</span> cell == <span class="string">'P'</span>:
+                    self.player = Player((x,y), [self.visible_sprites])
+
+    <span class="keyword">def</span> <span class="function">run</span>(self):
+        self.visible_sprites.draw(pygame.display.get_surface())
+</code></pre>
+            </div>
+        </div>
+
+        <!-- Phase 5 -->
+        <div class="step" id="p5">
+            <h2>Phase 5: The Camera</h2>
+            <div class="theory-box">
+                <h4>Theory Corner: Everything is an Illusion</h4>
+                <p>Cameras in 2D games don't move. The <em>entire world</em> moves in the opposite direction. If the player moves Right, the world moves Left. We achieve this by subtracting an <code>offset</code> vector from every sprite's position before drawing.</p>
+            </div>
+
+            <div class="task-box">
+                <h3>Task</h3>
+                <ol>
+                    <li>Create `CameraGroup(pygame.sprite.Group)`.</li>
+                    <li>Override `draw(surface)` with `custom_draw(surface, player)`.</li>
+                    <li>Calculate offset: <code>offset.x = player.rect.centerx - screen_width_half</code>.</li>
+                    <li>Loop through sprites, calculate <code>offset_pos = sprite.rect.topleft - offset</code>, and blit that.</li>
+                </ol>
+            </div>
+            
+            <button class="btn-toggle" data-target="code-5">Show Solution</button>
+            <div id="code-5" class="code-solution">
+<pre><code><span class="keyword">class</span> <span class="function">CameraGroup</span>(pygame.sprite.Group):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        <span class="keyword">super</span>().__init__()
+        self.offset = pygame.math.Vector2()
+        self.half_w = 1280 // 2
+        self.half_h = 720 // 2
+
+    <span class="keyword">def</span> <span class="function">custom_draw</span>(self, player):
+        <span class="comment"># Center camera on player</span>
+        self.offset.x = player.rect.centerx - self.half_w
+        self.offset.y = player.rect.centery - self.half_h
+
+        <span class="keyword">for</span> sprite <span class="keyword">in</span> self.sprites():
+            offset_pos = sprite.rect.topleft - self.offset
+            pygame.display.get_surface().blit(sprite.image, offset_pos)</code></pre>
+            </div>
+        </div>
+        
+         <!-- Phase 6 -->
+        <div class="step" id="p6">
+            <h2>Phase 6: Physics (Collisions)</h2>
+            <div class="theory-box">
+                <h4>Theory Corner: Separating Axes</h4>
+                <p>If we move X and Y at the same time, it's hard to tell if we hit a wall or a floor. The trick is to <strong>Move X, Check Collision, Move Y, Check Collision</strong>.</p>
+            </div>
+
+            <div class="task-box">
+                <h3>Task</h3>
+                <ol>
+                    <li>In `Player`, create `horizontal_collisions` and `vertical_collisions` methods.</li>
+                    <li>In `update`, move X, then call `horizontal_collisions`.</li>
+                    <li>Then move Y (gravity), and call `vertical_collisions`.</li>
+                    <li>If collision happens, set the generic `rect` side to the obstacle `rect` side (snap to wall).</li>
+                </ol>
+            </div>
+            <button class="btn-toggle" data-target="code-6">Show Solution</button>
+            <div id="code-6" class="code-solution">
+<pre><code><span class="comment"># Inside Player.update(dt)</span>
+self.rect.x += self.direction.x * self.speed * dt
+self.horizontal_collisions()
+
+self.apply_gravity()
+self.rect.y += self.direction.y * self.speed * dt
+self.vertical_collisions()
+
+<span class="comment"># Example Collision Logic</span>
+<span class="keyword">def</span> <span class="function">horizontal_collisions</span>(self):
+    <span class="keyword">for</span> sprite <span class="keyword">in</span> self.obstacle_sprites:
+        <span class="keyword">if</span> sprite.rect.colliderect(self.rect):
+            <span class="keyword">if</span> self.direction.x > 0: <span class="comment"># Moving Right</span>
+                self.rect.right = sprite.rect.left
+            <span class="keyword">if</span> self.direction.x < 0: <span class="comment"># Moving Left</span>
+                self.rect.left = sprite.rect.right</code></pre>
+            </div>
+        </div>
+
+        <footer>
+            <p>You have built a generic Platformer Engine! Next steps: Adding Polish, Enemies, and Sound.</p>
+        </footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

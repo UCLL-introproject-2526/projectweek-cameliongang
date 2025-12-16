@@ -135,7 +135,7 @@ class CameraGroup(pygame.sprite.Group):
         self.half_w = self.display_surface.get_size()[0] // 2
         self.half_h = self.display_surface.get_size()[1] // 2
 
-    def custom_draw(self, player):
+    def custom_draw(self, surface, player):
         # Calculate offset
         self.offset.x = player.rect.centerx - self.half_w
         self.offset.y = player.rect.centery - self.half_h
@@ -143,14 +143,15 @@ class CameraGroup(pygame.sprite.Group):
         # Draw ground/enemies/player with offset
         for sprite in self.sprites():
             offset_pos = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image, offset_pos)
+            surface.blit(sprite.image, offset_pos)
 
         # Draw tongue
-        player.draw_tongue(self.display_surface, self.offset)
+        player.draw_tongue(surface, self.offset)
 
 class Level:
+    # Ref: http://projectweek.leone.ucll.be/stories/gui/game-state/index.html
     def __init__(self, level_index=0):
-        self.display_surface = pygame.display.get_surface()
+        # self.display_surface = pygame.display.get_surface() # Removed, passed in render
         self.current_level_index = level_index
         
         # Sprite groups
@@ -163,7 +164,6 @@ class Level:
 
     def create_map(self):
         map_data = LEVELS[self.current_level_index]
-
 
         for row_index, row in enumerate(map_data):
             for col_index, col in enumerate(row):
@@ -179,12 +179,13 @@ class Level:
                 if col == 'S':
                     Enemy((x, y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, type='slime')
 
-    def run(self):
-        # Update and draw
-        self.display_surface.fill(BLACK)
-        
+    def update(self, elapsed_seconds):
         # Update Logic
         self.visible_sprites.update()
+
+    def render(self, surface):
+        # Update and draw
+        surface.fill(BG_COLOR)
         
         # Custom Draw (Camera)
-        self.visible_sprites.custom_draw(self.player)
+        self.visible_sprites.custom_draw(surface, self.player)
