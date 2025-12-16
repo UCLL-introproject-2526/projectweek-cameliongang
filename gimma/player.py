@@ -4,10 +4,11 @@ from entity import Entity
 from particles import Particle
 
 class Player(Entity):
-    def __init__(self, pos, groups, obstacle_sprites, enemy_sprites, particle_sprites):
+    def __init__(self, pos, groups, obstacle_sprites, enemy_sprites, particle_sprites, interactable_sprites):
         super().__init__(pos, groups, obstacle_sprites)
         self.enemy_sprites = enemy_sprites
         self.particle_sprites = particle_sprites
+        self.interactable_sprites = interactable_sprites
         self.visible_sprites = groups[0] # Assuming first group is visible/camera group
         
         self.image = pygame.image.load(os.path.join(ASSETS_DIR, 'player.png')).convert_alpha()
@@ -18,6 +19,12 @@ class Player(Entity):
         self.on_ground = False
         self.power = None # Store current power
         self.jump_count = 0 # Track jumps for double jump
+        self.is_camouflaged = False # Track camouflage state
+        
+        # Health
+        self.hp = 3
+        self.invincible = False
+        self.invincible_timer = 0
         
         # Tongue / Grapple
         self.grapple_target = None # Vector2 or None
@@ -338,6 +345,35 @@ class Player(Entity):
         self.input()
         self.move()
         self.check_interactions()
+        
+        # Invincibility Timer
+        if self.invincible:
+            self.invincible_timer -= 1
+            if self.invincible_timer <= 0:
+                self.invincible = False
+                self.image.set_alpha(255)
+            else:
+                 # Flash effect
+                 if self.invincible_timer % 10 < 5:
+                     self.image.set_alpha(100)
+                 else:
+                     self.image.set_alpha(255)
+
+    def take_damage(self, amount, source_pos):
+        if not self.invincible:
+            self.hp -= amount
+            if self.hp <= 0:
+                # Die / Respawn
+                print("Player Died!")
+                # Reset or just heal for now
+                self.hp = 3
+                
+            self.invincible = True
+            self.invincible_timer = 60 # 1 second @ 60 FPS
+            
+            # Knockback
+            self.knockback(source_pos)
+            Particle(self.rect.center, [self.visible_sprites], 'spark') # Blood/hit effect?
 
     def check_interactions(self):
         keys = pygame.key.get_pressed()
