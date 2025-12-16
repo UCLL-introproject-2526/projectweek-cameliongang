@@ -24,6 +24,16 @@ class State:
         flip()
 
 
+class Background:
+    def __init__(self):
+        self.__image = self.__create_image()
+
+    def __create_image(self):
+        # Load the background image
+        return pygame.image.load("background.jpg").convert()
+
+
+
 # Tuple representing width and height in pixels
 def create_main_surface():
     screen_size = (1024, 768)
@@ -57,9 +67,13 @@ def main():
         # Check pressed keys outside the event loop
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:          # ⬆️ Up arrow key
-            pos_state.update_pos_y(-5)
+            pos_state.update_pos_y(-10)
         if keys[pygame.K_DOWN]:        # ⬇️ Down arrow key
-            pos_state.update_pos_y(5)
+            pos_state.update_pos_y(10)
+        if keys[pygame.K_LEFT]:          # ⬆️ Up arrow key
+            pos_state.update_pos_x(-10)
+        if keys[pygame.K_RIGHT]:        # ⬇️ Down arrow key
+            pos_state.update_pos_x(10)
                 
 
 if __name__ == "__main__":
