@@ -36,8 +36,8 @@ class state:
         self.gravity = 0.675
         self.jump_strength = -15
         self.jump_cut = -4
-        self.width = 40 # Approx player width
-        self.height = 40 # Approx player height
+        self.width = 50 # Approx player width
+        self.height = 50 # Approx player height
         self.on_ground = False
         self.on_wall = False
         
@@ -132,6 +132,7 @@ class state:
             surface.blit(tile.image, tile.rect)
 
     def render_camelion(self, surface):
+        
         try:
             camelion_img = pg.image.load('./resources/camelion.png').convert()
             camelion_img.set_colorkey((0, 0, 0))
@@ -141,6 +142,15 @@ class state:
         except:
              pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
 
+    def render_camelion_left(self,surface):
+        try:
+            camelion_img = pg.image.load('./resources/camelion_facing_left.png').convert()
+            camelion_img.set_colorkey((0, 0, 0))
+            # Resize to match collision box roughly
+            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
+            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+        except:
+             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
     def render_bush(self, surface):
         try:
             bush_img = pg.image.load('./resources/bush.png').convert()
@@ -180,6 +190,8 @@ def main():
         background.fill((100, 100, 255))
 
     # Main game loop
+    facing_left=False
+    facing_right=True
     while running:
         # Draw background first
         surface.blit(background, (0, 0))
@@ -189,8 +201,15 @@ def main():
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             dx = -5
+            status.render_camelion_left(surface)
+            facing_left = True
+            facing_right = False
+
         if keys[pg.K_RIGHT]:
              dx = 5
+             status.render_camelion
+             facing_right = True
+             facing_left = False
         if keys[pg.K_UP]:
              status.jump()
 
@@ -200,8 +219,10 @@ def main():
         # Render
         status.render_map(surface) # Render tiles first
         status.render_bush(surface)
-        status.render_camelion(surface)
-
+        if facing_right==True:
+            status.render_camelion(surface)
+        else:
+            status.render_camelion_left(surface)
         # Handle events
         for event in pg.event.get():
             if event.type == pg.QUIT:
