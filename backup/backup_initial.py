@@ -258,28 +258,6 @@ class state:
             surface.blit(camelion_img, (self.xcoor, self.ycoor))
         except:
             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
-        
-    def render_camelion_left_wall(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion_left_wall.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
-        except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
-
-    def render_camelion_right_wall(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion_right_wall.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
-        except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
-
-
 
     def render_bush(self, surface):
         try:
@@ -369,14 +347,6 @@ def main():
 
             elif facing_left:
                 status.render_camelion_left(surface)
-
-        elif status.on_wall:
-
-            if status.wall_side >0:
-                status.render_camelion_left_wall(surface)
-            
-            else:
-                status.render_camelion_right_wall(surface)
 
         else:
             if status.hanging and facing_right:
