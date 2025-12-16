@@ -23,7 +23,6 @@ class state:
         self.ycoor += y
 
     def render_camelion(self, surface):
-        clear_surface(surface)
         camelion_img = pg.image.load('./resources/camelion.png').convert()
         camelion_img.set_colorkey((0, 0, 0))
         camelion_img = pg.transform.scale(camelion_img,
@@ -57,8 +56,13 @@ def main():
     movingxplus = False
     movingymin = False
     movingyplus = False
+    # Load background image
+    background = pg.image.load(".\\resources\\background_img.jpg").convert()
+    background = pg.transform.scale(background, (1700, 900))
     # Main game loop
     while running:
+        # Draw background first
+        surface.blit(background, (0, 0))
 
         status.render_camelion(surface)
         status.render_bush(surface)

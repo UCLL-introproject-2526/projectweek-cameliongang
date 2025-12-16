@@ -42,6 +42,10 @@ class State:
     def render(self, surface):
         surface.blit(self.camelion_img, (self.x_circle, self.y_circle))
 
+    def background(self):
+        background = pygame.image.load(".\\resources\\background_img.jpg").convert()
+        background = pygame.transform.scale(background, (1280, 720))
+
 
 class Mines:
     def __init__(self):
@@ -50,13 +54,12 @@ class Mines:
     def update_location(self, x):
         self.location+=2
 
-class Background:
-    def __init__(self):
-        self.__image = self.__create_image()
+    
 
-    def __create_image(self):
-        # Load the background image
-        return pygame.image.load("background.jpg").convert()
+
+
+
+
 
 
 
@@ -66,10 +69,14 @@ def create_main_surface():
     # Create window with given size
     return pygame.display.set_mode(screen_size)
 
+
+
 def main():
     surface = create_main_surface()
     pos_state = State()
-
+     # Load background image
+    background = pygame.image.load(".\\resources\\background_img.jpg").convert()
+    background = pygame.transform.scale(background, (1280, 720))
     clock = pygame.time.Clock()
 
     while True:
@@ -77,6 +84,12 @@ def main():
 
         surface.fill((0, 0, 0))      # clear screen
         pos_state.render(surface)   # draw sprite
+
+      # Draw background first
+        surface.blit(background, (0, 0))
+
+        # Draw sprite on top
+        pos_state.render(surface)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
