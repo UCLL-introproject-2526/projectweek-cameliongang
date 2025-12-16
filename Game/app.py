@@ -1,4 +1,5 @@
 import pygame, sys
+from player import Player
 
 def create_main_surface():
     return pygame.display.set_mode((1280, 720))

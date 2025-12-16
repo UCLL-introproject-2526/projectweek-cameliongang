@@ -6,6 +6,7 @@ class Enemy(Entity):
     def __init__(self, pos, groups, obstacle_sprites, type='spiky'):
         super().__init__(pos, groups, obstacle_sprites)
         self.enemy_type = type
+        self.player = None # Link to player
         
         if self.enemy_type == 'slime':
              self.image = pygame.image.load(os.path.join(ASSETS_DIR, 'enemy_slime.png')).convert_alpha()
@@ -23,6 +24,19 @@ class Enemy(Entity):
         self.speed = 2
 
     def update(self):
+        # Chase Logic
+        if self.player and not self.player.is_camouflaged:
+            # Simple line of sight/range check
+            dist = pygame.math.Vector2(self.player.rect.center) - pygame.math.Vector2(self.rect.center)
+            if dist.length() < 300: # Sight range
+                if dist.x > 0: self.direction.x = 1
+                else: self.direction.x = -1
+                self.speed = 4 # Chase speed
+            else:
+                self.speed = 2 # Patrol speed
+        else:
+             self.speed = 2
+        
         # Patrol logic
         # Check for cliff (ground ahead)
         look_ahead_x = self.rect.right + 2 if self.direction.x > 0 else self.rect.left - 2

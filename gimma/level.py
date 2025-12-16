@@ -3,16 +3,17 @@ from settings import *
 from player import Player
 from enemy import Enemy
 from particles import Particle
+from objects import Bush, Mine
 
 # Level Layouts
 LEVEL_0 = [
             'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
             'X                                                                                    X',
             'X                   XXXXX                                                            X',
-            'X         E                                  S                                       X',
-            'X       XXXXX      XX  XX                  XXXXX                                     X',
-            'X                XX      XX                                                          X',
-            'X      P      XX          XX                                              XXX        X',
+            'X         E            B                     S                                       X',
+            'X       XXXXX      XX  XX   M              XXXXX                                     X',
+            'X                   B    XX      XX                                                  X',
+            'X      P      XX    B     XX                                              XXX        X',
             'XXXXXXXXXXXXXXX            XXXXXXXXXXXXXX           E                    XX X        X',
             'X                                         X         XXXX                XX  X        X',
             'X   Grapple Training!                     X                            XX   X        X',
@@ -190,9 +191,14 @@ class Level:
         self.obstacle_sprites = pygame.sprite.Group()
         self.enemy_sprites = pygame.sprite.Group()
         self.particle_sprites = pygame.sprite.Group()
+        self.interactable_sprites = pygame.sprite.Group()
         
         # Setup level
         self.create_map()
+        
+        # Link player to enemies
+        for enemy in self.enemy_sprites:
+            enemy.player = self.player
 
     def create_map(self):
         map_data = LEVELS[self.current_level_index]
@@ -211,19 +217,20 @@ class Level:
                         [self.visible_sprites], 
                         self.obstacle_sprites, 
                         self.enemy_sprites,
-                        self.particle_sprites
+                        self.particle_sprites,
+                        self.interactable_sprites
                     )
                     
-                    # Hack: Player needs access to visible_sprites to spawn particles into it?
-                    # The particle_sprites group is for logic updates? 
-                    # If I put particles in particle_sprites, I also need to put them in visible_sprites?
-                    # Yes. The Player will handle creating the Particle with correct groups.
                     self.player.visible_sprites = self.visible_sprites
                     
                 if col == 'E':
                     Enemy((x, y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, type='spiky')
                 if col == 'S':
                     Enemy((x, y), [self.visible_sprites, self.enemy_sprites], self.obstacle_sprites, type='slime')
+                if col == 'B':
+                    Bush((x, y), [self.visible_sprites, self.interactable_sprites])
+                if col == 'M':
+                    Mine((x, y), [self.visible_sprites, self.interactable_sprites])
 
     def run(self):
         # Update and draw

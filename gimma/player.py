@@ -337,3 +337,43 @@ class Player(Entity):
     def update(self):
         self.input()
         self.move()
+        self.check_interactions()
+
+    def check_interactions(self):
+        keys = pygame.key.get_pressed()
+        
+        # Camouflage Logic (Bush + C)
+        on_bush = False
+        hit_objects = pygame.sprite.spritecollide(self, self.interactable_sprites, False)
+        
+        for obj in hit_objects:
+            if getattr(obj, 'type', '') == 'bush':
+                if keys[pygame.K_c]:
+                    on_bush = True
+            
+            if getattr(obj, 'type', '') == 'mine':
+                # Explosion Logic
+                center = obj.rect.center
+                self.knockback(center)
+                # Particles
+                for _ in range(10): 
+                    Particle(center, [self.visible_sprites], 'spark')
+                obj.kill()
+        
+        if on_bush:
+            self.is_camouflaged = True
+            self.image.set_alpha(100) # Semi-transparent
+        else:
+            self.is_camouflaged = False
+            self.image.set_alpha(255)
+
+    def knockback(self, source_pos):
+        # Calculate direction away from source
+        direction = pygame.math.Vector2(self.rect.center) - pygame.math.Vector2(source_pos)
+        if direction.length() > 0:
+            direction = direction.normalize()
+        else:
+            direction = pygame.math.Vector2(0, -1) # Default up
+            
+        self.velocity = direction * 15 # Strong knockback
+        self.velocity.y = -10 # Launch up a bit too
