@@ -1,5 +1,4 @@
 import pygame as pg
-import state.py
 
 # Function to create and return the main game surface (window)
 def create_main_surface():
