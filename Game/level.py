@@ -1,17 +1,26 @@
 import pygame
+TILE_SIZE = 64
 
 class Tile(pygame.sprite.Sprite):
-    def _init_(self, pos, groups):
-        super()._init_(groups)
-        self.image = pygame.Surface((64, 64))
-        self.image.fill((200, 200, 200))
+    def __init__(self, pos, type='X'):
+        super().__init__()
+        self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
+        self.type = type
+        if type == 'S':
+            self.image.fill((0, 255, 0)) # Green for Sticky
+            pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+        else:
+            self.image.fill((139, 69, 19)) # Brown
+            pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
         self.rect = self.image.get_rect(topleft=pos)
 
 LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X        SSSS             X",
     "X                         X",
-    "X                         X",
-    "X                         X",
+    "X       S                 X",
+    "X       S                 X",
+    "X       S                 X",
     "X        P                X",
     "X      XXXXX              X",
     "X                         X",
@@ -20,24 +29,24 @@ LEVEL_MAP = [
 ]
 
 class Level:
-    def _init_(self):
-        self.visible_sprites = pygame.sprite.Group()
+    def __init__(self):
+        self.tiles = []
+        self.player_start_pos = (100, 100) # Default
         self.setup_level()
 
     def setup_level(self):
+        self.tiles = []
         for row_index, row in enumerate(LEVEL_MAP):
             for col_index, cell in enumerate(row):
-                x = col_index * 64
-                y = row_index * 64
+                x = col_index * TILE_SIZE
+                y = row_index * TILE_SIZE
                 if cell == 'X':
-                    Tile((x,y), [self.visible_sprites])
+                    self.tiles.append(Tile((x, y), 'X'))
+                if cell == 'S':
+                     self.tiles.append(Tile((x, y), 'S'))
                 if cell == 'P':
-                    self.player = Player((x,y))
-                    self.visible_sprites.add(self.player)
-
-    def update(self, dt):
-        self.visible_sprites.update(dt)
+                    self.player_start_pos = (x, y)
 
     def render(self, surface):
-        surface.fill((30, 30, 30))
-        self.visible_sprites.draw(surface)
+        for tile in self.tiles:
+            surface.blit(tile.image, tile.rect)
