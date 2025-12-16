@@ -35,6 +35,7 @@ class state:
         self.velocity_y = 0
         self.gravity = 0.675
         self.jump_strength = -15
+        self.jump_cut = -4
         self.width = 40 # Approx player width
         self.height = 40 # Approx player height
         self.on_ground = False
@@ -70,6 +71,13 @@ class state:
         # Horizontal Movement
         self.xcoor += dx
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
+        #jump movement
+
+        keys = pg.key.get_pressed()
+
+        if self.velocity_y < 0 and not keys[pg.K_UP]:
+            self.velocity_y = max(self.velocity_y, self.jump_cut)
         
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
@@ -198,6 +206,11 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+            
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    status.jump()
+    
 
         # Delta time
         clock.tick(60)
