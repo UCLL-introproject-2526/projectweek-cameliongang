@@ -356,7 +356,21 @@ class Button:
             return True
         else:
             return False
+        
+class HealthBar:
+    def __init__(self, x, y ,w, h, max_hp):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.hp = max_hp
+        self.max_hp = max_hp
 
+    def draw(self, surface):
+        ratio = self.hp / self.max_hp
+        pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
+        pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
+health_bar = HealthBar(20, 20, 300, 40, 100)
 
 #Maken van het menu
 start_button = Button('Start Game', (500, 260))
@@ -421,6 +435,7 @@ def main():
              clock.tick(60)
              continue
         else:
+
                 # Load background image
             try:
                 background = pg.image.load(".\\resources\\background_img.jpg").convert()
@@ -500,6 +515,8 @@ def main():
                 
                 
 
+            #healthbar creation
+            health_bar.draw(surface)
             # Delta time
             clock.tick(60)
             pg.display.flip()
