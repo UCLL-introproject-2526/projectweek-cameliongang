@@ -5,8 +5,6 @@ def create_main_surface():
     screen_size = pg.display.set_mode((1700, 900))
     return screen_size
 
-# Function to render a frame with a moving circle (not currently used in main loop)
-
 
 # Function to clear the surface by filling it with black
 def clear_surface(surface):
@@ -33,6 +31,14 @@ class state:
                                  camelion_img.get_height() / 2))
         surface.blit(camelion_img, (self.xcoor, self.ycoor))
 
+    def render_bush(self, surface):
+        bush_img = pg.image.load('./resources/bush.png').convert()
+        bush_img.set_colorkey((0, 0, 0))
+        bush_img = pg.transform.scale(bush_img,
+                                (bush_img.get_width() / 1.5,
+                                 bush_img.get_height() / 1.5))
+        surface.blit(bush_img, (800, 450))
+
 class keyboard:
     def __init__(self):
         pass
@@ -54,7 +60,8 @@ def main():
     # Main game loop
     while running:
 
-        status.render(surface)
+        status.render_camelion(surface)
+        status.render_bush(surface)
         if movingxmin:
             status.xcoor_update(-1)
         if movingxplus:
