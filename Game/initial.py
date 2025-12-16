@@ -248,9 +248,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling_left(self, surface):
         try:
@@ -258,9 +260,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling(self, surface):
         try:
@@ -280,9 +284,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_right_wall(self, surface):
         try:
@@ -290,9 +296,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
 
 
@@ -390,15 +398,15 @@ def main():
         status.render_map(surface)  # Render tiles first
         status.render_bush(surface)
 
-        if not status.hanging:
+        if status.hanging==True:
 
             if facing_right:
-                status.render_camelion(surface)
+                status.render_camelion_ceiling(surface)
 
             elif facing_left:
-                status.render_camelion_left(surface)
+                status.render_camelion_ceiling_left(surface)
 
-        elif status.on_wall:
+        elif status.on_wall == True:
 
             if status.wall_side >0:
                 status.render_camelion_left_wall(surface)
@@ -407,12 +415,12 @@ def main():
                 status.render_camelion_right_wall(surface)
 
         else:
-            if status.hanging and facing_right:
-                status.render_camelion_ceiling(surface)
+            if not status.hanging and facing_right:
+                status.render_camelion(surface)
         
 
-            elif status.hanging and facing_left:
-                status.render_camelion_ceiling_left(surface)
+            elif not status.hanging and facing_left:
+                status.render_camelion_left(surface)
             
             
             
