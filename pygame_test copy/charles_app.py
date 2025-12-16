@@ -75,6 +75,7 @@ def main():
     # Load background image
     background = pg.image.load(".\\resources\\background_img.jpg").convert()
     background = pg.transform.scale(background, (1700, 900))
+
     # Main game loop
     while running:
         # Draw background first
@@ -105,14 +106,13 @@ def main():
                 running = False
 
             if event.type == pg.KEYDOWN:
+                if event.key == pg.K_UP:
+                    status.jump()
+                    
                 if event.key == pg.K_LEFT:
                     movingxmin = True
                 if event.key == pg.K_RIGHT:
-                    movingxplus = True
-
-                if event.key == pg.K_UP:
-                    status.jump()
-                
+                     movingxplus = True
 
             if event.type == pg.KEYUP:
                 if event.key == pg.K_LEFT:

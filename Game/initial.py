@@ -1,6 +1,4 @@
 
-
-
 import pygame as pg
 from level import LEVEL_MAP
 
@@ -119,6 +117,11 @@ def main():
     status = state()
     running = True
     
+    #music
+    sound = pg.mixer.music.load('.\\resources\\themesong.mp3')
+    pg.mixer.music.play(-1)
+    #######################
+
     # Load background image
     try:
         background = pg.image.load(".\\resources\\background_img.jpg").convert()
