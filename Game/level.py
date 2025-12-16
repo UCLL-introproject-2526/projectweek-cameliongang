@@ -11,7 +11,7 @@ LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X                         X",
     "X                         X",
-    "X                         X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X        P                X",
     "X      XXXXX              X",
     "X                         X",
