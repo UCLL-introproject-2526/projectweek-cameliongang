@@ -30,8 +30,8 @@ class state:
         self.velocity_y = 0
         self.gravity = 0.675
         self.jump_strength = -15
-        self.width = 40 # Approx player width
-        self.height = 40 # Approx player height
+        self.width = 50 # Approx player width
+        self.height = 50 # Approx player height
         
         # Load Level
         self.tiles = []
