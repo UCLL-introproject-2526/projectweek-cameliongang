@@ -305,25 +305,7 @@ class state:
         
     def render_camelion_left_wall(self, surface):
         # Wall is to the LEFT (wall_side < 0). We face LEFT.
-        # Sprite: camelion_left_wall (Index 4 - Face Left, Feet on Left).
-        # (Wait, Index 4 is Left Wall? process_sprites says Index 4. Let's verify process_sprites mapping)
-        # process_sprites: 4: "camelion_left_wall.png" (Col 1, Row 1??? No. 0,1,2,3,4,5.)
-        # Index 4: Col 1, Row 1. Center Bottom??
-        # Prompt: 1,2,3... 4(Bottom-Left), 5(Bottom-Mid), 6(Bottom-Right).
-        # Prompt Indices: 1-based.
-        # Code Indices: 0-based.
-        # 0: Top-Left (Walk R)
-        # 1: Top-Mid (Walk L)
-        # 2: Top-Right (Ceiling R)
-        # 3: Bottom-Left (Ceiling L)
-        # 4: Bottom-Mid (Wall L)
-        # 5: Bottom-Right (Wall R)
-        
-        # process_sprites filenames:
-        # 4: "camelion_left_wall.png". Index 4 is Bottom-Mid.
-        # Prompt: 5. (Bottom-Mid) Wall Left.
-        # So Index 4 IS Wall Left. Correct.
-        
+
         try:
             camelion_img = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
             rect = camelion_img.get_rect()
