@@ -2,10 +2,8 @@ import pygame as pg
 
 # Function to create and return the main game surface (window)
 def create_main_surface():
-    screen_size = pg.display.set_mode((1024, 768))
+    screen_size = pg.display.set_mode((1700, 900))
     return screen_size
-
-# Function to render a frame with a moving circle (not currently used in main loop)
 
 
 # Function to clear the surface by filling it with black
@@ -24,7 +22,7 @@ class state:
     def ycoor_update(self, y):
         self.ycoor += y
 
-    def render(self, surface):
+    def render_camelion(self, surface):
         clear_surface(surface)
         camelion_img = pg.image.load('./resources/camelion.png').convert()
         camelion_img.set_colorkey((0, 0, 0))
@@ -33,7 +31,14 @@ class state:
                                  camelion_img.get_height() / 2))
         surface.blit(camelion_img, (self.xcoor, self.ycoor))
 
-# Class for keyboard input handling (currently empty, placeholder for future expansion)
+    def render_bush(self, surface):
+        bush_img = pg.image.load('./resources/bush.png').convert()
+        bush_img.set_colorkey((0, 0, 0))
+        bush_img = pg.transform.scale(bush_img,
+                                (bush_img.get_width() / 1.5,
+                                 bush_img.get_height() / 1.5))
+        surface.blit(bush_img, (800, 450))
+
 class keyboard:
     def __init__(self):
         pass
@@ -43,7 +48,6 @@ class keyboard:
 def main():
     # Initialization of Pygame and game variables
     pg.init()
-    x = 0
     surface = create_main_surface()
     clock = pg.time.Clock()
     status = state()
@@ -55,9 +59,9 @@ def main():
     movingyplus = False
     # Main game loop
     while running:
-        # Render the current state
-        status.render(surface)
-        # Update position based on movement flags
+
+        status.render_camelion(surface)
+        status.render_bush(surface)
         if movingxmin:
             status.xcoor_update(-5)
         if movingxplus:
