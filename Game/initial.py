@@ -372,7 +372,7 @@ class state:
             bush_rect = pg.Rect(800, 450, 50, 50)
             pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
 
-class keyboard:
+class button:
     def __init__(self):
         pass
 
@@ -384,6 +384,7 @@ def main():
     clock = pg.time.Clock()
     status = state()
     running = True
+    font = pg.font.Font('.\\resources\\ARIAL.TTF', 32)
 
     # music
     try:
