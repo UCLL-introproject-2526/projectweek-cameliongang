@@ -234,23 +234,7 @@ class state:
     def render_camelion(self, surface):
         try:
             camelion_img = pg.image.load('./resources/camelion.png').convert_alpha()
-            # Align Bottom-Left of sprite to Bottom-Left of Hitbox (plus visual offset if needed)
-            # Or Centered horizontally? Ground = Centered X, Bottom Y.
-            
-            # Since sprites are cropped, we trust them to be "just the body".
-            # If we want the tail to hang, the sprite logic handles it by being taller.
-            # We align the "feet" part.
-            # Heuristic: Align Bottom of Sprite to Bottom of Hitbox + Droop
-            # Visual Height 60 vs Hitbox 25. Droop is 35px.
-            # But the sprite is now variable size due to cropping.
-            # Let's align TOP of sprite to TOP of hitbox? 
-            # Original logic: Top-Left aligned.
-            # If sprite is taller, it hangs down. This is what we want for Ground/Ceiling.
-            
-            # BUT, if we cropped it, maybe the "Top" isn't the same relative point?
-            # Let's assume the head is at the top of the sprite.
-            # So Top-Left alignment (standard blit) is still correct for Ground/Ceiling IF x-centered.
-            
+
             rect = camelion_img.get_rect()
             # X: Center relative to hitbox
             rect.centerx = self.rect.centerx
