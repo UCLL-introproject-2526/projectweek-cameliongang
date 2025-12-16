@@ -1,3 +1,9 @@
+import os
+
+# Base Directory Setup
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS_DIR = os.path.join(BASE_DIR, 'assets')
+
 # Screen dimensions
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 700

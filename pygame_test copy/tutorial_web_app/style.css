@@ -1,0 +1,210 @@
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #f0f0f0;
+    --accent-color: #64ffda;
+    --secondary-bg: #2a2a2a;
+    --code-bg: #101010;
+    --success-color: #4caf50;
+    --border-radius: 8px;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--secondary-bg);
+    border-right: 1px solid #333;
+    padding: 20px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar h3 {
+    color: var(--accent-color);
+    margin-top: 0;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.sidebar a:hover {
+    color: var(--accent-color);
+}
+
+.main-content {
+    margin-left: 250px; /* Width of sidebar */
+    flex: 1;
+    padding: 20px 40px;
+    max-width: 900px;
+}
+
+header {
+    margin-top: 0;
+    text-align: left;
+    margin-bottom: 40px;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 20px;
+}
+
+h1 {
+    color: var(--accent-color);
+    margin: 0;
+}
+
+.step {
+    background-color: var(--secondary-bg);
+    padding: 30px;
+    margin-bottom: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    border-left: 4px solid var(--accent-color);
+    padding-left: 10px;
+    margin-top: 0;
+}
+
+.explanation {
+    margin-bottom: 20px;
+}
+
+.task-box {
+    background-color: rgba(100, 255, 218, 0.05); /* Lighter tint */
+    border: 1px solid var(--accent-color);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+}
+
+.task-box h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+}
+
+/* Theory Deep Dive Box */
+.theory-box {
+    background-color: rgba(76, 175, 80, 0.1); /* Green tint */
+    border-left: 4px solid var(--success-color);
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.theory-box h4 {
+    margin-top: 0;
+    color: var(--success-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Button Styles */
+.btn-toggle {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.btn-toggle:hover {
+    background-color: #4cd6b3;
+}
+
+/* Code Block Styles */
+.code-solution {
+    margin-top: 15px;
+    display: none; /* Hidden by default */
+    background-color: var(--code-bg);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid #333;
+    animation: fadeIn 0.5s;
+    position: relative;
+    overflow-x: auto;
+}
+
+.code-solution.visible {
+    display: block;
+}
+
+/* Copy Button */
+.btn-copy {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.btn-copy:hover {
+    background-color: var(--accent-color);
+    color: var(--bg-color);
+    border-color: var(--accent-color);
+}
+
+pre {
+    margin: 0;
+    padding-top: 20px; /* Space for copy button */
+}
+
+code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #e6e6e6;
+    font-size: 0.95rem;
+}
+
+/* Syntax Highlighting */
+.keyword { color: #cc99cd; }
+.string { color: #7ec699; }
+.function { color: #f08d49; }
+.comment { color: #999; font-style: italic; }
+.number { color: #f08d49; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    color: #666;
+    font-size: 0.8rem;
+    padding-bottom: 40px;
+}

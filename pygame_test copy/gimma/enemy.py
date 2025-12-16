@@ -8,10 +8,10 @@ class Enemy(Entity):
         self.enemy_type = type
         
         if self.enemy_type == 'slime':
-             self.image = pygame.image.load('assets/enemy_slime.png').convert_alpha()
+             self.image = pygame.image.load(os.path.join(ASSETS_DIR, 'enemy_slime.png')).convert_alpha()
              self.power_type = 'sticky'
         else:
-             self.image = pygame.image.load('assets/enemy.png').convert_alpha()
+             self.image = pygame.image.load(os.path.join(ASSETS_DIR, 'enemy.png')).convert_alpha()
              self.power_type = 'fire'
 
         self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
