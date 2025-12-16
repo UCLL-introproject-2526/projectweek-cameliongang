@@ -1,10 +1,9 @@
-
 import pygame as pg
-from level import Level
+from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 
 # Function to create and return the main game surface (window)
 def create_main_surface():
-    screen_size = pg.display.set_mode((1700, 900))
+    screen_size = pg.display.set_mode((LEVEL_WIDTH, LEVEL_HEIGHT))
     return screen_size
 
 
@@ -157,9 +156,9 @@ def main():
     # Load background image
     try:
         background = pg.image.load(".\\resources\\background_img.jpg").convert()
-        background = pg.transform.scale(background, (1700, 900))
+        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
     except:
-        background = pg.Surface((1700, 900))
+        background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
         background.fill((100, 100, 255))
 
     # Main game loop
