@@ -4,7 +4,7 @@ pg.init()
 
 screen = pg.display.set_mode((640, 640))
 
-potato_img = pg.image.load('potato.png').convert()
+potato_img = pg.image.load('./resources/potato.png').convert()
 
 potato_img = pg.transform.scale(potato_img,
                                 (potato_img.get_width() * 2,
@@ -22,7 +22,7 @@ x = 0
 clock = pg.time.Clock()
 running = True
 moving = False
-sound = pg.mixer.Sound('clank.wav')
+sound = pg.mixer.Sound('./resources/clank.wav')
 
 delta_time = 0.1
 

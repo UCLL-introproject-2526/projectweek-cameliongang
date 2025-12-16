@@ -25,7 +25,7 @@ class state:
 
     def render(self, surface):
         clear_surface(surface)
-        camelion_img = pg.image.load('camelion.png').convert()
+        camelion_img = pg.image.load('./resources/camelion.png').convert()
         camelion_img.set_colorkey((0, 0, 0))
         camelion_img = pg.transform.scale(camelion_img,
                                 (camelion_img.get_width() / 2,
