@@ -17,13 +17,13 @@ class Tile(pygame.sprite.Sprite):
 LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X        SSSS SS          X",
-    "X                         X",
+    "X                  S      X",
     "X       S          S      X",
-    "X       S                 X",
+    "X       S          X   S  X",
     "X       S              S  X",
-    "X        P                X",
+    "X        P             X  X",
     "X      XXXXX        S     X",
-    "X    X                    X",
+    "X    X              X     X",
     "X    XX      XX     XXX   X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
