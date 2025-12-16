@@ -1,6 +1,7 @@
 
 import pygame as pg
 
+
 # Function to create and return the main game surface (window)
 def create_main_surface():
     screen_size = pg.display.set_mode((1700, 900))

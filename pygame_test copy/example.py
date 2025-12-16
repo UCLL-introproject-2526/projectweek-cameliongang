@@ -71,3 +71,11 @@ while running:
 
 
 pg.quit()
+
+
+
+
+    #music
+    sound = pg.mixer.music.load('.\\resources\\themesong.mp3')
+    pg.mixer.music.play(-1)
+    #######################
