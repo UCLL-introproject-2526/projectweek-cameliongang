@@ -73,10 +73,10 @@ LEVEL_2 = [
             'X        XX     XXX        X',
             'X       XX                 X',
             'X      XX           X      X',
-            'X      XX           X      X',
-            'X     XX    B      XX      X',
-            'X    XX     M     XXX      X',
-            'X   XX           XXXX      X',
+            'X     XX           XX      X',
+            'X    XX    B      XXX      X',
+            'X   XX     M     XXXX      X',
+            'X   X      M    XXXXX      X',
             'X P X          XXXXXX      X',
             'XXXXXXXX      XXXXXXX      X',
             'X            XXXXXXXX      X',
@@ -144,9 +144,8 @@ class CameraGroup(pygame.sprite.Group):
         target_offset_y = player.rect.centery - self.half_h
         
         # Smoothly move current offset to target
-        # Lerp factor: 0.1 means move 10% of the way each frame
         self.offset.x += (target_offset_x - self.offset.x) * 0.1
-        self.offset.y += (target_offset_y - self.offset.y) * 0.1 # Vertical follow too? Yes but maybe tighter? 0.1 is fine.
+        self.offset.y += (target_offset_y - self.offset.y) * 0.1
         
         # 2. Background (Parallax Grid)
         self.display_surface.fill(BG_COLOR)
@@ -173,7 +172,7 @@ class CameraGroup(pygame.sprite.Group):
             pygame.draw.line(self.display_surface, grid_color, (0, y), (WIDTH, y))
 
         # 3. Draw Sprites (Ground, Enemies, Player)
-        # Sort by Y position for slight depth overlap if needed, though mostly simple platformer
+        # Sort by Y position for slight depth overlap if needed
         for sprite in sorted(self.sprites(), key=lambda s: s.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
@@ -234,26 +233,10 @@ class Level:
 
     def run(self):
         # Update and draw
-        self.display_surface.fill(BLACK)
         
         # Update Logic
         self.visible_sprites.update()
-        self.particle_sprites.update() # Actually if they are in visible_sprites, they get updated there?
-        # If Particle is in visible_sprites, visible_sprites.update() calls Particle.update().
-        # So we don't need to call particle_sprites.update() if they are also in visible_sprites.
-        # But wait, CameraGroup is a Group, so yes.
-        # But we added particle_sprites group separately. 
-        # Player will add Particle to [visible_sprites, particle_sprites].
-        # So it's fine.
-        # Wait, if I call update on visible_sprites AND particle_sprites, it will update twice? 
-        # Yes if the same sprite is in both.
-        # So let's NOT call particle_sprites.update() if we assume they are in visible.
-        # But logically, particle_sprites is just for... what?
-        # Maybe we don't need it if they are just fire-and-forget in visible_sprites.
-        # Let's keep it clean: Just put them in visible_sprites.
-        # But I passed particle_sprites to Player.
-        # Let's assume particles are ONLY in visible_sprites for simplicity.
-        pass
+        # Particle sprites update logic is handled via visible_sprites update if added there
         
         # Custom Draw (Camera)
         self.visible_sprites.custom_draw(self.player)
