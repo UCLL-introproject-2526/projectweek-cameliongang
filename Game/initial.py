@@ -23,11 +23,20 @@ class state:
         self.height = 50 # Approx player height
         self.on_ground = False
         self.on_wall = False
-        
         # Load Level
         self.level = Level()
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.tiles = self.level.tiles
+
+        self.coyote_timer = 0
+        self.coyote_time = 6
+
+    def update_coyote(self):
+        if self.on_ground:
+            self.coyote_timer = self.coyote_time
+        else:
+            self.coyote_timer = max(0, self.coyote_timer - 1)
+
 
     def jump(self):
         if self.on_ground or self.on_wall:
@@ -166,11 +175,13 @@ def main():
     facing_left=False
     facing_right=True
     while running:
+        dx = 0
+
+        
         # Draw background first
         surface.blit(background, (0, 0))
 
         # Input Handling
-        dx = 0
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT]:
             dx = -5
@@ -187,6 +198,7 @@ def main():
 
         # Update Physics
         status.update_physics(dx)
+        status.update_coyote()
 
         # Render
         status.render_map(surface) # Render tiles first

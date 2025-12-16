@@ -59,6 +59,13 @@ def main():
     background = pg.transform.scale(background, (1700, 900))
 
     while running:
+        # Floor collision
+        if status.ycoor + status.height >= floor_y:
+            status.ycoor = floor_y - status.height
+            status.velocity_y = 0
+            status.on_ground = True
+        else:
+            status.on_ground = False
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -81,12 +88,7 @@ def main():
         status.update_gravity(keys)
 
         # Floor collision
-        if status.ycoor + status.height >= floor_y:
-            status.ycoor = floor_y - status.height
-            status.velocity_y = 0
-            status.on_ground = True
-        else:
-            status.on_ground = False
+        
 
         # Movement
         if movingxmin:
