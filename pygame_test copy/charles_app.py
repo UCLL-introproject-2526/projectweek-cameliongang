@@ -14,10 +14,12 @@ def clear_surface(surface):
 class state:
     def __init__(self):
         #gravity system
+        self.width=40
+        self.height=20
         self.xcoor=200
         self.ycoor = 50
         self.velocity_y = 0
-        self.gravity = 0.5
+        self.gravity = 0.2
 
     def update_gravity(self):
         self.velocity_y += self.gravity
@@ -47,10 +49,6 @@ class state:
 
 
 
-class keyboard:
-    def __init__(self):
-        pass
-
 
 
 # Main game loop function
@@ -66,6 +64,7 @@ def main():
     movingxplus = False
     movingymin = False
     movingyplus = False
+    floor_y = 550
     # Load background image
     background = pg.image.load(".\\resources\\background_img.jpg").convert()
     background = pg.transform.scale(background, (1700, 900))
@@ -76,6 +75,11 @@ def main():
 
         #gravity system
         status.update_gravity()
+
+        #floor collision
+        if status.ycoor + status.height >= floor_y:
+            status.ycoor = floor_y -status.height
+            status.velocity_y = 0   # stop falling
 
 
         status.render_camelion(surface)
