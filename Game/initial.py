@@ -22,7 +22,7 @@ class state:
         self.jump_strength = -15
         self.jump_cut = -4
         self.width = 50  # Approx player width
-        self.height = 25  # Approx player height (reduced for hitbox)
+        self.height = 23  # Approx player height (reduced for hitbox)
         self.visual_height = 60 # Full visual height including tail
         self.on_ground = False
         self.on_wall = False
