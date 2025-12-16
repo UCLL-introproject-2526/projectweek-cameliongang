@@ -50,6 +50,10 @@ class Level:
                 if cell == 'P':
                     self.player_start_pos = (x, y)
 
-    def render(self, surface):
+    def render(self, surface, camera):
         for tile in self.tiles:
-            surface.blit(tile.image, tile.rect)
+            # Simple Optimization: Only draw if visible (camera interaction)
+            # The apply() check effectively does this if we trust Pygame's blit clipping,
+            # but we need to shift the rect.
+            tile_rect_shifted = camera.apply(tile.rect)
+            surface.blit(tile.image, tile_rect_shifted)
