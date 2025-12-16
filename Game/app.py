@@ -1,27 +1,37 @@
-import pygame
-from pygame.display import flip
-from time import sleep
-
-pygame.init()
+import pygame, sys
 
 def create_main_surface():
     return pygame.display.set_mode((1280, 720))
 
-def main():
-    pygame.init()
-    screen = create_main_surface()
-    clock = pygame.time.Clock()
-    
-    while True:
-        dt = clock.tick(60) / 1000.0 # Delta time in seconds
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.surface = create_main_surface()
+        self.clock = pygame.time.Clock()
+        pygame.display.set_caption("Chameleon Platformer")
 
+    def process_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-        screen.fill((0, 0, 0))
+    def update(self, dt):
+        pass # Logic goes here later
+
+    def render(self, surface):
+        surface.fill((30, 30, 30))
         pygame.display.update()
 
-if __name__ == "__main__":
-    main()
+    def run(self):
+        while True:
+            # Get milliseconds since last frame, convert to seconds
+            dt = self.clock.tick(60) / 1000.0 
+            
+            self.process_input()
+            self.update(dt)
+            self.render(self.surface)
+
+if __name__ == '__main__':
+    game = Game()
+    game.run()

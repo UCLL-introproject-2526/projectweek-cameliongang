@@ -8,7 +8,7 @@ class UI:
         self.big_font = pygame.font.Font(None, 60)
         
         # Load Icons
-        self.fire_icon = pygame.image.load('assets/icon_fire.png').convert_alpha()
+        self.fire_icon = pygame.image.load(os.path.join(ASSETS_DIR, 'icon_fire.png')).convert_alpha()
         self.fire_icon = pygame.transform.scale(self.fire_icon, (48, 48))
         
         self.fire_rect = self.fire_icon.get_rect(topleft=(20, 20))
