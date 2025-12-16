@@ -28,6 +28,9 @@ LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
+LEVEL_WIDTH = len(LEVEL_MAP[0]) * TILE_SIZE
+LEVEL_HEIGHT = len(LEVEL_MAP) * TILE_SIZE
+
 class Level:
     def __init__(self):
         self.tiles = []
