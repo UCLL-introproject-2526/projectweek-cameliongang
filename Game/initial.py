@@ -1,3 +1,4 @@
+@ -1,115 +0,0 @@
 import pygame as pg
 
 # Function to create and return the main game surface (window)
