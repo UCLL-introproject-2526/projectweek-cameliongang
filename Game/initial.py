@@ -1,5 +1,8 @@
 
 import pygame as pg
+from level import LEVEL_MAP
+
+TILE_SIZE = 64
 
 # Function to create and return the main game surface (window)
 def create_main_surface():
@@ -114,6 +117,11 @@ def main():
     status = state()
     running = True
     
+    #music
+    sound = pg.mixer.music.load('.\\resources\\themesong.mp3')
+    pg.mixer.music.play(-1)
+    #######################
+
     # Load background image
     try:
         background = pg.image.load(".\\resources\\background_img.jpg").convert()

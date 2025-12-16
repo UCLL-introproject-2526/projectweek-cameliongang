@@ -11,7 +11,6 @@ class state:
         self.ycoor += y
 
     def render_camelion(self, surface):
-        clear_surface(surface)
         camelion_img = pg.image.load('./resources/camelion.png').convert()
         camelion_img.set_colorkey((0, 0, 0))
         camelion_img = pg.transform.scale(camelion_img,
@@ -26,6 +25,3 @@ class state:
                                 (bush_img.get_width() / 1.5,
                                  bush_img.get_height() / 1.5))
         surface.blit(bush_img, (800, 450))
-
-    def clear_surface(self, surface):
-    surface.fill((0, 0, 0))
