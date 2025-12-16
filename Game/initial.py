@@ -1,9 +1,13 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
+from camera import Camera
+
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 
 # Function to create and return the main game surface (window)
 def create_main_surface():
-    screen_size = pg.display.set_mode((LEVEL_WIDTH, LEVEL_HEIGHT))
+    screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     return screen_size
 
 # Function to clear the surface by filling it with black
@@ -31,6 +35,10 @@ class state:
         self.level = Level()
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.tiles = self.level.tiles
+        
+        # Camera
+        self.camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Coyote time
         self.coyote_timer = 0
@@ -206,6 +214,9 @@ class state:
                     self.on_ground = True
                     self.momentum_x = 0 # Friction on ground? Maybe not instantly, but let's reset for control consistency
         
+        # Update rect for camera use
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
         # Update coyote after collision resolution
         self.update_coyote()
 
@@ -217,7 +228,7 @@ class state:
             self.jump_buffer -= 1
 
     def render_map(self, surface):
-        self.level.render(surface)
+        self.level.render(surface, self.camera)
 
     def render_camelion(self, surface):
         try:
@@ -225,9 +236,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_left(self, surface):
         try:
@@ -255,9 +268,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
         
     def render_camelion_left_wall(self, surface):
         try:
@@ -289,9 +304,12 @@ class state:
                 bush_img,
                 (int(bush_img.get_width() / 1.5), int(bush_img.get_height() / 1.5))
             )
-            surface.blit(bush_img, (800, 450))
+            # Hardcoded bush pos for now: (800, 450)
+            bush_rect = bush_img.get_rect(topleft=(800,450))
+            surface.blit(bush_img, self.camera.apply_rect(bush_rect))
         except:
-            pg.draw.rect(surface, (0, 255, 0), (800, 450, 50, 50))
+            bush_rect = pg.Rect(800, 450, 50, 50)
+            pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
 
 class keyboard:
     def __init__(self):
@@ -355,8 +373,17 @@ def main():
         # Update Physics (now takes keys for wall behavior and jump-cut gating)
         status.update_physics(dx, keys)
 
-        # Draw background first
-        surface.blit(background, (0, 0))
+        # Update Camera
+        status.camera.update(status)
+
+        # Draw background first (apply camera offset to bg?)
+        # For parallax or simple static BG?
+        # If BG is LEVEL_WIDTH/HEIGHT, we should scroll it.
+        # Background is scaled to LEVEL size.
+        surface.fill((0,0,0)) # Clear
+        # Create a background rect and shift it
+        bg_rect = background.get_rect()
+        surface.blit(background, status.camera.apply_rect(bg_rect))
 
         # Render
         status.render_map(surface)  # Render tiles first
