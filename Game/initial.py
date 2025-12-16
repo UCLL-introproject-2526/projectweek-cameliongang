@@ -21,7 +21,11 @@ class state:
         self.height = 50  # Approx player height
         self.on_ground = False
         self.on_wall = False
+        self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New state for ceiling stick
+
+        # Momentum
+        self.momentum_x = 0
 
         # Load Level
         self.level = Level()
@@ -54,8 +58,18 @@ class state:
     def try_consume_jump(self):
         if (self.on_ground or self.coyote_timer > 0 or self.on_wall or self.hanging) and self.jump_buffer > 0:
             self.velocity_y = self.jump_strength
+            # Wall Jump Logic
+            if self.on_wall:
+                # Add momentum away from the wall
+                kick_strength = 10
+                if self.wall_side == 1: # Wall on right
+                    self.momentum_x = -kick_strength
+                elif self.wall_side == -1: # Wall on left
+                    self.momentum_x = kick_strength
+                
             self.on_ground = False
             self.on_wall = False
+            self.wall_side = 0
             self.hanging = False
             self.coyote_timer = 0
             self.jump_buffer = 0
@@ -66,19 +80,41 @@ class state:
         self.jump_held = keys[pg.K_UP]
 
     def update_physics(self, dx, keys):
-        # Reset contact flags for this frame
+        # Validate existing wall stick (Persistent State)
+        if self.on_wall:
+            # Check for pull-off (Moving away from wall)
+            # Make sure we don't accidentally pull off instantly when jumping
+            # But try_consume_jump handles the detachment before this runs next frame usually?
+            # Actually input runs before physics.
+            if (dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1):
+                self.on_wall = False
+                self.wall_side = 0
+            else:
+                # Check for physical connection (Sensor)
+                sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
+                sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
+                touching = False
+                for tile in self.tiles:
+                     if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
+                         touching = True
+                         break
+                if not touching:
+                    self.on_wall = False
+                    self.wall_side = 0
+
         self.on_ground = False
-        # Note: on_wall and hanging are persistent states until broken, 
-        # but we re-verify them each frame or break them if conditions fail.
-        # Actually, let's reset them and re-detect to rely on collision storage?
-        # No, "Stick" implies state. 
-        # Let's reset on_wall (side) because dx re-checks it.
-        self.on_wall = False
-        
-        # We DO NOT reset self.hanging immediately. We check if it's valid below.
+        # Do not rely on side collision to set on_wall every frame if we want persistence,
+        # BUT new collisions must set it.
+
+        # Apply Momentum
+        total_dx = dx + self.momentum_x
+        # Decay momentum (air resistance / friction)
+        self.momentum_x *= 0.9
+        if abs(self.momentum_x) < 0.5:
+             self.momentum_x = 0
 
         # Horizontal Movement
-        self.xcoor += dx
+        self.xcoor += total_dx
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
@@ -86,13 +122,17 @@ class state:
             if tile.rect.colliderect(player_rect):
                 if getattr(tile, 'type', 'X') == 'S':
                     self.on_wall = True
+                    self.wall_side = 1 if total_dx > 0 else -1
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
+                    self.momentum_x = 0 # Stop momentum on hit
 
-                if dx > 0:  # Moving Right
+                if total_dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
-                if dx < 0:  # Moving Left
+                    self.momentum_x = 0 # crash stop
+                if total_dx < 0:  # Moving Left
                     self.xcoor = tile.rect.right
+                    self.momentum_x = 0 # crash stop
 
         # Vertical Movement Calculation
         dy = 0
@@ -155,6 +195,7 @@ class state:
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
                     self.on_ground = True
+                    self.momentum_x = 0 # Friction on ground? Maybe not instantly, but let's reset for control consistency
         
         # Update coyote after collision resolution
         self.update_coyote()
