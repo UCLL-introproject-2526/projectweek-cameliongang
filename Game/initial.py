@@ -45,7 +45,7 @@ class state:
         self.started_rise = False
 
     def update_coyote(self):
-        if self.on_ground:
+        if self.on_ground or self.hanging or self.on_wall:
             self.coyote_timer = self.coyote_time
         else:
             self.coyote_timer = max(0, self.coyote_timer - 1)
