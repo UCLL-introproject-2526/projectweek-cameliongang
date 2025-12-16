@@ -22,7 +22,8 @@ class state:
         self.jump_strength = -15
         self.jump_cut = -4
         self.width = 50  # Approx player width
-        self.height = 50  # Approx player height
+        self.height = 25  # Approx player height (reduced for hitbox)
+        self.visual_height = 60 # Full visual height including tail
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -232,11 +233,31 @@ class state:
 
     def render_camelion(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion.png').convert_alpha()
+            # Align Bottom-Left of sprite to Bottom-Left of Hitbox (plus visual offset if needed)
+            # Or Centered horizontally? Ground = Centered X, Bottom Y.
+            
+            # Since sprites are cropped, we trust them to be "just the body".
+            # If we want the tail to hang, the sprite logic handles it by being taller.
+            # We align the "feet" part.
+            # Heuristic: Align Bottom of Sprite to Bottom of Hitbox + Droop
+            # Visual Height 60 vs Hitbox 25. Droop is 35px.
+            # But the sprite is now variable size due to cropping.
+            # Let's align TOP of sprite to TOP of hitbox? 
+            # Original logic: Top-Left aligned.
+            # If sprite is taller, it hangs down. This is what we want for Ground/Ceiling.
+            
+            # BUT, if we cropped it, maybe the "Top" isn't the same relative point?
+            # Let's assume the head is at the top of the sprite.
+            # So Top-Left alignment (standard blit) is still correct for Ground/Ceiling IF x-centered.
+            
+            rect = camelion_img.get_rect()
+            # X: Center relative to hitbox
+            rect.centerx = self.rect.centerx
+            # Y: Top aligned (so head aligns, tail hangs)
+            rect.top = self.rect.top
+            
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
@@ -244,11 +265,11 @@ class state:
 
     def render_camelion_left(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_left.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion_left.png').convert_alpha()
+            rect = camelion_img.get_rect()
+            rect.centerx = self.rect.centerx
+            rect.top = self.rect.top
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
@@ -256,11 +277,15 @@ class state:
 
     def render_camelion_ceiling_left(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling_left.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion_ceiling_left.png').convert_alpha()
+            rect = camelion_img.get_rect()
+            
+            # Ceiling: Hitbox is at the ceiling. Feet gripping.
+            # If sprite has feet at TOP, align Top.
+            rect.centerx = self.rect.centerx
+            rect.top = self.rect.top
+            
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
@@ -268,39 +293,67 @@ class state:
 
     def render_camelion_ceiling(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion_ceiling.png').convert_alpha()
+            rect = camelion_img.get_rect()
+            rect.centerx = self.rect.centerx
+            rect.top = self.rect.top
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
         
     def render_camelion_left_wall(self, surface):
+        # Wall is to the LEFT (wall_side < 0). We face LEFT.
+        # Sprite: camelion_left_wall (Index 4 - Face Left, Feet on Left).
+        # (Wait, Index 4 is Left Wall? process_sprites says Index 4. Let's verify process_sprites mapping)
+        # process_sprites: 4: "camelion_left_wall.png" (Col 1, Row 1??? No. 0,1,2,3,4,5.)
+        # Index 4: Col 1, Row 1. Center Bottom??
+        # Prompt: 1,2,3... 4(Bottom-Left), 5(Bottom-Mid), 6(Bottom-Right).
+        # Prompt Indices: 1-based.
+        # Code Indices: 0-based.
+        # 0: Top-Left (Walk R)
+        # 1: Top-Mid (Walk L)
+        # 2: Top-Right (Ceiling R)
+        # 3: Bottom-Left (Ceiling L)
+        # 4: Bottom-Mid (Wall L)
+        # 5: Bottom-Right (Wall R)
+        
+        # process_sprites filenames:
+        # 4: "camelion_left_wall.png". Index 4 is Bottom-Mid.
+        # Prompt: 5. (Bottom-Mid) Wall Left.
+        # So Index 4 IS Wall Left. Correct.
+        
         try:
-            camelion_img = pg.image.load('./resources/camelion_left_wall.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
+            rect = camelion_img.get_rect()
+            
+            # Align Sprite LEFT side to Hitbox LEFT side (which touches the wall)
+            rect.left = self.rect.left
+            rect.top = self.rect.top
+            
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_right_wall(self, surface):
+        # Wall is to the RIGHT (wall_side > 0). We face RIGHT.
+        # Sprite: camelion_right_wall (Index 5).
         try:
-            camelion_img = pg.image.load('./resources/camelion_right_wall.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
-            # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            shifted_rect = self.camera.apply_rect(self.rect)
+            camelion_img = pg.image.load('./resources/camelion_right_wall.png').convert_alpha()
+            rect = camelion_img.get_rect()
+            
+            # Align Sprite RIGHT side to Hitbox RIGHT side (which touches the wall)
+            rect.right = self.rect.right
+            rect.top = self.rect.top
+            
+            shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
 
 
@@ -407,11 +460,13 @@ def main():
 
         elif status.on_wall == True:
 
-            if status.wall_side >0:
-                status.render_camelion_left_wall(surface)
+            if status.wall_side > 0:
+                # Wall is to the RIGHT. We want to face RIGHT.
+                status.render_camelion_right_wall(surface)
             
             else:
-                status.render_camelion_right_wall(surface)
+                # Wall is to the LEFT. We want to face LEFT.
+                status.render_camelion_left_wall(surface)
 
         else:
             if not status.hanging and facing_right:

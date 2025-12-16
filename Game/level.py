@@ -6,13 +6,26 @@ class Tile(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
         self.type = type
-        if type == 'S':
-            self.image.fill((0, 255, 0)) # Green for Sticky
-            pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
-        else:
-            self.image.fill((139, 69, 19)) # Brown
-            pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
         self.rect = self.image.get_rect(topleft=pos)
+        
+        # Try loading sprite based on type
+        try:
+            if type == 'S':
+                loaded_img = pygame.image.load('./resources/slime_block.png').convert_alpha()
+            else: # 'X'
+                loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
+            
+            # Ensure it fits (just in case)
+            self.image = pygame.transform.scale(loaded_img, (TILE_SIZE, TILE_SIZE))
+            
+        except Exception:
+            # Fallback to color rendering
+            if type == 'S':
+                self.image.fill((0, 255, 0)) # Green for Sticky
+                pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+            else:
+                self.image.fill((139, 69, 19)) # Brown
+                pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
