@@ -8,6 +8,7 @@ SCREEN_HEIGHT = 720
 # Function to create and return the main game surface (window)
 def create_main_surface():
     screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pg.display.set_caption('Camelion Run!')
     return screen_size
 
 # Function to clear the surface by filling it with black
@@ -354,9 +355,49 @@ class state:
             bush_rect = pg.Rect(800, 450, 50, 50)
             pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
 
-class button:
-    def __init__(self):
-        pass
+class Button:
+    def __init__(self, txt , pos):
+        self.text = txt
+        self.pos = pos
+        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,40))
+
+    def draw(self, surface, font):
+        pg.draw.rect(surface, 'light gray', self.button, 0, 5)
+        pg.draw.rect(surface, 'dark gray', self.button, 5, 5)
+        text = font.render(self.text, True, 'black')
+        surface.blit(text, (self.pos[0] + 15, self.pos[1] + 7))
+    
+    def check_clicked(self):
+        if self.button.collidepoint(pg.mouse.get_pos()) and pg.mouse.get_pressed()[0]:
+            return True
+        else:
+            return False
+
+
+#Maken van het menu
+start_button = Button('Start Game', (500, 260))
+levels_button = Button('Choose Level', (500, 340))
+credits_button = Button('Credits', (500, 420))
+exit_button = Button('Quit Game', (500, 500))
+def draw_menu(surface, font):
+    surface.fill((30, 30, 30))
+    command = 0
+    text = font.render('Camelion Run!', True, 'black')
+    surface.blit(text, (500, 200))
+    start_button.draw(surface, font)
+    levels_button.draw(surface, font)
+    credits_button.draw(surface, font)
+    exit_button.draw(surface, font)
+    if exit_button.check_clicked():
+        command = 1
+    if credits_button.check_clicked():
+        command = 2
+    if levels_button.check_clicked():
+        command = 3
+    if start_button.check_clicked():
+        command = 4
+    return command
+    
 
 # Main game loop function
 def main():
@@ -366,7 +407,8 @@ def main():
     clock = pg.time.Clock()
     status = state()
     running = True
-    font = pg.font.Font('.\\resources\\ARIAL.TTF', 32)
+    main_menu = True
+    font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
 
     # music
     try:
@@ -376,95 +418,107 @@ def main():
         pass
     #######################
 
-    # Load background image
-    try:
-        background = pg.image.load(".\\resources\\background_img.jpg").convert()
-        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
-    except:
-        background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
-        background.fill((100, 100, 255))
 
     # Main game loop
     facing_left = False
     facing_right = True
     while running:
         dx = 0
-
-        # Handle events FIRST — buffer jump here
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
+        if main_menu:
+             buttons = draw_menu(surface, font)
+             if buttons == 1:
                 running = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    status.request_jump()
-
-        # Held keys per frame
-        keys = pg.key.get_pressed()
-        status.update_input_state(keys)
-
-        # Input Handling for horizontal movement and facing
-        if keys[pg.K_LEFT]:
-            dx = -5
-            facing_left = True
-            facing_right = False
-        elif keys[pg.K_RIGHT]:
-            dx = 5
-            facing_right = True
-            facing_left = False
-
-        
-
-        # Update Physics (now takes keys for wall behavior and jump-cut gating)
-        status.update_physics(dx, keys)
-
-        # Update Camera
-        status.camera.update(status)
-
-        # Draw background first (apply camera offset to bg?)
-        # For parallax or simple static BG?
-        # If BG is LEVEL_WIDTH/HEIGHT, we should scroll it.
-        # Background is scaled to LEVEL size.
-        surface.fill((0,0,0)) # Clear
-        # Create a background rect and shift it
-        bg_rect = background.get_rect()
-        surface.blit(background, status.camera.apply_rect(bg_rect))
-
-        # Render
-        status.render_map(surface)  # Render tiles first
-        status.render_bush(surface)
-
-        if status.hanging==True:
-
-            if facing_right:
-                status.render_camelion_ceiling(surface)
-
-            elif facing_left:
-                status.render_camelion_ceiling_left(surface)
-
-        elif status.on_wall == True:
-
-            if status.wall_side > 0:
-                # Wall is to the RIGHT. We want to face RIGHT.
-                status.render_camelion_right_wall(surface)
-            
-            else:
-                # Wall is to the LEFT. We want to face LEFT.
-                status.render_camelion_left_wall(surface)
-
+             if buttons == 4:
+                main_menu = False
+             for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+             pg.display.flip()
+             clock.tick(60)
+             continue
         else:
-            if not status.hanging and facing_right:
-                status.render_camelion(surface)
-        
+                # Load background image
+            try:
+                background = pg.image.load(".\\resources\\background_img.jpg").convert()
+                background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
+            except:
+                background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
+                background.fill((100, 100, 255))
+            # Handle events FIRST — buffer jump here
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_UP:
+                        status.request_jump()
 
-            elif not status.hanging and facing_left:
-                status.render_camelion_left(surface)
-            
-            
+            # Held keys per frame
+            keys = pg.key.get_pressed()
+            status.update_input_state(keys)
+
+            # Input Handling for horizontal movement and facing
+            if keys[pg.K_LEFT]:
+                dx = -5
+                facing_left = True
+                facing_right = False
+            elif keys[pg.K_RIGHT]:
+                dx = 5
+                facing_right = True
+                facing_left = False
+
             
 
-        # Delta time
-        clock.tick(60)
-        pg.display.flip()
+            # Update Physics (now takes keys for wall behavior and jump-cut gating)
+            status.update_physics(dx, keys)
+
+            # Update Camera
+            status.camera.update(status)
+
+            # Draw background first (apply camera offset to bg?)
+            # For parallax or simple static BG?
+            # If BG is LEVEL_WIDTH/HEIGHT, we should scroll it.
+            # Background is scaled to LEVEL size.
+            surface.fill((0,0,0)) # Clear
+            # Create a background rect and shift it
+            bg_rect = background.get_rect()
+            surface.blit(background, status.camera.apply_rect(bg_rect))
+
+            # Render
+            status.render_map(surface)  # Render tiles first
+            status.render_bush(surface)
+
+            if status.hanging==True:
+
+                if facing_right:
+                    status.render_camelion_ceiling(surface)
+
+                elif facing_left:
+                    status.render_camelion_ceiling_left(surface)
+
+            elif status.on_wall == True:
+
+                if status.wall_side > 0:
+                    # Wall is to the RIGHT. We want to face RIGHT.
+                    status.render_camelion_right_wall(surface)
+                
+                else:
+                    # Wall is to the LEFT. We want to face LEFT.
+                    status.render_camelion_left_wall(surface)
+
+            else:
+                if not status.hanging and facing_right:
+                    status.render_camelion(surface)
+            
+
+                elif not status.hanging and facing_left:
+                    status.render_camelion_left(surface)
+                
+                
+                
+
+            # Delta time
+            clock.tick(60)
+            pg.display.flip()
 
     pg.quit()
 
