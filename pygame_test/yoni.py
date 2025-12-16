@@ -1,8 +1,8 @@
 import pygame as pg
 
 def create_main_surface():
-    screen_size = (1024, 768)
-    return pg.display.set_mode(screen_size)
+    screen_size = pg.display.set_mode((1024, 768))
+    return screen_size
 
 def render_frame(surface,x):
     clear_surface(surface)
@@ -25,7 +25,16 @@ class state:
 
     def render(self, surface):
         clear_surface(surface)
-        pg.draw.circle(surface, (255, 0, 0), (self.xcoor, self.ycoor), 200)
+        camelion_img = pg.image.load('camelion.png').convert()
+        camelion_img.set_colorkey((0, 0, 0))
+        camelion_img = pg.transform.scale(camelion_img,
+                                (camelion_img.get_width() / 2,
+                                 camelion_img.get_height() / 2))
+        surface.blit(camelion_img, (self.xcoor, self.ycoor))
+
+class keyboard:
+    def __init__(self):
+        pass
 
 
 def main():
