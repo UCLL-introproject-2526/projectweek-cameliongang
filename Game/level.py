@@ -1,6 +1,4 @@
-# File: level.py
 import pygame
-
 
 class Tile(pygame.sprite.Sprite):
     def _init_(self, pos, groups):
@@ -9,20 +7,25 @@ class Tile(pygame.sprite.Sprite):
         self.image.fill((200, 200, 200))
         self.rect = self.image.get_rect(topleft=pos)
 
+LEVEL_MAP = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X                         X",
+    "X                         X",
+    "X                         X",
+    "X        P                X",
+    "X      XXXXX              X",
+    "X                         X",
+    "X    XX      XX     XXX   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+]
+
 class Level:
     def _init_(self):
         self.visible_sprites = pygame.sprite.Group()
         self.setup_level()
 
     def setup_level(self):
-        map_data = [
-            "XXXXXXXXXXXXXXXXXXXX",
-            "X                  X",
-            "X        P         X",
-            "X      XXXXX       X",
-            "XXXXXXXXXXXXXXXXXXXX"
-        ]
-        for row_index, row in enumerate(map_data):
+        for row_index, row in enumerate(LEVEL_MAP):
             for col_index, cell in enumerate(row):
                 x = col_index * 64
                 y = row_index * 64
