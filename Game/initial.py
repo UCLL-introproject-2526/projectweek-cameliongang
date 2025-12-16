@@ -15,11 +15,16 @@ def clear_surface(surface):
     surface.fill((0, 0, 0))
 
 class Tile(pg.sprite.Sprite):
-    def __init__(self, pos):
+    def __init__(self, pos, type='X'):
         super().__init__()
         self.image = pg.Surface((TILE_SIZE, TILE_SIZE))
-        self.image.fill((139, 69, 19)) # Brown
-        pg.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+        self.type = type
+        if type == 'S':
+            self.image.fill((0, 255, 0)) # Green for Sticky
+            pg.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+        else:
+            self.image.fill((139, 69, 19)) # Brown
+            pg.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
         self.rect = self.image.get_rect(topleft=pos)
 
 # Class to manage the game state, including position and rendering
@@ -32,14 +37,18 @@ class state:
         self.jump_strength = -15
         self.width = 40 # Approx player width
         self.height = 40 # Approx player height
+        self.on_ground = False
+        self.on_wall = False
         
         # Load Level
         self.tiles = []
         self.load_level()
 
     def jump(self):
-        if self.velocity_y == 0:
+        if self.on_ground or self.on_wall:
             self.velocity_y = self.jump_strength
+            self.on_ground = False
+            self.on_wall = False
 
     def load_level(self):
         for row_index, row in enumerate(LEVEL_MAP):
@@ -47,36 +56,68 @@ class state:
                 x = col_index * TILE_SIZE
                 y = row_index * TILE_SIZE
                 if cell == 'X':
-                    self.tiles.append(Tile((x, y)))
+                    self.tiles.append(Tile((x, y), 'X'))
+                if cell == 'S':
+                     self.tiles.append(Tile((x, y), 'S'))
                 if cell == 'P':
                     self.xcoor = x
                     self.ycoor = y
 
     def update_physics(self, dx):
+        self.on_ground = False
+        self.on_wall = False
+        
         # Horizontal Movement
         self.xcoor += dx
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
         
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
+                if getattr(tile, 'type', 'X') == 'S':
+                    self.on_wall = True
+                    self.velocity_y = 0 # Stick to wall
+                    
+                    # Simple Climb: If invalid move, push out, but allow climbing?
+                    # "zijwaarts op kan klimmen" (climb sideways up it?)
+                    # For now, let's just stick. Movement up/down needs vertical input.
+                
                 if dx > 0: # Moving Right
                     self.xcoor = tile.rect.left - self.width
                 if dx < 0: # Moving Left
                     self.xcoor = tile.rect.right
         
-        # Vertical Movement (Gravity)
-        self.velocity_y += self.gravity
-        self.ycoor += self.velocity_y
+        # Vertical Movement
+        if self.on_wall:
+            # If on wall, we can move up/down with keys potentially, or just hold validation
+            # For now, let's disable gravity if on wall
+            keys = pg.key.get_pressed()
+            if keys[pg.K_UP]:
+                self.ycoor -= 5
+            elif keys[pg.K_DOWN]:
+                self.ycoor += 5
+        else:
+            self.velocity_y += self.gravity
+            self.ycoor += self.velocity_y
+            
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
         
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
+                if getattr(tile, 'type', 'X') == 'S':
+                     # Ceiling Stick (moving up)
+                     if self.velocity_y < 0:
+                         self.ycoor = tile.rect.bottom
+                         self.velocity_y = 0
+                         self.on_wall = True # Re-use on_wall to disable gravity
+                
                 if self.velocity_y > 0: # Falling
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
-                elif self.velocity_y < 0: # Jumping Up
-                    self.ycoor = tile.rect.bottom
-                    self.velocity_y = 0
+                    self.on_ground = True
+                elif self.velocity_y < 0: # Jumping Up (Standard Block)
+                    if getattr(tile, 'type', 'X') != 'S':
+                        self.ycoor = tile.rect.bottom
+                        self.velocity_y = 0
 
     def render_map(self, surface):
         for tile in self.tiles:
