@@ -66,6 +66,8 @@ def create_main_surface():
     # Create window with given size
     return pygame.display.set_mode(screen_size)
 
+
+
 def main():
     surface = create_main_surface()
     pos_state = State()
