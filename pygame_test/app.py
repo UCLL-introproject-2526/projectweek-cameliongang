@@ -5,11 +5,21 @@ from time import sleep
 # Initialize Pygame
 pygame.init()
 
+class Keys:
+    def __init__(self):
+        self.speed = 200
+
+        self.move_left = pygame.K_q
+        self.move_right = pygame.K_d
+        self.move_up = pygame.K_z
+        self.move_down = pygame.K_s
+ 
 
 class State:
     def __init__(self):
         self.x_circle = 0
         self.y_circle = 0
+        self.stats = State()
 
     def update_pos_x(self, x):
         self.x_circle+=x
@@ -22,6 +32,13 @@ class State:
         pygame.draw.rect(surface, (0,0,0,),(0,0,1024,768),)
         pygame.draw.circle(surface, (155, 111, 111), (self.x_circle, self.y_circle), 50)
         flip()
+    
+    def input(self):
+        self.move_left = pygame.K_q
+        self.move_right = pygame.K_d
+        self.move_up = pygame.K_z
+        self.move_down = pygame.K_s
+
 
 
 class Background:

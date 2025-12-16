@@ -1,17 +1,18 @@
 import pygame as pg
 
+# Function to create and return the main game surface (window)
 def create_main_surface():
     screen_size = pg.display.set_mode((1024, 768))
     return screen_size
 
-def render_frame(surface,x):
-    clear_surface(surface)
-    pg.draw.circle(surface, (255, 0, 0), (x, 200), 200)
-    pg.display.flip()
+# Function to render a frame with a moving circle (not currently used in main loop)
 
+
+# Function to clear the surface by filling it with black
 def clear_surface(surface):
     surface.fill((0, 0, 0))
 
+# Class to manage the game state, including position and rendering
 class state:
     def __init__(self):
         self.xcoor = 0
@@ -32,13 +33,15 @@ class state:
                                  camelion_img.get_height() / 2))
         surface.blit(camelion_img, (self.xcoor, self.ycoor))
 
+# Class for keyboard input handling (currently empty, placeholder for future expansion)
 class keyboard:
     def __init__(self):
         pass
 
 
+# Main game loop function
 def main():
-    #initialization
+    # Initialization of Pygame and game variables
     pg.init()
     x = 0
     surface = create_main_surface()
@@ -50,9 +53,11 @@ def main():
     movingxplus = False
     movingymin = False
     movingyplus = False
+    # Main game loop
     while running:
-
+        # Render the current state
         status.render(surface)
+        # Update position based on movement flags
         if movingxmin:
             status.xcoor_update(-1)
         if movingxplus:
@@ -62,6 +67,7 @@ def main():
         if movingyplus:
             status.ycoor_update(1)
 
+        # Handle events
         for event in pg.event.get():
 
             if event.type == pg.QUIT:
@@ -89,18 +95,12 @@ def main():
                 if event.key == pg.K_DOWN:
                     movingyplus = False
 
+        # Cap the frame rate and calculate delta time for smooth movement
         delta_time = clock.tick(60) / 1000
         delta_time = max(0.001, min(0.1, delta_time))
 
+        # Update the display
         pg.display.flip()
-
-
-
-
-
-
-
-
 
 pg.quit()
 if __name__ == "__main__":
