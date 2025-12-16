@@ -19,11 +19,20 @@ class state:
         self.xcoor=200
         self.ycoor = 50
         self.velocity_y = 0
-        self.gravity = 0.2
+        self.gravity = 0.675
+        self.jump_strength = -15
 
     def update_gravity(self):
         self.velocity_y += self.gravity
         self.ycoor += self.velocity_y
+    
+    def jump(self):
+        if self.velocity_y == 0:
+            self.velocity_y= self.jump_strength
+    
+    def big_jump(self):
+        if self.velocity_y ==0:
+            self.velocity_y=(self.jump_strength *2)
 
     def xcoor_update(self, x):
         self.xcoor += x
@@ -62,9 +71,7 @@ def main():
     delta_time = 0.1
     movingxmin = False
     movingxplus = False
-    movingymin = False
-    movingyplus = False
-    floor_y = 550
+    floor_y = 500
     # Load background image
     background = pg.image.load(".\\resources\\background_img.jpg").convert()
     background = pg.transform.scale(background, (1700, 900))
@@ -88,8 +95,6 @@ def main():
             status.xcoor_update(-5)
         if movingxplus:
             status.xcoor_update(5)
-        if movingymin:
-            status.ycoor_update(-20)
 
 
 
@@ -106,20 +111,14 @@ def main():
                     movingxplus = True
 
                 if event.key == pg.K_UP:
-                    movingymin = True
-                if event.key == pg.K_DOWN:
-                    movingyplus = True
+                    status.jump()
+                
 
             if event.type == pg.KEYUP:
                 if event.key == pg.K_LEFT:
                     movingxmin = False
                 if event.key == pg.K_RIGHT:
                     movingxplus = False
-
-                if event.key == pg.K_UP:
-                    movingymin = False
-                if event.key == pg.K_DOWN:
-                    movingyplus = False
 
         # Cap the frame rate and calculate delta time for smooth movement
         delta_time = clock.tick(60) / 1000
