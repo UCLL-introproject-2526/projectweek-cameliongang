@@ -59,13 +59,13 @@ def main():
         status.render(surface)
         # Update position based on movement flags
         if movingxmin:
-            status.xcoor_update(-1)
+            status.xcoor_update(-5)
         if movingxplus:
-            status.xcoor_update(1)
+            status.xcoor_update(5)
         if movingymin:
-            status.ycoor_update(-1)
+            status.ycoor_update(-5)
         if movingyplus:
-            status.ycoor_update(1)
+            status.ycoor_update(5)
 
         # Handle events
         for event in pg.event.get():

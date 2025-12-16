@@ -13,7 +13,7 @@ class State:
     def update_pos(self, x):
         self.x_circle+=x
    
-    def render_frame(self):
+    def render_frame(self, surface):
     
         pygame.draw.circle(surface, (155, 111, 111), (self.x_circle, 200), 50)
         flip()
@@ -26,13 +26,7 @@ def create_main_surface():
     # Create window with given size
     return pygame.display.set_mode(screen_size)
 
-def render_frame(surface,x_circle):
-    # Draw a circle
-    
-    
-    # Parameters: surface, color, center, radius
-    pygame.draw.circle(surface, (155, 111, 111), (x_circle, 200), 50)
-    flip()
+#
 
 
 def clear_surface(surface):
@@ -54,7 +48,7 @@ def main():
 
         clear_surface(surface)
 
-        render_frame(surface, pos_state.x_circle)
+        pos_state.render_frame(surface)
 
         pos_state.update_pos(speed * dt)
         
