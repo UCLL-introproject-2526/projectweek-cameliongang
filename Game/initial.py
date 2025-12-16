@@ -248,9 +248,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling_left(self, surface):
         try:
@@ -258,9 +260,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling(self, surface):
         try:
@@ -280,9 +284,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_right_wall(self, surface):
         try:
@@ -290,9 +296,11 @@ class state:
             camelion_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
             camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            surface.blit(camelion_img, shifted_rect)
         except:
-            pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
 
 
