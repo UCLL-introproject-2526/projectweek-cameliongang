@@ -16,7 +16,9 @@ class Player:
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
+        self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
+        self.is_dead = False # Death state
 
         # Momentum
         self.momentum_x = 0
@@ -161,6 +163,8 @@ class Player:
         # Horizontal collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
+                if getattr(tile, 'type', 'X') == 'D':
+                    self.is_dead = True
                 if getattr(tile, 'type', 'X') == 'S':
                     self.on_wall = True
                     self.wall_side = 1 if total_dx > 0 else -1
@@ -227,6 +231,8 @@ class Player:
         # Vertical collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
+                if getattr(tile, 'type', 'X') == 'D':
+                    self.is_dead = True
                 if dy < 0: # Moving Up
                      if getattr(tile, 'type', 'X') == 'S':
                          # Ceiling stick

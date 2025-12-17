@@ -37,8 +37,32 @@ def draw_menu(surface, font):
         command = 1
     if credits_button.check_clicked():
         command = 2
-    if levels_button.check_clicked():
-        command = 3
     if start_button.check_clicked():
         command = 4
+    return command
+
+# Death Menu Content
+restart_button = Button('Restart', (500, 300))
+quit_death_button = Button('Quit Game', (500, 400))
+
+def draw_death_menu(surface, font):
+    # Semi-transparent overlay
+    overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    surface.blit(overlay, (0,0))
+    
+    command = 0
+    text = font.render('YOU DIED', True, 'red')
+    # Center text roughly
+    text_rect = text.get_rect(center=(640, 200))
+    surface.blit(text, text_rect)
+    
+    restart_button.draw(surface, font)
+    quit_death_button.draw(surface, font)
+    
+    if restart_button.check_clicked():
+        command = 1 # Restart
+    if quit_death_button.check_clicked():
+        command = 2 # Quit
+        
     return command
