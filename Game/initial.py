@@ -1,7 +1,7 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
-from menus import draw_menu
+from menus import draw_mainmenu
 from player import Player
 from standard_use import play_music, game_background, HealthBar, create_main_surface
 
@@ -22,7 +22,7 @@ def main():
     play_music()
 
     #background
-    background = game_background()
+    background = game_background('background_img.jpg')
 
     # Main game loop
     facing_left = False
@@ -34,10 +34,10 @@ def main():
     while running:
         dx = 0
         if main_menu:
-             buttons = draw_menu(surface, font)
-             if buttons == 1:
+             command = draw_mainmenu(surface, font)
+             if command == 1:
                 running = False
-             if buttons == 4:
+             if command == 4:
                 main_menu = False
              for event in pg.event.get():
                 if event.type == pg.QUIT:

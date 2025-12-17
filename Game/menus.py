@@ -1,4 +1,5 @@
 import pygame as pg
+from standard_use import game_background
 
 class Button:
     def __init__(self, txt , pos):
@@ -24,8 +25,9 @@ start_button = Button('Start Game', (500, 260))
 levels_button = Button('Choose Level', (500, 340))
 credits_button = Button('Credits', (500, 420))
 exit_button = Button('Quit Game', (500, 500))
-def draw_menu(surface, font):
-    surface.fill((30, 30, 30))
+def draw_mainmenu(surface, font):
+    background = game_background('mmforest.jpg')
+    surface.blit(background, (0, 0))
     command = 0
     text = font.render('Camelion Run!', True, 'black')
     surface.blit(text, (500, 200))
