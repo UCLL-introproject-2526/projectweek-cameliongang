@@ -27,8 +27,8 @@ def main():
     enemycount = 3 
     spawn_interval= 180  # enkel in factoren van 60 veranderen.
     enemy_spawn_timer = 0
-    y_enemy = random.randint(100,500)
-    enemy = Enemy(LEVEL_WIDTH, y_enemy) 
+    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
+    enemy = Enemy(800, y_enemy) 
     running = True
     running = True
     levels_menu = False
@@ -225,6 +225,27 @@ def main():
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
+                        # Check for level completion
+            if player.level_complete:
+                current_level_idx += 1
+                if current_level_idx >= len(level_module.LEVELS):
+                    # All levels completed! Back to main menu or victory screen
+                    current_level_idx = 0  # Loop back, or set main_menu = True
+                    main_menu = True
+                else:
+                    # Load next level
+                    loading_menu = True
+                    loading_timer = 0
+
+            if player.level_complete:
+                current_level_idx +=1
+                if current_level_idx >= len(level_module.LEVELS):
+                    current_level_idx = 0
+                    main_menu = True
+                else:
+                    loading_menu = True
+                    loading_timer = 0
+
 
             # Check for death
             if player.is_dead:
@@ -242,7 +263,8 @@ def main():
             # Create a background rect and shift it
             bg_rect = bg.get_rect()
             surface.blit(bg, player.camera.apply_rect(bg_rect))
-
+            
+            
             # Render
             player.render_map(surface)  # Render tiles first
             # Render alle enemies

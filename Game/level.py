@@ -23,6 +23,10 @@ class Tile(pygame.sprite.Sprite):
                 raise Exception("Invisible") # Trigger fallback to create empty surface
             elif type == 'G':
                 loaded_img = pygame.image.load('./resources\grapple_block.png').convert_alpha()
+
+            elif type == 'N':
+                loaded_img=pygame.image.load('').convert_alpha
+
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
             
@@ -42,7 +46,11 @@ class Tile(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
             elif type == 'D':
                  self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                 self.image.fill((0, 0, 0, 0)) # Invisible
+                 self.image.fill((0, 0, 0, 0)) # 
+            
+            elif type =='N':
+             self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+             self.image.fill((52, 193, 235)) 
         
             elif type == 'Y':
                  # Spikes: 1/4 tile high, full width
@@ -150,7 +158,7 @@ LEVEL_5 = [
     "XS   SSSS        SSSSSS     SSSSSS        SX",
     "XS   S  S        S    S     S    S        SX",
     "XS   S  S        S    S     S    S        SX",
-    "XS   S  S  P     S    S     S    S        SX",
+    "XS   S  S  P N   S    S     S    S        SX",
     "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
     "XS   S           S     Y         S        SX",
     "XS   S           S               S        SX",
@@ -180,7 +188,7 @@ LEVEL_6 = [
     "X      SSSSSSSS      SSSSSSSS      S      SX",
     "X        G       G      G      G           X",
     "X                                          X",
-    "X                                          X",
+    "X N                                        X",
     "X       XXX     XXX    XXX     XXX         X",
     "XXXX                                 XXXXXXX",
     "XYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYX",
@@ -225,6 +233,8 @@ class Level:
                     self.tiles.append(Tile((x,y), 'G'))
                 if cell == 'Y':
                     self.tiles.append(Tile((x,y), 'Y'))
+                if cell == 'N':
+                    self.tiles.append(Tile((x,y),'N'))
 
     def render(self, surface, camera):
         for tile in self.tiles:
