@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 from player import Player
 from camera import Camera
 import level as level_module
@@ -6,6 +7,7 @@ from level import Level # Keep Level class import for convenience
 from menus import draw_mainmenu, draw_levels_menu, draw_death_menu, draw_loading_screen
 from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, game_background, play_music, create_main_surface
 from enemy import Enemy
+from level import LEVEL_WIDTH, LEVEL_HEIGHT
 
 # create_main_surface imported from standard_use
 
@@ -21,7 +23,8 @@ def main():
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
-    enemy = Enemy(800, 400) 
+    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
+    enemy = Enemy(800, y_enemy) 
     running = True
     running = True
     levels_menu = False

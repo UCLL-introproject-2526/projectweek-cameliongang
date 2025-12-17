@@ -25,7 +25,7 @@ class Player:
         self.grapple_speed=12
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
-        self.max_grapple_dist = 400
+        self.max_grapple_dist = 500
 
 
         # Momentum
