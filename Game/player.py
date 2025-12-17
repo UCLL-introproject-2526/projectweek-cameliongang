@@ -40,6 +40,29 @@ class Player:
         # Gated jump-cut
         self.jump_held = False
         self.started_rise = False
+        
+        # Pre-load Sprites
+        self.sprites = {}
+        self.load_sprites()
+
+    def load_sprites(self):
+        try:
+            self.sprites['right'] = pg.image.load('./resources/camelion.png').convert_alpha()
+            self.sprites['left'] = pg.image.load('./resources/camelion_left.png').convert_alpha()
+            self.sprites['ceiling'] = pg.image.load('./resources/camelion_ceiling.png').convert_alpha()
+            self.sprites['ceiling_left'] = pg.image.load('./resources/camelion_ceiling_left.png').convert_alpha()
+            self.sprites['left_wall'] = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
+            self.sprites['right_wall'] = pg.image.load('./resources/camelion_right_wall.png').convert_alpha()
+        except Exception as e:
+            print(f"Error loading sprites: {e}")
+            # Sprites will be missing, render methods should handle key errors or check existence
+        
+        # Load bush (static for now, but good to cache if used often)
+        try:
+             self.bush_img = pg.image.load('./resources/bush.png').convert()
+             self.bush_img.set_colorkey((0, 0, 0))
+        except:
+             self.bush_img = None
 
     # Coyote reduction
     def update_coyote(self, dt):
@@ -235,92 +258,74 @@ class Player:
         self.level.render(surface, self.camera)
 
     def render_camelion(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion.png').convert_alpha()
-
+        if 'right' in self.sprites:
+            camelion_img = self.sprites['right']
             rect = camelion_img.get_rect()
-            # X: Center relative to hitbox
             rect.centerx = self.rect.centerx
-            # Y: Top aligned (so head aligns, tail hangs)
             rect.top = self.rect.top
-            
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_left(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion_left.png').convert_alpha()
+        if 'left' in self.sprites:
+            camelion_img = self.sprites['left']
             rect = camelion_img.get_rect()
             rect.centerx = self.rect.centerx
             rect.top = self.rect.top
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling_left(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling_left.png').convert_alpha()
+        if 'ceiling_left' in self.sprites:
+            camelion_img = self.sprites['ceiling_left']
             rect = camelion_img.get_rect()
-            
-            # Ceiling: Hitbox is at the ceiling. Feet gripping.
-            # If sprite has feet at TOP, align Top.
             rect.centerx = self.rect.centerx
             rect.top = self.rect.top
-            
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling(self, surface):
-        try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling.png').convert_alpha()
+        if 'ceiling' in self.sprites:
+            camelion_img = self.sprites['ceiling']
             rect = camelion_img.get_rect()
             rect.centerx = self.rect.centerx
             rect.top = self.rect.top
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
         
     def render_camelion_left_wall(self, surface):
-        # Wall is to the LEFT (wall_side < 0). We face LEFT.
-
-        try:
-            camelion_img = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
+        if 'left_wall' in self.sprites:
+            camelion_img = self.sprites['left_wall']
             rect = camelion_img.get_rect()
-            
-            # Align Sprite LEFT side to Hitbox LEFT side (which touches the wall)
             rect.left = self.rect.left
             rect.top = self.rect.top
-            
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_right_wall(self, surface):
-        # Wall is to the RIGHT (wall_side > 0). We face RIGHT.
-        # Sprite: camelion_right_wall (Index 5).
-        try:
-            camelion_img = pg.image.load('./resources/camelion_right_wall.png').convert_alpha()
+        if 'right_wall' in self.sprites:
+            camelion_img = self.sprites['right_wall']
             rect = camelion_img.get_rect()
-            
-            # Align Sprite RIGHT side to Hitbox RIGHT side (which touches the wall)
             rect.right = self.rect.right
             rect.top = self.rect.top
-            
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
-        except:
+        else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
