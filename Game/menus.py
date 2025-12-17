@@ -26,7 +26,8 @@ levels_button = Button('Choose Level', (500, 500))
 credits_button = Button('Credits', (200, 500))
 exit_button = Button('Quit Game', (800, 500))
 def draw_mainmenu(surface, font):
-    background = game_background('mainmenu_background.png', True)
+    surface.fill((0, 0, 0))
+    background = game_background('mainmenu_background.png', menu=True)
     surface.blit(background, (0, 0))
     command = 0
     start_button.draw(surface, font)
@@ -45,18 +46,46 @@ def draw_mainmenu(surface, font):
 
 
 #Maken van het menu levels
-levelone_button = Button("Level 1", (300, 300))
+# Consolidate imports and setup for dynamic menu
+from level import LEVELS
+
+# Cache buttons to avoid recreating them every frame
+level_buttons = []
+for i, lvl in enumerate(LEVELS):
+    # Layout buttons: 2 columns? Or just a list?
+    # Simple list for now: 2 per row?
+    # x: 300, 600... y: 200, 300, 400...
+    col = i % 2
+    row = i // 2
+    x = 300 + (col * 350)
+    y = 200 + (row * 100)
+    btn = Button(f"Level {i+1}", (x, y))
+    level_buttons.append((i, btn))
+
+back_button = Button("Back", (500, 600))
+
 def draw_levels_menu(surface, font):
-    background = game_background('levels_background.png', True)
+    surface.fill((0, 0, 0)) # Clear previous screen content
+    background = game_background('levels_background.png', menu=True)
     surface.blit(background, (0, 0))
     command = 0
-    levelone_button.draw(surface, font)
-    if levelone_button.check_clicked():
-        command = 1
-    if credits_button.check_clicked():
-        command = 2
-    if start_button.check_clicked():
-        command = 4
+    
+    # Draw title
+    title = font.render('Select Level', True, 'black')
+    surface.blit(title, (500, 100))
+
+    # Draw dynamic buttons
+    for idx, btn in level_buttons:
+        btn.draw(surface, font)
+        if btn.check_clicked():
+            command = 10 + idx # 10=lvl1, 11=lvl2, etc.
+
+    back_button.draw(surface, font)
+    if back_button.check_clicked():
+        command = 2 # Back to main menu (credits command was 2, need to check main menu codes)
+        # Actually in initial.py check:
+        # 1=Start/Restart, 2=Credits?, 3=LevelSelect, 0=None
+    
     return command
 
 
@@ -65,7 +94,8 @@ restart_button = Button('Restart', (375, 600))
 quit_death_button = Button('Quit Game', (675, 600))
 
 def draw_death_menu(surface, font):
-    background = game_background('gameover_background.jpg', True)
+    surface.fill((0, 0, 0))
+    background = game_background('gameover_background.jpg', menu=True)
     surface.blit(background, (0, 0))
     # Semi-transparent overlay
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
@@ -86,14 +116,14 @@ def draw_death_menu(surface, font):
 
 def draw_loading_screen(surface, font, progress):
     # Reuse main menu background or black
-    surface.fill((0, 0, 0)) # Simple black background for contrast
+    surface.fill((0, 0, 0))
     
-    # "LOADING..." Text
-    text = font.render('LOADING...', True, 'white')
+    # Text
+    text = font.render("Loading...", True, (255, 255, 255))
     text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
     surface.blit(text, text_rect)
     
-    # Progress Bar
+    # Bar Container
     bar_width = 400
     bar_height = 30
     bar_x = (surface.get_width() - bar_width) // 2

@@ -37,16 +37,22 @@ def play_music():
         pass
 
 #background
-def game_background(background_img, menu = False):
+#background
+def game_background(background_img, width=None, height=None, menu=False):
+    # Determine target size
+    target_w = width if width else SCREEN_WIDTH
+    target_h = height if height else SCREEN_HEIGHT
+    
+    if menu:
+        target_w = SCREEN_WIDTH
+        target_h = SCREEN_HEIGHT
+
     try:
-        if menu == False:
-            background = pg.image.load(f".\\resources\\{background_img}").convert()
-            background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
-        else:
-            background = pg.image.load(f".\\resources\\{background_img}").convert()
-            background = pg.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
-    except:
-        background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
+        background = pg.image.load(f".\\resources\\{background_img}").convert_alpha()
+        background = pg.transform.scale(background, (int(target_w), int(target_h)))
+    except Exception as e:
+        print(f"Error loading background {background_img}: {e}")
+        background = pg.Surface((int(target_w), int(target_h)))
         background.fill((100, 100, 255))
     return background
         
