@@ -1,5 +1,5 @@
 import pygame as pg
-from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
+from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
 
@@ -121,7 +121,27 @@ class Player:
 
     # Track held key Player per frame
     def update_input_Player(self, keys):
-        self.jump_held = keys[pg.K_UP]
+    # Jump held: either UP arrow or W key
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+
+    # You can also add other continuous input checks here later
+    # (for example crouch, dash, etc.)
+    
+    def find_nearest_grapple_tile(self):
+        nearest = None
+        nearest_dist = float('inf')
+
+        for tile in self.tiles:
+            if tile.grappleable:
+                dx = tile.rect.centerx - self.rect.centerx
+                dy = tile.rect.centery - self.rect.centery
+                dist = math.hypot(dx, dy)
+
+                if dist < nearest_dist:
+                    nearest_dist = dist
+                    nearest = tile
+
+        return nearest
     
     def grappling_hook(self, dt):
         if self.grappling and self.grapple_target:
@@ -145,18 +165,38 @@ class Player:
                 self.rect.center = self.grapple_target
                 self.grappling = False
                 self.grapple_target = None
-                
+
+    def can_grapple_to(self, target_tile):
+    # Vector from player to tile
+        x1, y1 = self.rect.center
+        x2, y2 = target_tile.rect.center
+
+        # Step along the line in small increments
+        steps = int(math.hypot(x2 - x1, y2 - y1) / TILE_SIZE)
+        for i in range(steps + 1):
+            t = i / steps
+            check_x = x1 + (x2 - x1) * t
+            check_y = y1 + (y2 - y1) * t
+
+            # Build a point rect to test collisions
+            point_rect = pg.Rect(check_x, check_y, 2, 2)
+
+            for tile in self.tiles:
+                if tile.type == 'X' or tile.type == 'S':  # solid types
+                    if tile.rect.colliderect(point_rect):
+                        return False  # blocked by a wall
+
+        return True  # clear line of sight
+    
     def grapple_to(self, pos):
     # Set target and start grappling
         self.grapple_target = pos
         self.grappling = True
 
     def try_grapple(self, target_tile):
-        if target_tile.grappleable:
-            # Allowed: do grapple logic
+        if target_tile.grappleable and self.can_grapple_to(target_tile):
             self.grapple_to(target_tile.pos)
         else:
-        # Not allowed
             print("Can't grapple this tile!")
 
     def update_physics(self, dx, keys, dt):
@@ -167,8 +207,10 @@ class Player:
             player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
             for tile in self.tiles:
                 if tile.rect.colliderect(player_rect):
-                    if getattr(tile, 'type', 'X') == 'D':
+                    t_type = getattr(tile, 'type', 'X')
+                    if t_type == 'D' or t_type == 'Y':
                         self.is_dead = True
+            
         else:
     # normal gravity, collisions, etc.
         # Validate existing wall stick (Persistent Player)
@@ -220,9 +262,10 @@ class Player:
         # Horizontal collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
-                if getattr(tile, 'type', 'X') == 'D':
+                t_type = getattr(tile, 'type', 'X')
+                if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
-                if getattr(tile, 'type', 'X') == 'S':
+                if t_type == 'S':
                     self.on_wall = True
                     self.wall_side = 1 if total_dx > 0 else -1
                     self.velocity_y = 0  # Stick to wall
@@ -254,15 +297,15 @@ class Player:
         
         if self.on_wall:
             # Wall Climb
-            if keys[pg.K_UP]:
+            if keys[pg.K_UP] or keys[pg.K_w]:
                 dy = -5 * dt
                 self.wall_facing_down = False
-            elif keys[pg.K_DOWN]:
+            elif keys[pg.K_DOWN] or keys[pg.K_s]:
                 dy = 5 * dt
                 self.wall_facing_down = True
         elif self.hanging:
             # Ceiling Stick
-            if keys[pg.K_DOWN]:
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
                 self.hanging = False # Drop
                 dy = 5 * dt
             # UP does nothing while hanging? Or maybe clamber?
@@ -290,10 +333,11 @@ class Player:
         # Vertical collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
-                if getattr(tile, 'type', 'X') == 'D':
+                t_type = getattr(tile, 'type', 'X')
+                if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
                 if dy < 0: # Moving Up
-                     if getattr(tile, 'type', 'X') == 'S':
+                     if t_type == 'S':
                          # Ceiling stick
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0

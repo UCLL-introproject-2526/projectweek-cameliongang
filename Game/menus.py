@@ -45,17 +45,13 @@ def draw_mainmenu(surface, font):
 
 
 #Maken van het menu levels
+levelone_button = Button("Level 1", (300, 300))
 def draw_levels_menu(surface, font):
     background = game_background('levels_background.png', True)
     surface.blit(background, (0, 0))
     command = 0
-    text = font.render('Camelion Run!', True, 'black')
-    surface.blit(text, (500, 200))
-    start_button.draw(surface, font)
-    levels_button.draw(surface, font)
-    credits_button.draw(surface, font)
-    exit_button.draw(surface, font)
-    if exit_button.check_clicked():
+    levelone_button.draw(surface, font)
+    if levelone_button.check_clicked():
         command = 1
     if credits_button.check_clicked():
         command = 2
