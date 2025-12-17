@@ -27,6 +27,8 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
+
+# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
 LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X        SSSS SS          X",
@@ -40,6 +42,77 @@ LEVEL_MAP = [
     "X    XX      XX     XXX   X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
+
+# LEVEL 3: DE TOREN (VERTICALE KLIM)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+#     "XS                        SX",
+#     "XS    SSSSSSSSSS          SX",
+#     "XS    S        S          SX",
+#     "XS    S   P    S    SS    SX",
+#     "XS    S        S    SS    SX",
+#     "XS    SSSSSSSSSS    SS    SX",
+#     "XS                  SS    SX",
+#     "XS        SSSSSSSSSSSS    SX",
+#     "XS        S               SX",
+#     "XS        S      SSSSSSSSSSX",
+#     "XSSSSSSSSSS      S        SX",
+#     "X                S        SX",
+#     "X      SSSSSSSSSSS        SX",
+#     "X      S                  SX",
+#     "X      S         SSSSSSSSSSX",
+#     "X      S         S        SX",
+#     "XSSSSSSS         S        SX",
+#     "X                S        SX",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# ]
+
+# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+#     "XS                                        SX",
+#     "XS  P                                     SX",
+#     "XS                                        SX",
+#     "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
+#     "X      S      S      S      S      S      SX",
+#     "X      S      S      S      S      S      SX",
+#     "X      S      S      S      S      S      SX",
+#     "X      SSSSSSSS      SSSSSSSS      SSSSSSSSX",
+#     "X                                          X",
+#     "X                                          X",
+#     "X            S            S            S   X",
+#     "X            S            S            S   X",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# ]
+
+
+# NIEUW "EXTRA FUN" LEVEL (UNCOMMENT DIT OM TE SPELEN)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+#     "XS                                        SX",
+#     "XS                                        SX",
+#     "XS   SSSS        SSSSSS     SSSSSS        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S  P     S    S     S    S        SX",
+#     "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+#     "XS   S           S               S        SX",
+#     "XS   S           S               S        SX",
+#     "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+#     "XS                                        SX",
+#     "XS        SSSSSS           SSSSSS         SX",
+#     "XS             S           S              SX",
+#     "XSSSSSSSS      S           S      SSSSSSSSSX",
+#     "X       S      S           S      S        X",
+#     "X       S      S           S      S        X",
+#     "X       XXXXXXXX           XXXXXXXX        X",
+#     "X                                          X",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# ]
+
 
 LEVEL_WIDTH = len(LEVEL_MAP[0]) * TILE_SIZE
 LEVEL_HEIGHT = len(LEVEL_MAP) * TILE_SIZE
