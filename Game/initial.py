@@ -113,6 +113,10 @@ def main():
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
 
+            # Check for death
+            if player.is_dead:
+                death_menu = True
+
             # Update Camera
             player.camera.update(player)
 
