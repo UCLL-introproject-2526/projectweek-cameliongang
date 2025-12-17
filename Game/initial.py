@@ -323,10 +323,6 @@ class state:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
-   
-
-
-
     def render_bush(self, surface):
         try:
             bush_img = pg.image.load('./resources/bush.png').convert()
@@ -341,7 +337,7 @@ class state:
         except:
             bush_rect = pg.Rect(800, 450, 50, 50)
             pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
-        
+    
 class HealthBar:
     def __init__(self, x, y ,w, h, max_hp):
         self.x = x
