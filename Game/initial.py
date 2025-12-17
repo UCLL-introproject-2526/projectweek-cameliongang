@@ -14,7 +14,7 @@ def main():
     surface = create_main_surface()
     clock = pg.time.Clock()
     player = Player()
-    enemy = Enemy()
+    enemy = Enemy(surface)
     running = True
     running = True
     levels_menu = False
@@ -105,6 +105,7 @@ def main():
              clock.tick(60)
              continue
         else:
+            enemy.spawn_enemy_1(surface)
             # Handle events FIRST — buffer jump here
             for event in pg.event.get():
                 if event.type == pg.QUIT:
