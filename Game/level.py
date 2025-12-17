@@ -136,24 +136,28 @@ LEVEL_3 = [
 
 LEVEL_4 = [
 
+
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XS     G      G      G      G             SX",
-    "XS  P                                     SX",
-    "XS                                        SX",
-    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
-    "X      S      X      S      X      S      SX",
-    "X      S      X      S      X      S      SX",
-    "X      S      X      S      X      S      SX",
-    "X      SSSSSSSS      SSSSSSSS      S      SX",
-    "X        G       G      G      G           X",
+    "X           G          G         G         X",
+    "X P                                    G   X",
+    "X                                          X",
+    "XXXXXXS     XXXXXS     XXXXXX              X",
+    "X     S     X    S     X    X              X",
+    "X     S     X    S     X    X         XXX  X",
+    "X     S     X    S     X    XYYYYYYYYYX X  X",
+    "X     S     X    S     X    XXXXXXXXXXX X  X",
+    "X     S     X    S     X                X  X",
+    "X     S     X    S     X                X  X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X",
+    "X   G       G       G      G      G        X",
+    "X                                          X",
     "X                                          X",
     "X N                                        X",
-    "X       XXX     XXX    XXX     XXX         X",
-    "XXXXXXX                               XXXXXXX",
-    "XYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYX",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    "XXXXX    XX     XXX      XX     XXX     XXXX",
+    "XXXXXDDDDXXDDDDDXXXDDDDDDXXDDDDDXXXDDDDDXXXX",
 ]
+
+
 
 
 LEVEL_5 = [
