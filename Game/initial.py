@@ -39,7 +39,7 @@ def main():
              if command == 1:
                 running = False
              if command == 3:
-                draw_levels_menu(surface, font)
+                 pass
              if command == 4:
                 main_menu = False
              for event in pg.event.get():
@@ -146,12 +146,18 @@ def main():
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
-                    # Wall is to the RIGHT. We want to face RIGHT.
-                    player.render_camelion_right_wall(surface)
+                    # Wall is to the RIGHT.
+                    if player.wall_facing_down:
+                        player.render_camelion_right_wall_down(surface)
+                    else:
+                        player.render_camelion_right_wall(surface)
                 
                 else:
-                    # Wall is to the LEFT. We want to face LEFT.
-                    player.render_camelion_left_wall(surface)
+                    # Wall is to the LEFT.
+                    if player.wall_facing_down:
+                        player.render_camelion_left_wall_down(surface)
+                    else:
+                        player.render_camelion_left_wall(surface)
 
             else:
                 if not player.hanging and facing_right:
