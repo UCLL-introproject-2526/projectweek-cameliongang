@@ -3,33 +3,8 @@ from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
 from menus import draw_menu
 from player import Player
-from standard_use import play_music, game_background, HealthBar
+from standard_use import play_music, game_background, HealthBar, create_main_surface
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
-
-# Function to create and return the main game surface (window)
-def create_main_surface():
-    screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pg.display.set_caption('Camelion Run!')
-    return screen_size
-
-def render_bush(self, surface):
-    try:
-        bush_img = pg.image.load('./resources/bush.png').convert()
-        bush_img.set_colorkey((0, 0, 0))
-        bush_img = pg.transform.scale(
-            bush_img,
-            (int(bush_img.get_width() / 1.5), int(bush_img.get_height() / 1.5))
-        )
-        # Hardcoded bush pos for now: (800, 450)
-        bush_rect = bush_img.get_rect(topleft=(800,450))
-        surface.blit(bush_img, self.camera.apply_rect(bush_rect))
-    except:
-        bush_rect = pg.Rect(800, 450, 50, 50)
-        pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
-
-    
 
 # Main game loop function
 def main():

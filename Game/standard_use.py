@@ -18,7 +18,13 @@ class HealthBar:
 
 
 
-
+# Function to create and return the main game surface (window)
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+def create_main_surface():
+    screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pg.display.set_caption('Camelion Run!')
+    return screen_size
 
 #standard music
 def play_music():
