@@ -17,7 +17,8 @@ class Player:
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
-        
+        self.grapple_target=None
+        self.grapple_speed=10
 
         # Momentum
         self.momentum_x = 0
@@ -26,7 +27,8 @@ class Player:
         self.level = Level()
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.tiles = self.level.tiles
-        
+
+        #find location of player
         # Camera
         self.camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
         self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
@@ -46,6 +48,8 @@ class Player:
         # Pre-load Sprites
         self.sprites = {}
         self.load_sprites()
+
+
 
     def load_sprites(self):
         try:
@@ -111,8 +115,25 @@ class Player:
     # Track held key Player per frame
     def update_input_Player(self, keys):
         self.jump_held = keys[pg.K_UP]
+    
+    def grappling_hook(self, dt):
+        dx = self.grapple_target[0] - self.rect.centerx
+        dy = self.grapple_target[1] - self.rect.centery
+        dist = math.hypot(dx, dy)
+
+        step = self.grapple_speed * dt
+        if dist > step:
+            self.rect.centerx += dx / dist * step
+            self.rect.centery += dy / dist * step
+        else:
+            self.rect.center = self.grapple_target
+            self.grapple_target = None
 
     def update_physics(self, dx, keys, dt):
+        #grapling call
+        if self.grapple_target:
+            self.grappling_hook(dt)
+            return
         # Validate existing wall stick (Persistent Player)
         if self.on_wall:
             # Check for pull-off (Moving away from wall)
@@ -256,6 +277,8 @@ class Player:
         if self.jump_buffer > 0:
             self.jump_buffer -= 1 * dt
 
+        
+
     def render_map(self, surface):
         self.level.render(surface, self.camera)
 
@@ -331,19 +354,4 @@ class Player:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
-    
-    def grappling_hook(self):
-        
-        if self.grapple_target:
-            # Move toward target
-            dx = self.grapple_target[0] - self.xcoor
-            dy = self.grapple_target[1] - self.ycoor
-            dist = math.hypot(dx, dy)
 
-            if dist > self.momentum_x:
-                self.xcoor += dx / dist * self.momentum_x
-                self.ycoor += dy / dist * self.momentum_x
-            else:
-                # Arrived
-                self.xcoor, self.ycoor = self.grapple_target
-                self.grapple_target = None

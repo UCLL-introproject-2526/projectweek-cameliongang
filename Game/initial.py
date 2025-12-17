@@ -57,6 +57,8 @@ def main():
 
                 elif event.type == pg.MOUSEBUTTONDOWN:
                     player.grapple_target = event.pos
+                    
+                    print(player.grapple_target)
 
             # Held keys per frame   
             keys = pg.key.get_pressed()
@@ -72,14 +74,14 @@ def main():
                 facing_right = True
                 facing_left = False
 
-            player.grappling_hook()
+            
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
-
             # Update Camera
             player.camera.update(player)
 
+           
             # Draw background first (apply camera offset to bg?)
             # For parallax or simple static BG?
             # If BG is LEVEL_WIDTH/HEIGHT, we should scroll it.
@@ -116,7 +118,9 @@ def main():
 
                 elif not player.hanging and facing_left:
                     player.render_camelion_left(surface)
-                
+            
+            if player.grapple_target:
+                pg.draw.line(surface, (200,200,200), player.rect.center, player.grapple_target, 2)
                 
                 
 
