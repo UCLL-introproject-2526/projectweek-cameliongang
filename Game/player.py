@@ -26,6 +26,7 @@ class Player:
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
+        self.level_complete = False
 
 
         # Momentum
@@ -60,6 +61,7 @@ class Player:
 
 
     def load_sprites(self):
+
         try:
             self.sprites['right'] = pg.image.load('./resources/camelion.png').convert_alpha()
             self.sprites['left'] = pg.image.load('./resources/camelion_left.png').convert_alpha()
@@ -79,6 +81,7 @@ class Player:
              self.bush_img.set_colorkey((0, 0, 0))
         except:
              self.bush_img = None
+
 
     # Coyote reduction
     def update_coyote(self, dt):
@@ -242,6 +245,7 @@ class Player:
 
     def update_physics(self, dx, keys, dt):
         #grapling call
+        
         if self.grappling and self.grapple_target:
             self.grappling_hook(dt)
             # IMPORTANT: Still check for death even while grappling
@@ -308,7 +312,9 @@ class Player:
                     self.is_dead = True
                 if t_type == 'Y':
                     HealthBar.hp =-20
-                    
+                
+                if t_type == 'N':
+                    self.level_complete = True                                        
                     
                     
                 if t_type == 'S':

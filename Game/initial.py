@@ -210,6 +210,16 @@ def main():
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
 
+            if player.level_complete:
+                current_level_idx +=1
+                if current_level_idx >= len(level_module.LEVELS):
+                    current_level_idx = 0
+                    main_menu = True
+                else:
+                    loading_menu = True
+                    loading_timer = 0
+
+
             # Check for death
             if player.is_dead:
                 death_menu = True
@@ -226,7 +236,8 @@ def main():
             # Create a background rect and shift it
             bg_rect = bg.get_rect()
             surface.blit(bg, player.camera.apply_rect(bg_rect))
-
+            
+            
             # Render
             player.render_map(surface)  # Render tiles first
             enemy.render(surface, camera) # Render enemy
