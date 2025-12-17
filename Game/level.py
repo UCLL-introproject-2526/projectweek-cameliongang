@@ -33,37 +33,37 @@ class Tile(pygame.sprite.Sprite):
 
 
 # HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
-# LEVEL_MAP = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "X        SSSS SS          X",
-#     "X                  S      X",
-#     "X       S          S      X",
-#     "X       S          X   S  X",
-#     "X       S              S  X",
-#     "X        P             X  X",
-#     "X      XXXXX        S     X",
-#     "X    X              X     X",
-#     "X    XX      XX     XXX   X",
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
-# ]
-
-# LEVEL 3: DE TOREN (VERTICALE KLIM)
 LEVEL_MAP = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
-    "XS                        SX",
-    "XS     P                  SX",
-    "XS    XXX                 SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X        SSSS SS          X",
+    "X                  S      X",
+    "X       S          S      X",
+    "X       S          X   S  X",
+    "X       S              S  X",
+    "X        P             X  X",
+    "X      XXXXX        S     X",
+    "X    X              X     X",
+    "X    XX      XX     XXX   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
+
+# # LEVEL 3: DE TOREN (VERTICALE KLIM)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
+#     "XS                        SX",
+#     "XS     P                  SX",
+#     "XS    XXX                 SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 # LEVEL_MAP = [

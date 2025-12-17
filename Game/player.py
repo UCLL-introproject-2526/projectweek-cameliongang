@@ -20,7 +20,9 @@ class Player:
         self.hanging = False # New Player for ceiling stick
         self.is_dead = False # Death state
         self.grapple_target=None
-        self.grapple_speed=10
+        self.grapple_speed=12
+        self.grappling=False
+
 
         # Momentum
         self.momentum_x = 0
@@ -119,42 +121,53 @@ class Player:
         self.jump_held = keys[pg.K_UP]
     
     def grappling_hook(self, dt):
-        dx = self.grapple_target[0] - self.rect.centerx
-        dy = self.grapple_target[1] - self.rect.centery
-        dist = math.hypot(dx, dy)
+        if self.grappling and self.grapple_target:
+            dx = self.grapple_target[0] - self.rect.centerx
+            dy = self.grapple_target[1] - self.rect.centery
+            dist = math.hypot(dx, dy)
 
-        step = self.grapple_speed * dt
-        if dist > step:
-            self.rect.centerx += dx / dist * step
-            self.rect.centery += dy / dist * step
-        else:
-            self.rect.center = self.grapple_target
-            self.grapple_target = None
+            step = self.grapple_speed * dt
+            if dist > step:
+                # Move toward target
+                vx = dx / dist * step
+                vy = dy / dist * step
+                self.rect.centerx += vx
+                self.rect.centery += vy
+
+                # Store momentum so it persists when released
+                self.momentum_x = vx
+                self.velocity_y = vy
+            else:
+                # Snap to target
+                self.rect.center = self.grapple_target
+                self.grappling = False
+                self.grapple_target = None
 
     def update_physics(self, dx, keys, dt):
         #grapling call
-        if self.grapple_target:
+        if self.grappling and self.grapple_target:
             self.grappling_hook(dt)
-            return
+        else:
+    # normal gravity, collisions, etc.
         # Validate existing wall stick (Persistent Player)
-        if self.on_wall:
-            # Check for pull-off (Moving away from wall)
-            # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall Player for the kick)
-            if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
-                self.on_wall = False
-                self.wall_side = 0
-            else:
-                # Check for physical connection (Sensor)
-                sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
-                sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
-                touching = False
-                for tile in self.tiles:
-                     if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
-                         touching = True
-                         break
-                if not touching:
+            if self.on_wall:
+                # Check for pull-off (Moving away from wall)
+                # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall Player for the kick)
+                if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
                     self.on_wall = False
                     self.wall_side = 0
+                else:
+                    # Check for physical connection (Sensor)
+                    sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
+                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
+                    touching = False
+                    for tile in self.tiles:
+                        if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
+                            touching = True
+                            break
+                    if not touching:
+                        self.on_wall = False
+                        self.wall_side = 0
 
         self.on_ground = False
         # Do not rely on side collision to set on_wall every frame if we want persistence,
