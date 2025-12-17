@@ -36,3 +36,7 @@ class Camera:
     def to_world(self, screen_pos):
         """Convert a (x,y) screen position into world coordinates."""
         return (screen_pos[0] - self.camera.x, screen_pos[1] - self.camera.y)
+    
+    def to_screen(self, world_pos):
+        """Convert a world (x,y) into screen coordinates."""
+        return (world_pos[0] + self.camera.x, world_pos[1] + self.camera.y)

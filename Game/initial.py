@@ -162,7 +162,9 @@ def main():
                     player.render_camelion_left(surface)
             
             if player.grappling and player.grapple_target:
-                pg.draw.line(surface, (200,200,200), player.rect.center, player.grapple_target, 2)
+                player_screen_pos = player.camera.apply_rect(player.rect).center
+                target_screen_pos = player.camera.to_screen(player.grapple_target)
+                pg.draw.line(surface, (200,200,200), player_screen_pos, target_screen_pos, 2)
                 
                 
 
