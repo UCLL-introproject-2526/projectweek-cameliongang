@@ -524,5 +524,3 @@ class Player:
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
-
-
