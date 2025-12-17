@@ -5,6 +5,7 @@ import level as level_module
 from level import Level # Keep Level class import for convenience
 from menus import draw_mainmenu, draw_levels_menu, draw_death_menu, draw_loading_screen
 from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, game_background, play_music, create_main_surface
+from enemy import Enemy
 
 # create_main_surface imported from standard_use
 
@@ -19,6 +20,7 @@ def main():
     lvl = Level(current_level_idx)
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
+    enemy = Enemy()
     running = True
     running = True
     levels_menu = False
