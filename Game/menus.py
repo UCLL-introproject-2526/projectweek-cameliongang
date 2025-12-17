@@ -90,8 +90,14 @@ def draw_levels_menu(surface, font):
 
 
 # Death Menu Content
-restart_button = Button('Restart', (375, 600))
-quit_death_button = Button('Quit Game', (675, 600))
+# Death Menu Content
+# Rearrange for better layout with 4 buttons
+# Row 1
+restart_button = Button('Restart', (350, 500))
+level_select_death_button = Button('Choose Level', (650, 500))
+# Row 2
+main_menu_death_button = Button('Main Menu', (350, 600))
+quit_death_button = Button('Quit Game', (650, 600))
 
 def draw_death_menu(surface, font):
     surface.fill((0, 0, 0))
@@ -105,12 +111,18 @@ def draw_death_menu(surface, font):
     command = 0
     
     restart_button.draw(surface, font)
+    level_select_death_button.draw(surface, font)
+    main_menu_death_button.draw(surface, font)
     quit_death_button.draw(surface, font)
     
     if restart_button.check_clicked():
         command = 1 # Restart
     if quit_death_button.check_clicked():
         command = 2 # Quit
+    if main_menu_death_button.check_clicked():
+        command = 3 # Main Menu
+    if level_select_death_button.check_clicked():
+        command = 4 # Level Select
         
     return command
 

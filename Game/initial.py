@@ -111,6 +111,12 @@ def main():
                  loading_timer = 0
              if command == 2: # Quit
                  running = False
+             if command == 3: # Main Menu
+                 death_menu = False
+                 main_menu = True
+             if command == 4: # Level Select
+                 death_menu = False
+                 levels_menu = True
              
              for event in pg.event.get():
                 if event.type == pg.QUIT:
