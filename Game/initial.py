@@ -39,7 +39,7 @@ def main():
              if command == 1:
                 running = False
              if command == 3:
-                draw_levels_menu(surface, font)
+                 pass
              if command == 4:
                 main_menu = False
              for event in pg.event.get():

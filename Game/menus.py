@@ -21,16 +21,14 @@ class Button:
         
 
 #Maken van het menu
-start_button = Button('Start Game', (500, 260))
-levels_button = Button('Choose Level', (500, 340))
-credits_button = Button('Credits', (500, 420))
-exit_button = Button('Quit Game', (500, 500))
+start_button = Button('Start Game', (500, 400))
+levels_button = Button('Choose Level', (300, 500))
+credits_button = Button('Credits', (500, 500))
+exit_button = Button('Quit Game', (700, 500))
 def draw_mainmenu(surface, font):
-    background = game_background('mmforest.jpg')
+    background = game_background('mainmenu_background.png')
     surface.blit(background, (0, 0))
     command = 0
-    text = font.render('Camelion Run!', True, 'black')
-    surface.blit(text, (500, 200))
     start_button.draw(surface, font)
     levels_button.draw(surface, font)
     credits_button.draw(surface, font)
