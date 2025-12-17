@@ -102,11 +102,11 @@ def main():
             player.update_input_Player(keys)
 
             # Input Handling for horizontal movement and facing
-            if keys[pg.K_LEFT]:
+            if keys[pg.K_LEFT] or keys[pg.K_a]:
                 dx = -5
                 facing_left = True
                 facing_right = False
-            elif keys[pg.K_RIGHT]:
+            elif keys[pg.K_RIGHT] or keys[pg.K_d]:
                 dx = 5
                 facing_right = True
                 facing_left = False
