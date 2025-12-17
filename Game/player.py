@@ -19,6 +19,7 @@ class Player:
         self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
         self.is_dead = False # Death state
+        
 
         # Momentum
         self.momentum_x = 0
@@ -341,14 +342,14 @@ class Player:
         
         if self.grapple_target:
             # Move toward target
-            dx = self.grapple_target[0] - self.x
-            dy = self.grapple_target[1] - self.y
+            dx = self.grapple_target[0] - self.xcoor
+            dy = self.grapple_target[1] - self.ycoor
             dist = math.hypot(dx, dy)
 
-            if dist > self.speed:
-                self.x += dx / dist * self.speed
-                self.y += dy / dist * self.speed
+            if dist > self.momentum_x:
+                self.xcoor += dx / dist * self.momentum_x
+                self.ycoor += dy / dist * self.momentum_x
             else:
                 # Arrived
-                self.x, self.y = self.grapple_target
+                self.xcoor, self.ycoor = self.grapple_target
                 self.grapple_target = None
