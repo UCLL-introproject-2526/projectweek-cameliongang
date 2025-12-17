@@ -219,43 +219,43 @@ class state:
     def render_map(self, surface):
         self.level.render(surface)
 
-    def render_camelion(self, surface):
+    def render_chameleon(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
+            chameleon_img = pg.image.load('./resources/chameleon.png').convert()
+            chameleon_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            chameleon_img = pg.transform.scale(chameleon_img, (self.width, self.height))
+            surface.blit(chameleon_img, (self.xcoor, self.ycoor))
         except:
             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
 
-    def render_camelion_left(self, surface):
+    def render_chameleon_left(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_left.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
+            chameleon_img = pg.image.load('./resources/chameleon_left.png').convert()
+            chameleon_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            chameleon_img = pg.transform.scale(chameleon_img, (self.width, self.height))
+            surface.blit(chameleon_img, (self.xcoor, self.ycoor))
         except:
             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
 
-    def render_camelion_ceiling_left(self, surface):
+    def render_chameleon_ceiling_left(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling_left.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
+            chameleon_img = pg.image.load('./resources/chameleon_ceiling_left.png').convert()
+            chameleon_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            chameleon_img = pg.transform.scale(chameleon_img, (self.width, self.height))
+            surface.blit(chameleon_img, (self.xcoor, self.ycoor))
         except:
             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
 
-    def render_camelion_ceiling(self, surface):
+    def render_chameleon_ceiling(self, surface):
         try:
-            camelion_img = pg.image.load('./resources/camelion_ceiling.png').convert()
-            camelion_img.set_colorkey((0, 0, 0))
+            chameleon_img = pg.image.load('./resources/chameleon_ceiling.png').convert()
+            chameleon_img.set_colorkey((0, 0, 0))
             # Resize to match collision box roughly
-            camelion_img = pg.transform.scale(camelion_img, (self.width, self.height))
-            surface.blit(camelion_img, (self.xcoor, self.ycoor))
+            chameleon_img = pg.transform.scale(chameleon_img, (self.width, self.height))
+            surface.blit(chameleon_img, (self.xcoor, self.ycoor))
         except:
             pg.draw.rect(surface, (255, 0, 0), (self.xcoor, self.ycoor, self.width, self.height))
 
@@ -343,18 +343,18 @@ def main():
         if not status.hanging:
 
             if facing_right:
-                status.render_camelion(surface)
+                status.render_chameleon(surface)
 
             elif facing_left:
-                status.render_camelion_left(surface)
+                status.render_chameleon_left(surface)
 
         else:
             if status.hanging and facing_right:
-                status.render_camelion_ceiling(surface)
+                status.render_chameleon_ceiling(surface)
         
 
             elif status.hanging and facing_left:
-                status.render_camelion_ceiling_left(surface)
+                status.render_chameleon_ceiling_left(surface)
             
             
             
