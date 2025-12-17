@@ -50,7 +50,7 @@ levels_button = Button('Choose Level', (500, 340))
 credits_button = Button('Credits', (500, 420))
 exit_button = Button('Quit Game', (500, 500))
 def draw_levels_menu(surface, font):
-    background = game_background('levels_background.png')
+    background = game_background('levels_background.png', True)
     surface.blit(background, (0, 0))
     command = 0
     text = font.render('Camelion Run!', True, 'black')
@@ -73,7 +73,7 @@ restart_button = Button('Restart', (375, 600))
 quit_death_button = Button('Quit Game', (675, 600))
 
 def draw_death_menu(surface, font):
-    background = game_background('gameover_background.jpg')
+    background = game_background('gameover_background.jpg', True)
     surface.blit(background, (0, 0))
     # Semi-transparent overlay
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
