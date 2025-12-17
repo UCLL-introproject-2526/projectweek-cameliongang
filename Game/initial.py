@@ -229,14 +229,7 @@ def main():
                     loading_menu = True
                     loading_timer = 0
 
-            if player.level_complete:
-                current_level_idx +=1
-                if current_level_idx >= len(level_module.LEVELS):
-                    current_level_idx = 0
-                    main_menu = True
-                else:
-                    loading_menu = True
-                    loading_timer = 0
+
 
 
             # Check for death
