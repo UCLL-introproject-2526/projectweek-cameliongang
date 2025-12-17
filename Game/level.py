@@ -83,53 +83,15 @@ LEVEL_1 = [
     "X       S              S  X",
     "X        P             X  X",
     "X      XXXXX        S     X",
-    "X    X              X     X",
+    "X    X              XN    X",
     "X    XX      XX     XXX   X",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
-LEVEL_2  = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X     XXXXXXXXXXXXXXXXXX     X",
-    "X     XXXXXYYXXXYYYYYYYX     X",
-    "X                            X",
-    "XXXX                    G    X",
-    "XXXX       YY                X",
-    "XXXS  XXXXXXXXXXYYYYYYYXXXX  X",
-    "XXXX  SXXXXXXXXXXXXXXXXXXXX  X",
-    "XXXX  SXXXYYGYYYYYYYYGYYYYY  X",
-    "XXXS  XXXX                   X",
-    "XXXS  XXXX                   X",
-    "XXXX  XXXX   YYYYYY  YYYYY   X",
-    "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
-    "XP    SXXX                   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-]
 
 
-# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
-LEVEL_3 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-    "XS                                        SX",
-    "XS  P                                     SX",
-    "XS                                        SX",
-    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
-    "X      S      S      S      S      S      SX",
-    "X      S      S      S      S      S      SX",
-    "X      S      S      S      S      S      SX",
-    "X      SSSSSSSS      SSSSSSSS      SSSSSSSSX",
-    "X                                          X",
-    "X                                          X",
-    "X            S            S            S   X",
-    "X            S            S            S   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-]
-
-
-# NIEUW "EXTRA FUN" LEVEL (UNCOMMENT DIT OM TE SPELEN)
-LEVEL_4 = [
+LEVEL_2 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
     "XS                                        SX",
@@ -153,31 +115,26 @@ LEVEL_4 = [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
 
-LEVEL_5 = [
+# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
+LEVEL_3 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
     "XS                                        SX",
-    "XS           GGGGGGGG    YYY              SX",
-    "XS   SSSS        SSSSSS     SSSSSS        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S  P N   S    S     S    S        SX",
-    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
-    "XS   S           S     Y         S        SX",
-    "XS   S           S               S        SX",
-    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+    "XS  P                                     SX",
     "XS                                        SX",
-    "XS        SSSSSS           SSSSSS         SX",
-    "XS             S           S              SX",
-    "XSSSSSSSS      S           S      SSSSSSSSSX",
-    "X       S      S           S      S        X",
-    "X       S      S           S      S        X",
-    "X       XXXXXXXX           XXXXXXXX        X",
+    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
+    "X     GS      S      S      S      S      SX",
+    "N      S      S      S      S      S      SX",
+    "X     XS      S      S      S      S      SX",
+    "G      SSSSSSSS      SSSSSSSS      SSS  SSSX",
     "X                                          X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "X                                          X",
+    "X            S            S            S   X",
+    "X            S            S            S   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
-LEVEL_6 = [
+LEVEL_4 = [
 
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -198,7 +155,55 @@ LEVEL_6 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
-LEVEL_69 = [
+
+LEVEL_5 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+    "XS                                        SX",
+    "XS           GGGGGGGG    YYY              SX",
+    "XS   SSSS        SSSSSS     SSSSSS        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S  P N   S    S     S    S        SX",
+    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+    "XS   S           S     Y         S        SX",
+    "XS   S           S               S        SX",
+    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+    "XS                                        SX",
+    "XS        SSSSSS           SSSSSS         SX",
+    "XS             S           S              SX",
+    "XSSSSSSSS      S           S      SSSSSSSSGX",
+    "X       S      S           S      S        N",
+    "X       S      S           S      S        X",
+    "X       XXXXXXXX           XXXXXXXX        X",
+    "X                                          X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
+
+
+LEVEL_6  = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X     XXXXXXXXXXXXXXXXXX     X",
+    "X     XXXXXYYXXXYYYYYYYX     X",
+    "X                            X",
+    "XXXX                    G    X",
+    "XXXX       YY                X",
+    "XXXS  XXXXXXXXXXYYYYYYYXXXX  X",
+    "XXXX  SXXXXXXXXXXXXXXXXXXXX  X",
+    "XXXX  SXXXYYGYYYYYYYYGYYYYY  X",
+    "XXXS  XXXX                   X",
+    "XXXS  XXXX                   X",
+    "XXXX  XXXX   YYYYYY  YYYYY   X",
+    "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
+    "XP    SXXX                  NX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+]
+
+
+
+
+
+LEVEL_7 = [
     "X                                       ",
     "X                                       ",
     "X                                       ",
@@ -230,7 +235,7 @@ LEVEL_69 = [
     "XXXX                                    ",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
-LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_69]
+LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7]
 
 # Default width/height based on first level (or dynamic per level load)
 # But StandardUse uses this constant... we might need to update that too if levels vary significantly?
