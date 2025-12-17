@@ -8,6 +8,7 @@ class Tile(pygame.sprite.Sprite):
         self.type = type
         self.rect = self.image.get_rect(topleft=pos)
         self.grappleable = (type== 'G')
+        self.pos = pos
         # Try loading sprite based on type
         try:
             if type == 'S':
