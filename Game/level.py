@@ -166,7 +166,28 @@ LEVEL_5 = [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
 
-LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5]
+LEVEL_6 = [
+
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XS     G      G      G      G             SX",
+    "XS  P                                     SX",
+    "XS                                        SX",
+    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
+    "X      S      X      S      X      S      SX",
+    "X      S      X      S      X      S      SX",
+    "X      S      X      S      X      S      SX",
+    "X      SSSSSSSS      SSSSSSSS      S      SX",
+    "X        G       G      G      G           X",
+    "X                                          X",
+    "X                                          X",
+    "X      X       XX      XX        X         X",
+    "XXXX                                  XXXXXX",
+    "XYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+]
+
+LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6]
 
 # Default width/height based on first level (or dynamic per level load)
 # But StandardUse uses this constant... we might need to update that too if levels vary significantly?

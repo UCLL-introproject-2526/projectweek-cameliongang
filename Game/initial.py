@@ -256,7 +256,7 @@ def main():
             if player.grappling and player.grapple_target:
                 player_screen_pos = player.camera.apply_rect(player.rect).center
                 target_screen_pos = player.camera.to_screen(player.grapple_target)
-                pg.draw.line(surface, (200,200,200), player_screen_pos, target_screen_pos, 2)
+                pg.draw.line(surface, (240, 29, 29), player_screen_pos, target_screen_pos, 5)
                 
                 
 
