@@ -331,4 +331,5 @@ class Player:
 
     
     def grappling_hook(self):
+        pass
         #velocity
