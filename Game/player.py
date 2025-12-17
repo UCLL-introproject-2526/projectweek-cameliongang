@@ -2,6 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
+from standard_use import HealthBar
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -130,21 +131,40 @@ class Player:
     # (for example crouch, dash, etc.)
     
     def find_nearest_grapple_tile(self):
-        nearest = None
-        nearest_dist = float('inf')
+        nearest_tile = None
+        nearest_dist = float("inf")
 
         for tile in self.tiles:
-            if tile.grappleable:
-                dx = tile.rect.centerx - self.rect.centerx
-                dy = tile.rect.centery - self.rect.centery
-                dist = math.hypot(dx, dy)
+            if not getattr(tile, "grappleable", False):
+                continue
 
-                if dist < nearest_dist:
-                    nearest_dist = dist
-                    nearest = tile
+            # Vector to tile
+            dx = tile.rect.centerx - self.rect.centerx
+            dy = tile.rect.centery - self.rect.centery
+            dist = math.hypot(dx, dy)
 
-        return nearest
-    
+            # Distance gate
+            if dist > self.max_grapple_dist:
+                continue
+
+            # Facing cone check (wide ~120°)
+            fx, fy = (self.facing_dir, 0)  # facing vector
+            if dist > 0:
+                nx, ny = dx / dist, dy / dist
+                dot = fx * nx + fy * ny
+                if dot < -0.5:  # outside cone
+                    continue
+
+            # Line-of-sight check
+            if not self.can_grapple_to(tile):
+                continue
+
+            # If we reach here, tile is valid → compare distance
+            if dist < nearest_dist:
+                nearest_dist = dist
+                nearest_tile = tile
+
+        return nearest_tile
     def grappling_hook(self, dt):
         if self.grappling and self.grapple_target:
             dx = self.grapple_target[0] - self.rect.centerx
@@ -167,7 +187,6 @@ class Player:
                 self.rect.center = self.grapple_target
                 self.grappling = False
                 self.grapple_target = None
-
     def can_grapple_to(self, target_tile):
     # Vector from player to tile
         x1, y1 = self.rect.center
@@ -285,8 +304,13 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D' or t_type == 'Y':
+                if t_type == 'D':
                     self.is_dead = True
+                if t_type == 'Y':
+                    HealthBar.hp =-20
+                    
+                    
+                    
                 if t_type == 'S':
                     self.on_wall = True
                     self.wall_side = 1 if total_dx > 0 else -1

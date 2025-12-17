@@ -6,30 +6,147 @@ class Tile(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
         self.type = type
-        if type == 'S':
-            self.image.fill((0, 255, 0)) # Green for Sticky
-            pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
-        else:
-            self.image.fill((139, 69, 19)) # Brown
-            pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
         self.rect = self.image.get_rect(topleft=pos)
+        self.grappleable = (type== 'G')
+        self.pos = pos
+        # Try loading sprite based on type
+        try:
+            if type == 'S':
+                loaded_img = pygame.image.load('./resources/slime_block.png').convert_alpha()
+            elif type == 'Y':
+                loaded_img = pygame.image.load('./resources/spikes.png').convert_alpha()
+                # Update collision rect for Y here as well? No, rect is logic, image is visual.
+                # But image loading is shared.
+            elif type == 'D':
+                # Death zone should be invisible or specific?
+                # If we want invisible, don't load image.
+                raise Exception("Invisible") # Trigger fallback to create empty surface
+            elif type == 'G':
+                loaded_img = pygame.image.load('./resources\grapple_block.png').convert_alpha()
+            else: # 'X'
+                loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
+            
+            # Ensure it fits (just in case)
+            self.image = pygame.transform.scale(loaded_img, (TILE_SIZE, TILE_SIZE))
+            
+            if type == 'Y':
+                 # Spikes: 1/4 tile high, full width hitbox
+                 spike_height = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0], pos[1] + (TILE_SIZE - spike_height), TILE_SIZE, spike_height)
+            
+        except Exception:
+            # Fallback to color rendering
+            # Fallback to color rendering
+            if type == 'S':
+                self.image.fill((0, 255, 0)) # Green for Sticky
+                pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+            elif type == 'D':
+                 self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                 self.image.fill((0, 0, 0, 0)) # Invisible
+        
+            elif type == 'Y':
+                 # Spikes: 1/4 tile high, full width
+                 try:
+                     self.image = pygame.image.load(r".\resources\spikes.png").convert_alpha()
+                     self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
+                 except:
+                     # Fallback if image fails
+                     self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                     rect_area = pygame.Rect(0, TILE_SIZE - (TILE_SIZE // 4), TILE_SIZE, TILE_SIZE // 4)
+                     pygame.draw.rect(self.image, (255, 0, 0), rect_area) # Red
 
+                 # Update the physics rect to match the visual spike area (bottom 1/4)
+                 spike_height = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0], pos[1] + (TILE_SIZE - spike_height), TILE_SIZE, spike_height)
+                 return # Return early because self.rect is already set correctly
+
+
+            else:
+                self.image.fill((139, 69, 19)) # Brown
+                pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+
+# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "X        SSSS SS          X",
+#     "X                  S      X",
+#     "X       S          S      X",
+#     "X       S          X   S  X",
+#     "X       S              S  X",
+#     "X        P             X  X",
+#     "X      XXXXX        S     X",
+#     "X    X              X     X",
+#     "X    XX      XX     XXX   X",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
+
+# # LEVEL 3: DE TOREN (VERTICALE KLIM)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
+#     "XS                        SX",
+#     "XS     P                  SX",
+#     "XS    XXX                 SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "XS                        SX",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
+
+# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 LEVEL_MAP = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                         X",
-    "X       S                 X",
-    "X       S                 X",
-    "X       S                 X",
-    "X        P                X",
-    "X      XXXXX              X",
-    "X    X                    X",
-    "X    XX      XX     XXX   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XS     G      G      G      G             SX",
+    "XS  P                                     SX",
+    "XS            Y             Y             SX",
+    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
+    "X      S      X      S      X      S      SX",
+    "X      S      X      S      X      S      SX",
+    "X      S      X      S      X      S      SX",
+    "X      SSSSSSSS      SSSSSSSS      SSSSSSSSX",
+    "X                                          X",
+    "X                                          X",
+    "X            S            S            S   X",
+    "X            S            S            S   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
+
+# NIEUW "EXTRA FUN" LEVEL (UNCOMMENT DIT OM TE SPELEN)
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+#     "XS                                        SX",
+#     "XS           G     YYY                    SX",
+#     "XS   SSSS        SSSSSS     SSSSSS        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S  P     S    S     S    S        SX",
+#     "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+#     "XS   S           S     Y         S        SX",
+#     "XS   S           S               S        SX",
+#     "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+#     "XS                                        SX",
+#     "XS        SSSSSS           SSSSSS         SX",
+#     "XS             S           S              SX",
+#     "XSSSSSSSS      S           S      SSSSSSSSSX",
+#     "X       S      S           S      S        X",
+#     "X       S      S           S      S        X",
+#     "X       XXXXXXXX           XXXXXXXX        X",
+#     "X                                          X",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
+
+
+
 LEVEL_WIDTH = len(LEVEL_MAP[0]) * TILE_SIZE
-LEVEL_HEIGHT = len(LEVEL_MAP) * TILE_SIZE
+# Exclude the last row (death zone) from the camera height
+LEVEL_HEIGHT = (len(LEVEL_MAP) - 1) * TILE_SIZE
 
 class Level:
     def __init__(self):
@@ -47,13 +164,20 @@ class Level:
                     self.tiles.append(Tile((x, y), 'X'))
                 if cell == 'S':
                      self.tiles.append(Tile((x, y), 'S'))
+                if cell == 'D':
+                     self.tiles.append(Tile((x, y), 'D'))
                 if cell == 'P':
                     self.player_start_pos = (x, y)
+                if cell == 'G':
+                    self.tiles.append(Tile((x,y), 'G'))
+                if cell == 'Y':
+                    self.tiles.append(Tile((x,y), 'Y'))
 
     def render(self, surface, camera):
         for tile in self.tiles:
-            # Simple Optimization: Only draw if visible (camera interaction)
-            # The apply() check effectively does this if we trust Pygame's blit clipping,
-            # but we need to shift the rect.
-            tile_rect_shifted = camera.apply(tile.rect)
-            surface.blit(tile.image, tile_rect_shifted)
+            shifted_rect = camera.apply_rect(tile.rect)
+            if tile.type == 'Y':
+                 # Visual fix: The hitbox is bottom 1/4 (16px), but image is full 64px.
+                 # Shift rendering UP by 48px to align visual bottom with hitbox bottom.
+                 shifted_rect.y -= 48 
+            surface.blit(tile.image, shifted_rect)
