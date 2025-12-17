@@ -328,7 +328,7 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D' or t_type == 'Y':
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
                     self.is_dead = True
                 
             
@@ -406,7 +406,7 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D' or t_type == 'Y':
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
                     self.is_dead = True
                 if t_type == 'N':
                     self.level_complete = True                                        
@@ -442,8 +442,8 @@ class Player:
 
         
 
-    def render_map(self, surface):
-        self.level.render(surface, self.camera)
+    def render_map(self, surface, show_hitboxes=False):
+        self.level.render(surface, self.camera, show_hitboxes)
 
     def render_chameleon(self, surface):
         

@@ -29,7 +29,9 @@ def main():
     enemy_spawn_timer = 0
     y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
     enemy = Enemy(800, y_enemy) 
-    running = True
+    # Debug
+    show_hitboxes = False
+
     running = True
     levels_menu = False
     main_menu = True
@@ -172,6 +174,8 @@ def main():
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
                         pause_menu = not pause_menu
+                    if event.key == pg.K_h:
+                        show_hitboxes = not show_hitboxes
                     
                     if event.key in (pg.K_UP, pg.K_w):
                         player.request_jump()
@@ -257,8 +261,11 @@ def main():
             surface.blit(bg, player.camera.apply_rect(bg_rect))
             
             
-            # Render
-            player.render_map(surface)  # Render tiles first
+            # Render Map
+            player.render_map(surface, show_hitboxes)
+            
+            # Draw Spikes (already handled in render_map)
+            # player.level.render_spikes(surface, player.camera) # If this exists? No, it's inside render_map  # Render tiles first
             # Render alle enemies
             for enemy in enemies:
                 enemy.render(surface, camera)
