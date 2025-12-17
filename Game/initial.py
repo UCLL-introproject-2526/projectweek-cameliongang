@@ -64,15 +64,6 @@ def main():
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-             # Draw the death menu (it draws overlay + buttons)
-             # But we want the game visible behind it?
-             # draw_death_menu does overlay.
-             # We should probably NOT clear screen if we want overlay over game.
-             # But the loop clears screen in 'else' block.
-             # To keep game visible, we need to RENDER game then RENDER menu.
-             # If we want transparent overlay over the game scene:
-             # We need to render the game SCENE, then menu.
-             # But we want to STOP physics.
              
              pg.display.flip()
              clock.tick(60)

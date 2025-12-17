@@ -5,7 +5,7 @@ class Button:
     def __init__(self, txt , pos):
         self.text = txt
         self.pos = pos
-        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,40))
+        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50))
 
     def draw(self, surface, font):
         pg.draw.rect(surface, 'light gray', self.button, 0, 5)
@@ -22,9 +22,9 @@ class Button:
 
 #Maken van het menu
 start_button = Button('Start Game', (500, 400))
-levels_button = Button('Choose Level', (300, 500))
-credits_button = Button('Credits', (500, 500))
-exit_button = Button('Quit Game', (700, 500))
+levels_button = Button('Choose Level', (500, 500))
+credits_button = Button('Credits', (200, 500))
+exit_button = Button('Quit Game', (800, 500))
 def draw_mainmenu(surface, font):
     background = game_background('mainmenu_background.png', True)
     surface.blit(background, (0, 0))
@@ -45,10 +45,6 @@ def draw_mainmenu(surface, font):
 
 
 #Maken van het menu levels
-start_button = Button('Start Game', (500, 260))
-levels_button = Button('Choose Level', (500, 340))
-credits_button = Button('Credits', (500, 420))
-exit_button = Button('Quit Game', (500, 500))
 def draw_levels_menu(surface, font):
     background = game_background('levels_background.png', True)
     surface.blit(background, (0, 0))
