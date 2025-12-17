@@ -84,8 +84,11 @@ def main():
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_UP:
                         player.request_jump()
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    Player.grapple_target = event.pos
+                    #Player.grappling_hook()
 
-            # Held keys per frame
+            # Held keys per frame   
             keys = pg.key.get_pressed()
             player.update_input_Player(keys)
 
