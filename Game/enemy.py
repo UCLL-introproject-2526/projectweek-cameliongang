@@ -2,7 +2,7 @@ import pygame
 import random
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, type_enemy):
+    def __init__(self, type_enemy = 'enemy_1'):
         super().__init__()
         self.type_enemy = type_enemy
 

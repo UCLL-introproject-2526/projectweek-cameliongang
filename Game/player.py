@@ -23,6 +23,8 @@ class Player:
         self.grapple_target=None
         self.grapple_speed=12
         self.grappling=False
+        self.facing_dir = 1  # 1 = right, -1 = left
+        self.max_grapple_dist = 400
 
 
         # Momentum
@@ -196,10 +198,28 @@ class Player:
         self.grappling = True
 
     def try_grapple(self, target_tile):
-        if target_tile.grappleable and self.can_grapple_to(target_tile):
-            self.grapple_to(target_tile.rect.center)
-        else:
-            print("Can't grapple this tile!")
+        dx = target_tile.rect.centerx - self.rect.centerx
+        dy = target_tile.rect.centery - self.rect.centery
+        dist = math.hypot(dx, dy)
+
+        if dist > self.max_grapple_dist:
+            print("Too far to grapple!")
+            return
+
+        # Facing check using dot product
+        facing_vector = (self.facing_dir, 0)  # (1,0) for right, (-1,0) for left
+        to_tile_vector = (dx, dy)
+
+        dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
+        if dot <= 0:
+            print("Tile is behind you!")
+            return
+
+        if not self.can_grapple_to(target_tile):
+            print("Blocked by wall!")
+            return
+
+        self.grapple_to(target_tile.rect.center)
 
     def update_physics(self, dx, keys, dt):
         #grapling call
@@ -372,28 +392,32 @@ class Player:
         self.level.render(surface, self.camera)
 
     def render_camelion(self, surface):
-        if 'right' in self.sprites:
-            camelion_img = self.sprites['right']
-            rect = camelion_img.get_rect()
-            rect.centerx = self.rect.centerx
-            rect.top = self.rect.top
-            shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+        
+
+            if 'right' in self.sprites:
+                camelion_img = self.sprites['right']
+                rect = camelion_img.get_rect()
+                rect.centerx = self.rect.centerx
+                rect.top = self.rect.top
+                shifted_rect = self.camera.apply_rect(rect)
+                surface.blit(camelion_img, shifted_rect)
+            else:
+                shifted_rect = self.camera.apply_rect(self.rect)
+                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_left(self, surface):
-        if 'left' in self.sprites:
-            camelion_img = self.sprites['left']
-            rect = camelion_img.get_rect()
-            rect.centerx = self.rect.centerx
-            rect.top = self.rect.top
-            shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+        
+
+            if 'left' in self.sprites:
+                camelion_img = self.sprites['left']
+                rect = camelion_img.get_rect()
+                rect.centerx = self.rect.centerx
+                rect.top = self.rect.top
+                shifted_rect = self.camera.apply_rect(rect)
+                surface.blit(camelion_img, shifted_rect)
+            else:
+                shifted_rect = self.camera.apply_rect(self.rect)
+                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_camelion_ceiling_left(self, surface):
         if 'ceiling_left' in self.sprites:

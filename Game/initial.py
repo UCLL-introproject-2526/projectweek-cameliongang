@@ -4,6 +4,7 @@ from camera import Camera
 from menus import draw_mainmenu, draw_death_menu, draw_levels_menu, draw_loading_screen
 from player import Player
 from standard_use import play_music, game_background, HealthBar, create_main_surface
+from enemy import Enemy
 
 
 # Main game loop function
@@ -13,6 +14,7 @@ def main():
     surface = create_main_surface()
     clock = pg.time.Clock()
     player = Player()
+    enemy = Enemy()
     running = True
     running = True
     levels_menu = False
@@ -141,19 +143,19 @@ def main():
 
 
 
-            # Held keys per frame   
+                    # Held keys per frame
             keys = pg.key.get_pressed()
             player.update_input_Player(keys)
 
-            # Input Handling for horizontal movement and facing
+            # Horizontal input and facing
             if keys[pg.K_LEFT] or keys[pg.K_a]:
                 dx = -5
-                facing_left = True
-                facing_right = False
+                player.facing_dir = -1    # <-- keep Player's facing up to date
             elif keys[pg.K_RIGHT] or keys[pg.K_d]:
                 dx = 5
-                facing_right = True
-                facing_left = False
+                player.facing_dir = 1     # <-- keep Player's facing up to date
+            else:
+                dx = 0
             
 
 
@@ -181,10 +183,10 @@ def main():
             player.render_map(surface)  # Render tiles first
             if player.hanging==True:
 
-                if facing_right:
+                if player.facing_dir == 1 :
                     player.render_camelion_ceiling(surface)
 
-                elif facing_left:
+                elif player.facing_dir == -1:
                     player.render_camelion_ceiling_left(surface)
 
             elif player.on_wall == True:
@@ -204,11 +206,11 @@ def main():
                         player.render_camelion_left_wall(surface)
 
             else:
-                if not player.hanging and facing_right:
+                if not player.hanging and player.facing_dir == 1 :
                     player.render_camelion(surface)
             
 
-                elif not player.hanging and facing_left:
+                elif not player.hanging and player.facing_dir == -1 :
                     player.render_camelion_left(surface)
             
             if player.grappling and player.grapple_target:
