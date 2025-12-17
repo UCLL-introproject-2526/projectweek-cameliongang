@@ -39,25 +39,50 @@ def draw_mainmenu(surface, font):
         command = 1
     if credits_button.check_clicked():
         command = 2
+    if levels_button.check_clicked():
+        command = 3
     if start_button.check_clicked():
         command = 4
     return command
 
+
+#Maken van het menu levels
+start_button = Button('Start Game', (500, 260))
+levels_button = Button('Choose Level', (500, 340))
+credits_button = Button('Credits', (500, 420))
+exit_button = Button('Quit Game', (500, 500))
+def draw_levels_menu(surface, font):
+    background = game_background('levels_background.png')
+    surface.blit(background, (0, 0))
+    command = 0
+    text = font.render('Camelion Run!', True, 'black')
+    surface.blit(text, (500, 200))
+    start_button.draw(surface, font)
+    levels_button.draw(surface, font)
+    credits_button.draw(surface, font)
+    exit_button.draw(surface, font)
+    if exit_button.check_clicked():
+        command = 1
+    if credits_button.check_clicked():
+        command = 2
+    if start_button.check_clicked():
+        command = 4
+    return command
+
+
 # Death Menu Content
-restart_button = Button('Restart', (500, 300))
-quit_death_button = Button('Quit Game', (500, 400))
+restart_button = Button('Restart', (375, 600))
+quit_death_button = Button('Quit Game', (675, 600))
 
 def draw_death_menu(surface, font):
+    background = game_background('gameover_background.jpg')
+    surface.blit(background, (0, 0))
     # Semi-transparent overlay
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
-    overlay.fill((0, 0, 0, 180))
+    overlay.fill((0, 0, 0, 100))
     surface.blit(overlay, (0,0))
     
     command = 0
-    text = font.render('YOU DIED', True, 'red')
-    # Center text roughly
-    text_rect = text.get_rect(center=(640, 200))
-    surface.blit(text, text_rect)
     
     restart_button.draw(surface, font)
     quit_death_button.draw(surface, font)
