@@ -68,6 +68,10 @@ def main():
     # Main game loop
     facing_left = False
     facing_right = True
+    
+    # Delta time initialization
+    dt_factor = 1.0
+
     while running:
         dx = 0
         if main_menu:
@@ -80,6 +84,7 @@ def main():
                 if event.type == pg.QUIT:
                     running = False
              pg.display.flip()
+             # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
              continue
         else:
@@ -116,7 +121,7 @@ def main():
             
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            status.update_physics(dx, keys)
+            status.update_physics(dx, keys, dt_factor)
 
             # Update Camera
             status.camera.update(status)
@@ -164,7 +169,8 @@ def main():
             #healthbar creation
             health_bar.draw(surface)
             # Delta time
-            clock.tick(60)
+            dt_ms = clock.tick(60)
+            dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
 
     pg.quit()
