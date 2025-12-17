@@ -15,6 +15,7 @@ def main():
     player = Player()
     running = True
     running = True
+    levels_menu = False
     main_menu = True
     loading_menu = False
     loading_timer = 0
@@ -43,7 +44,8 @@ def main():
              if command == 1:
                 running = False
              if command == 3:
-                 pass
+                 levels_menu = True
+                 main_menu =False
              if command == 4:
                 main_menu = False
                 loading_menu = True
@@ -84,6 +86,15 @@ def main():
              if command == 2: # Quit
                  running = False
              
+             for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+             
+             pg.display.flip()
+             clock.tick(60)
+             continue
+        elif levels_menu:
+             command = draw_levels_menu(surface, font)
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
