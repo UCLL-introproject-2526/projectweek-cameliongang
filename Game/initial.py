@@ -209,6 +209,17 @@ def main():
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
+                        # Check for level completion
+            if player.level_complete:
+                current_level_idx += 1
+                if current_level_idx >= len(level_module.LEVELS):
+                    # All levels completed! Back to main menu or victory screen
+                    current_level_idx = 0  # Loop back, or set main_menu = True
+                    main_menu = True
+                else:
+                    # Load next level
+                    loading_menu = True
+                    loading_timer = 0
 
             if player.level_complete:
                 current_level_idx +=1
