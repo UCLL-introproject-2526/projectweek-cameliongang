@@ -66,59 +66,59 @@ class Tile(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 # HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
-# LEVEL_MAP = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "X        SSSS SS          X",
-#     "X                  S      X",
-#     "X       S          S      X",
-#     "X       S          X   S  X",
-#     "X       S              S  X",
-#     "X        P             X  X",
-#     "X      XXXXX        S     X",
-#     "X    X              X     X",
-#     "X    XX      XX     XXX   X",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
-# ]
+LEVEL_1 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X        SSSS SS          X",
+    "X                  S      X",
+    "X       S          S      X",
+    "X       S          X   S  X",
+    "X       S              S  X",
+    "X        P             X  X",
+    "X      XXXXX        S     X",
+    "X    X              X     X",
+    "X    XX      XX     XXX   X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
 
-# # LEVEL 3: DE TOREN (VERTICALE KLIM)
-# LEVEL_MAP = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
-#     "XS                        SX",
-#     "XS     P                  SX",
-#     "XS    XXX                 SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "XS                        SX",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
-# ]
+# LEVEL 3: DE TOREN (VERTICALE KLIM)
+LEVEL_2 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
+    "XS                        SX",
+    "XS     P                  SX",
+    "XS    XXX                 SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
-# LEVEL_MAP = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-#     "XS                                        SX",
-#     "XS  P                                     SX",
-#     "XS                                        SX",
-#     "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
-#     "X      S      S      S      S      S      SX",
-#     "X      S      S      S      S      S      SX",
-#     "X      S      S      S      S      S      SX",
-#     "X      SSSSSSSS      SSSSSSSS      SSSSSSSSX",
-#     "X                                          X",
-#     "X                                          X",
-#     "X            S            S            S   X",
-#     "X            S            S            S   X",
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-# ]
+LEVEL_3 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+    "XS                                        SX",
+    "XS  P                                     SX",
+    "XS                                        SX",
+    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
+    "X      S      S      S      S      S      SX",
+    "X      S      S      S      S      S      SX",
+    "X      S      S      S      S      S      SX",
+    "X      SSSSSSSS      SSSSSSSS      SSSSSSSSX",
+    "X                                          X",
+    "X                                          X",
+    "X            S            S            S   X",
+    "X            S            S            S   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+]
 
 
 # NIEUW "EXTRA FUN" LEVEL (UNCOMMENT DIT OM TE SPELEN)
-LEVEL_MAP = [
+LEVEL_4 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
     "XS                                        SX",
@@ -142,20 +142,53 @@ LEVEL_MAP = [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
 
+LEVEL_5 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+    "XS                                        SX",
+    "XS           GGGGGGGG    YYY              SX",
+    "XS   SSSS        SSSSSS     SSSSSS        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S  P     S    S     S    S        SX",
+    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+    "XS   S           S     Y         S        SX",
+    "XS   S           S               S        SX",
+    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+    "XS                                        SX",
+    "XS        SSSSSS           SSSSSS         SX",
+    "XS             S           S              SX",
+    "XSSSSSSSS      S           S      SSSSSSSSSX",
+    "X       S      S           S      S        X",
+    "X       S      S           S      S        X",
+    "X       XXXXXXXX           XXXXXXXX        X",
+    "X                                          X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
 
-LEVEL_WIDTH = len(LEVEL_MAP[0]) * TILE_SIZE
-# Exclude the last row (death zone) from the camera height
-LEVEL_HEIGHT = (len(LEVEL_MAP) - 1) * TILE_SIZE
+LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5]
+
+# Default width/height based on first level (or dynamic per level load)
+# But StandardUse uses this constant... we might need to update that too if levels vary significantly?
+# For now, let's keep them dynamic in the class but these global constants might be tricky.
+# We'll rely on the loaded level's dimensions.
+LEVEL_WIDTH = len(LEVELS[0][0]) * TILE_SIZE
+LEVEL_HEIGHT = (len(LEVELS[0]) - 1) * TILE_SIZE
 
 class Level:
-    def __init__(self):
+    def __init__(self, level_index=0):
         self.tiles = []
         self.player_start_pos = (100, 100) # Default
+        self.current_map = LEVELS[level_index]
+        # Update globals/instance vars for this specific level
+        global LEVEL_WIDTH, LEVEL_HEIGHT
+        LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE
+        LEVEL_HEIGHT = (len(self.current_map) - 1) * TILE_SIZE
         self.setup_level()
 
     def setup_level(self):
         self.tiles = []
-        for row_index, row in enumerate(LEVEL_MAP):
+        for row_index, row in enumerate(self.current_map):
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_SIZE
                 y = row_index * TILE_SIZE
