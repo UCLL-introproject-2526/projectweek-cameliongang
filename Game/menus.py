@@ -118,7 +118,7 @@ def draw_death_menu(surface, font):
     if restart_button.check_clicked():
         command = 1 # Restart
     if quit_death_button.check_clicked():
-        command = 2 # Quit
+        pg.quit
     if main_menu_death_button.check_clicked():
         command = 3 # Main Menu
     if level_select_death_button.check_clicked():
