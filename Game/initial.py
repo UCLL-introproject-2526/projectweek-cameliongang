@@ -102,7 +102,7 @@ def main():
             
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            status.update_physics(dx, keys, dt_factor)
+            player.update_physics(dx, keys, dt_factor)
 
             # Update Camera
             player.camera.update(player)
