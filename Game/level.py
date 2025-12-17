@@ -182,7 +182,7 @@ LEVEL_6 = [
     "X                                          X",
     "X                                          X",
     "X       XXX     XXX    XXX     XXX         X",
-    "XXXX                                  XXXXXX",
+    "XXXX                                 XXXXXXX",
     "XYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
