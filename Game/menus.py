@@ -91,3 +91,24 @@ def draw_death_menu(surface, font):
         command = 2 # Quit
         
     return command
+
+def draw_loading_screen(surface, font, progress):
+    # Reuse main menu background or black
+    surface.fill((0, 0, 0)) # Simple black background for contrast
+    
+    # "LOADING..." Text
+    text = font.render('LOADING...', True, 'white')
+    text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
+    surface.blit(text, text_rect)
+    
+    # Progress Bar
+    bar_width = 400
+    bar_height = 30
+    bar_x = (surface.get_width() - bar_width) // 2
+    bar_y = surface.get_height() // 2 + 20
+    
+    # Draw container
+    pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
+    
+    # Draw progress
+    fill_width = int(bar_width * progress)
