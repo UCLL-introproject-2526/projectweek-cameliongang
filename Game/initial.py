@@ -1,10 +1,12 @@
 import pygame as pg
-from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
-from camera import Camera
-from menus import draw_mainmenu, draw_death_menu, draw_levels_menu, draw_loading_screen
 from player import Player
-from standard_use import play_music, game_background, HealthBar, create_main_surface
+from camera import Camera
+import level as level_module
+from level import Level # Keep Level class import for convenience
+from menus import draw_mainmenu, draw_levels_menu, draw_death_menu, draw_loading_screen
+from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, game_background, play_music, create_main_surface
 
+# create_main_surface imported from standard_use
 
 # Main game loop function
 def main():
@@ -12,7 +14,11 @@ def main():
     pg.init()
     surface = create_main_surface()
     clock = pg.time.Clock()
-    player = Player()
+    
+    current_level_idx = 0
+    lvl = Level(current_level_idx)
+    camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
+    player = Player(lvl, camera) # Player now takes level and camera
     running = True
     running = True
     levels_menu = False
@@ -28,9 +34,9 @@ def main():
     play_music()
 
     #background
-    background = game_background('background_img.jpg')
-
-    # Main game loop
+    # Draw Game
+    bg = game_background('background_img.jpg', width=level_module.LEVEL_WIDTH, height=level_module.LEVEL_HEIGHT)
+    surface.blit(bg, (0, 0)) # Parallax/Static?
     facing_left = False
     facing_right = True
     
@@ -42,7 +48,16 @@ def main():
         if main_menu:
              command = draw_mainmenu(surface, font)
              if command == 1:
-                running = False
+                 # Restart
+                 # Reset everything
+                 # Defer creation to loading loop
+                 
+                 loading_menu = True 
+                 loading_timer = 0
+                 
+                 main_menu = False
+                 levels_menu = False
+                 pass
              if command == 3:
                  levels_menu = True
                  main_menu =False
@@ -58,15 +73,27 @@ def main():
              clock.tick(60)
              continue
         elif loading_menu:
-             # Calculate progress (0.0 to 1.0)
-             progress = min(1.0, loading_timer / LOADING_DURATION)
+             # Draw Loading Screen
+             loading_timer += 1
+             
+             # Perform heavy loading on the first few frames to ensure UI has rendered at least once
+             if loading_timer == 5: # Small delay to let "Loading..." appear
+                 # Re-init level
+                 lvl = Level(current_level_idx)
+                 # Re-init camera with new dimensions
+                 camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
+                 
+                 # Reload background to match new level size
+                 bg = game_background('background_img.jpg', width=level_module.LEVEL_WIDTH, height=level_module.LEVEL_HEIGHT)
+                 
+             progress = loading_timer / LOADING_DURATION
              draw_loading_screen(surface, font, progress)
              
-             loading_timer += 1
              if loading_timer >= LOADING_DURATION:
                  loading_menu = False
                  # Game starts now - Initialize Player here to cover the load time
-                 player = Player()
+                 # Ensure lvl/camera are ready (they should be from timer==5)
+                 player = Player(lvl, camera)
              
              pg.display.flip()
              clock.tick(60)
@@ -79,10 +106,6 @@ def main():
                  death_menu = False
                  loading_menu = True
                  loading_timer = 0
-                 # Reset background if needed? No, standard reuse.
-                 # Re-fetch background cause player changed?
-                 # background func uses player camera...
-                 # But background itself is just an image. The blit happens in loop.
              if command == 2: # Quit
                  running = False
              
@@ -95,6 +118,17 @@ def main():
              continue
         elif levels_menu:
              command = draw_levels_menu(surface, font)
+             if command >= 10: # Level selected
+                 current_level_idx = command - 10
+                 # Start Loading immediately, defer logic to loading_menu loop
+                 levels_menu = False
+                 loading_menu = True
+                 loading_timer = 0
+             
+             elif command == 2: # Back
+                 levels_menu = False
+                 main_menu = True
+                 
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -126,7 +160,7 @@ def main():
                     world_pos = player.camera.to_world(event.pos)
 
                     # Find the tile under the mouse
-                    for tile in player.tiles:
+                    for tile in lvl.tiles: # Use lvl here
                         if tile.rect.collidepoint(world_pos):
                             if tile.grappleable:
                                 player.try_grapple(tile)
@@ -174,8 +208,8 @@ def main():
             # Background is scaled to LEVEL size.
             surface.fill((0,0,0)) # Clear
             # Create a background rect and shift it
-            bg_rect = background.get_rect()
-            surface.blit(background, player.camera.apply_rect(bg_rect))
+            bg_rect = bg.get_rect()
+            surface.blit(bg, player.camera.apply_rect(bg_rect))
 
             # Render
             player.render_map(surface)  # Render tiles first

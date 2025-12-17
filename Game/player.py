@@ -5,7 +5,7 @@ import math
 
 # Class to manage the game Player, including position and rendering
 class Player:
-    def __init__(self):
+    def __init__(self, level, camera):
         self.velocity_y = 0
         self.gravity = 0.675
         self.jump_strength = -15
@@ -29,13 +29,13 @@ class Player:
         self.momentum_x = 0
 
         # Load Level
-        self.level = Level()
+        self.level = level
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.tiles = self.level.tiles
 
         #find location of player
         # Camera
-        self.camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
+        self.camera = camera
         self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Coyote time
