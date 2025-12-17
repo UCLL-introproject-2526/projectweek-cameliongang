@@ -1,0 +1,128 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #222;
+    color: #eee;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    max-width: 100%;
+}
+
+h1 { margin: 0; }
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: #333;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+input {
+    width: 60px;
+    padding: 5px;
+    background: #444;
+    border: 1px solid #555;
+    color: white;
+    border-radius: 4px;
+}
+
+button {
+    padding: 8px 16px;
+    cursor: pointer;
+    background: #007acc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+button:hover { background: #0098ff; }
+
+.palette {
+    display: flex;
+    gap: 10px;
+    background: #333;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.palette-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 2px solid #555;
+    border-radius: 4px;
+    font-weight: bold;
+    user-select: none;
+}
+
+.palette-item:hover { transform: scale(1.1); }
+.palette-item.active { border-color: white; box-shadow: 0 0 10px white; }
+
+/* Tile Colors */
+.palette-item[data-type="X"], .cell.type-X { background-color: #8b4513; color: white; } /* Brown */
+.palette-item[data-type="S"], .cell.type-S { background-color: #32cd32; color: black; } /* Lime Green */
+.palette-item[data-type="G"], .cell.type-G { background-color: #ffd700; color: black; } /* Gold */
+.palette-item[data-type="Y"], .cell.type-Y { background-color: #9400d3; color: white; } /* Purple/Spike */
+.palette-item[data-type="N"], .cell.type-N { background-color: #00ffff; color: black; } /* Cyan */
+.palette-item[data-type="D"], .cell.type-D { background-color: #b22222; color: white; } /* Firebrick */
+.palette-item[data-type="P"], .cell.type-P { background-color: #1e90ff; color: white; } /* Dodger Blue */
+.palette-item[data-type=" "], .cell.type-space { background-color: #444; color: #888; } /* Empty */
+
+.grid-container {
+    display: grid;
+    gap: 1px;
+    background-color: #111;
+    border: 2px solid #555;
+    overflow: auto;
+    max-width: 90vw;
+    max-height: 60vh;
+}
+
+.cell {
+    width: 25px;
+    height: 25px;
+    background-color: #444; /* Default empty */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 10px;
+    color: transparent;
+    user-select: none;
+    cursor: crosshair;
+}
+
+.cell:hover {
+    border: 1px solid rgba(255,255,255,0.5);
+}
+
+.output-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    background: #1e1e1e;
+    color: #00ff00;
+    font-family: monospace;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 4px;
+}
