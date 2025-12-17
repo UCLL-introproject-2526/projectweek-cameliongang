@@ -6,9 +6,10 @@ class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y, type_enemy='enemy_1'):
         super().__init__()
         self.type_enemy = type_enemy
-        self.speed = 2
+        self.speed = 6
         self.damage = 10
         self.animation_index = 0
+        self.size = (50,50)
         
         # Load images with fallback
         self.frames = []
@@ -24,10 +25,10 @@ class Enemy(pg.sprite.Sprite):
             # Fallback to a red square or potato if available
             try:
                 img = pg.image.load('./resources/potato.png').convert_alpha()
-                img = pg.transform.scale(img, (50, 50))
+                img = pg.transform.scale(img, self.size)
                 self.frames = [img]
             except:
-                surf = pg.Surface((50, 50))
+                surf = pg.Surface(self.size)
                 surf.fill((255, 0, 0)) # Red square fallback
                 self.frames = [surf]
 
@@ -46,7 +47,8 @@ class Enemy(pg.sprite.Sprite):
         self.rect.x -= self.speed
         if self.rect.right < 0:
             self.rect.left = LEVEL_WIDTH
-
+            self.rect.y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
     def render(self, surface, camera):
         shifted_rect = camera.apply_rect(self.rect)
         surface.blit(self.image, shifted_rect)
+
