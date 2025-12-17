@@ -147,6 +147,12 @@ class Player:
         #grapling call
         if self.grappling and self.grapple_target:
             self.grappling_hook(dt)
+            # IMPORTANT: Still check for death even while grappling
+            player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+            for tile in self.tiles:
+                if tile.rect.colliderect(player_rect):
+                    if getattr(tile, 'type', 'X') == 'D':
+                        self.is_dead = True
         else:
     # normal gravity, collisions, etc.
         # Validate existing wall stick (Persistent Player)
