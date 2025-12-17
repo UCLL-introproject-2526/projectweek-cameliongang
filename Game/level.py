@@ -90,37 +90,25 @@ LEVEL_1 = [
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
 LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X                                                                                                           X",
-    "X    S      XXXX                                                                                            X", 
-    "X    S                                                                                                      X", 
-    "X           S                                                                                               X", 
-    "X           S   Y                                                                                           X", 
-    "X    S          Y                                                                                           X", 
-    "X    S          Y                                                                                           X", 
-    "X               Y                                                                                           X", 
-    "X           S   Y                                                                                           X",
-    "X  P        S   Y                                                                                           X", 
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  
+
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X                            X",
+    "X                            X",
+    "X                            X",
+    "XXXX                         X",
+    "XXXX                         X",
+    "XXXS  XXX                    X",
+    "XXXX  SXX                    X",
+    "XXXX  SXX                    X",
+    "XXXS  XXX                    X",
+    "XXXS  XXX                    X",
+    "XXXX  XXX                    X",
+    "XXXX  SXX                    X",
+    "XP    SXX                    X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 ]
+  
+
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 LEVEL_3 = [
