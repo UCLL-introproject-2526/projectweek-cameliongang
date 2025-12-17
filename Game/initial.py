@@ -23,8 +23,8 @@ def main():
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
-    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
-    enemy = Enemy(800, y_enemy) 
+    y_enemy = random.randint(100,500)
+    enemy = Enemy(LEVEL_WIDTH, y_enemy) 
     running = True
     running = True
     levels_menu = False
@@ -221,6 +221,16 @@ def main():
                     loading_menu = True
                     loading_timer = 0
 
+            if player.level_complete:
+                current_level_idx +=1
+                if current_level_idx >= len(level_module.LEVELS):
+                    current_level_idx = 0
+                    main_menu = True
+                else:
+                    loading_menu = True
+                    loading_timer = 0
+
+
             # Check for death
             if player.is_dead:
                 death_menu = True
@@ -237,7 +247,8 @@ def main():
             # Create a background rect and shift it
             bg_rect = bg.get_rect()
             surface.blit(bg, player.camera.apply_rect(bg_rect))
-
+            
+            
             # Render
             player.render_map(surface)  # Render tiles first
             enemy.render(surface, camera) # Render enemy

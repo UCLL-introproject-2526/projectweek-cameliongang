@@ -1,6 +1,7 @@
 import pygame as pg
 import random
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
+import math
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y, type_enemy='enemy_1'):
@@ -8,7 +9,11 @@ class Enemy(pg.sprite.Sprite):
         self.type_enemy = type_enemy
         self.speed = 6
         self.damage = 10
+        self.hoveramplitude = 70
+        self.hover_speed = 0.1
         self.animation_index = 0
+        self.hover_phase = 0
+        self.base_y = y
         self.size = (50,50)
         
         # Load images with fallback
@@ -44,10 +49,20 @@ class Enemy(pg.sprite.Sprite):
         self.image = self.frames[int(self.animation_index)]
         
         # Movement
+        
+        
+        self.hover_phase += self.hover_speed
+        self.rect.y = self.base_y + int(math.sin(self.hover_phase) * self.hoveramplitude)
+        
+        self.rect.y = max(0, min(LEVEL_HEIGHT - self.rect.height, self.rect.y))
+        #nu gaat die niet meer buiten het scherm
         self.rect.x -= self.speed
         if self.rect.right < 0:
             self.rect.left = LEVEL_WIDTH
-            self.rect.y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
+            self.base_y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
+            self.hover_phase = 0  
+            self.rect.y = self.base_y
+
     def render(self, surface, camera):
         shifted_rect = camera.apply_rect(self.rect)
         surface.blit(self.image, shifted_rect)
