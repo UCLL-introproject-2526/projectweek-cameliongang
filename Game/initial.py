@@ -70,8 +70,6 @@ def main():
              # We should probably NOT clear screen if we want overlay over game.
              # But the loop clears screen in 'else' block.
              # To keep game visible, we need to RENDER game then RENDER menu.
-             # So 'death_menu' logic should probably be AFTER game render?
-             # OR we just accept a black background or whatever was last frame.
              # If we want transparent overlay over the game scene:
              # We need to render the game SCENE, then menu.
              # But we want to STOP physics.
