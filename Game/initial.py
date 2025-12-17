@@ -355,6 +355,8 @@ class state:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
+   
+
 
 
     def render_bush(self, surface):
@@ -429,6 +431,12 @@ def main():
             dx = 5
             facing_right = True
             facing_left = False
+
+
+            #dance mode#
+        if keys[pg.K_p]:
+            status.camelion_dance_mode(surface)
+            #dance mode#
 
         
 
