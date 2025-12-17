@@ -84,9 +84,9 @@ def main():
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_UP:
                         player.request_jump()
+
                 elif event.type == pg.MOUSEBUTTONDOWN:
-                    Player.grapple_target = event.pos
-                    #Player.grappling_hook()
+                    player.grapple_target = event.pos
 
             # Held keys per frame   
             keys = pg.key.get_pressed()
@@ -102,7 +102,7 @@ def main():
                 facing_right = True
                 facing_left = False
 
-            
+            player.grappling_hook()
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             player.update_physics(dx, keys, dt_factor)
