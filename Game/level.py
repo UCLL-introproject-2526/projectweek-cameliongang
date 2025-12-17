@@ -25,7 +25,7 @@ class Tile(pygame.sprite.Sprite):
                 loaded_img = pygame.image.load('./resources\grapple_block.png').convert_alpha()
 
             elif type == 'N':
-                loaded_img=pygame.image.load('').convert_alpha
+                loaded_img=pygame.image.load('./resources/end_gate.png').convert_alpha()
 
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
@@ -89,21 +89,24 @@ LEVEL_1 = [
 ]
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
-LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
-    "XS                        SX",
-    "XS     P                  SX",
-    "XS    XXX                 SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+LEVEL_2  = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X     XXXXXXXXXXXXXXXXXX     X",
+    "X     XXXXXYYXXXYYYYYYYX     X",
+    "X                            X",
+    "XXXX                    G    X",
+    "XXXX       YY                X",
+    "XXXS  XXXXXXXXXXYYYYYYYXXXX  X",
+    "XXXX  SXXXXXXXXXXXXXXXXXXXX  X",
+    "XXXX  SXXXYYGYYYYYYYYGYYYYY  X",
+    "XXXS  XXXX                   X",
+    "XXXS  XXXX                   X",
+    "XXXX  XXXX   YYYYYY  YYYYY   X",
+    "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
+    "XP    SXXX                   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 ]
+
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 LEVEL_3 = [
@@ -195,7 +198,39 @@ LEVEL_6 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
-LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6]
+LEVEL_69 = [
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X   SGSSS                               ",
+    "X                                       ",
+    "X                                       ",
+    "X        XXXXXXXXXXX   XXXXXXXX         ",
+    "XG       X         X   X      X         ",
+    "X        X         X   X      X         ",
+    "X        XXXX   XXXX   XXXXX  X         ",
+    "X           X   X          X  X         ",
+    "X     G     X   X          X  X         ",
+    "X           X   X          X  X         ",
+    "X           X   X          X  X         ",
+    "XG          X   X      XXX X  X         ",
+    "X           X   X      X X X  X         ",
+    "X           X   X      X XXX  X         ",
+    "X           X   X      X      X         ",
+    "X       G   XXXXX      XXXXXXXX         ",
+    "X                                       ",
+    "XP                                      ",
+    "XXXX                                    ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+]
+LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_69]
 
 # Default width/height based on first level (or dynamic per level load)
 # But StandardUse uses this constant... we might need to update that too if levels vary significantly?

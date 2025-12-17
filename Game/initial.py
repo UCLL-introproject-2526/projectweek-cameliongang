@@ -229,14 +229,7 @@ def main():
                     loading_menu = True
                     loading_timer = 0
 
-            if player.level_complete:
-                current_level_idx +=1
-                if current_level_idx >= len(level_module.LEVELS):
-                    current_level_idx = 0
-                    main_menu = True
-                else:
-                    loading_menu = True
-                    loading_timer = 0
+
 
 
             # Check for death
@@ -266,34 +259,34 @@ def main():
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
-                    player.render_camelion_ceiling(surface)
+                    player.render_chameleon_ceiling(surface)
 
                 elif player.facing_dir == -1:
-                    player.render_camelion_ceiling_left(surface)
+                    player.render_chameleon_ceiling_left(surface)
 
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
                     # Wall is to the RIGHT.
                     if player.wall_facing_down:
-                        player.render_camelion_right_wall_down(surface)
+                        player.render_chameleon_right_wall_down(surface)
                     else:
-                        player.render_camelion_right_wall(surface)
+                        player.render_chameleon_right_wall(surface)
                 
                 else:
                     # Wall is to the LEFT.
                     if player.wall_facing_down:
-                        player.render_camelion_left_wall_down(surface)
+                        player.render_chameleon_left_wall_down(surface)
                     else:
-                        player.render_camelion_left_wall(surface)
+                        player.render_chameleon_left_wall(surface)
 
             else:
                 if not player.hanging and player.facing_dir == 1 :
-                    player.render_camelion(surface)
+                    player.render_chameleon(surface)
             
 
                 elif not player.hanging and player.facing_dir == -1 :
-                    player.render_camelion_left(surface)
+                    player.render_chameleon_left(surface)
             
             if player.grappling and player.grapple_target:
                 player_screen_pos = player.camera.apply_rect(player.rect).center

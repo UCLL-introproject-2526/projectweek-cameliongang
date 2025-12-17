@@ -63,12 +63,12 @@ class Player:
     def load_sprites(self):
 
         try:
-            self.sprites['right'] = pg.image.load('./resources/camelion.png').convert_alpha()
-            self.sprites['left'] = pg.image.load('./resources/camelion_left.png').convert_alpha()
-            self.sprites['ceiling'] = pg.image.load('./resources/camelion_ceiling.png').convert_alpha()
-            self.sprites['ceiling_left'] = pg.image.load('./resources/camelion_ceiling_left.png').convert_alpha()
-            self.sprites['left_wall'] = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
-            self.sprites['right_wall'] = pg.image.load('./resources/camelion_right_wall.png').convert_alpha()
+            self.sprites['right'] = pg.image.load('./resources/chameleon.png').convert_alpha()
+            self.sprites['left'] = pg.image.load('./resources/chameleon_left.png').convert_alpha()
+            self.sprites['ceiling'] = pg.image.load('./resources/chameleon_ceiling.png').convert_alpha()
+            self.sprites['ceiling_left'] = pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha()
+            self.sprites['left_wall'] = pg.image.load('./resources/chameleon_left_wall.png').convert_alpha()
+            self.sprites['right_wall'] = pg.image.load('./resources/chameleon_right_wall.png').convert_alpha()
             self.sprites['right_wall_down'] = pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha()
             self.sprites['left_wall_down'] = pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha()
         except Exception as e:
@@ -315,11 +315,10 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D':
+                if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
-                if t_type == 'Y':
-                    HealthBar.hp =-20
                 
+            
                 if t_type == 'N':
                     self.level_complete = True                                        
                     
@@ -433,102 +432,102 @@ class Player:
     def render_map(self, surface):
         self.level.render(surface, self.camera)
 
-    def render_camelion(self, surface):
+    def render_chameleon(self, surface):
         
 
             if 'right' in self.sprites:
-                camelion_img = self.sprites['right']
-                rect = camelion_img.get_rect()
+                chameleon_img = self.sprites['right']
+                rect = chameleon_img.get_rect()
                 rect.centerx = self.rect.centerx
                 rect.top = self.rect.top
                 shifted_rect = self.camera.apply_rect(rect)
-                surface.blit(camelion_img, shifted_rect)
+                surface.blit(chameleon_img, shifted_rect)
             else:
                 shifted_rect = self.camera.apply_rect(self.rect)
                 pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
-    def render_camelion_left(self, surface):
+    def render_chameleon_left(self, surface):
         
 
             if 'left' in self.sprites:
-                camelion_img = self.sprites['left']
-                rect = camelion_img.get_rect()
+                chameleon_img = self.sprites['left']
+                rect = chameleon_img.get_rect()
                 rect.centerx = self.rect.centerx
                 rect.top = self.rect.top
                 shifted_rect = self.camera.apply_rect(rect)
-                surface.blit(camelion_img, shifted_rect)
+                surface.blit(chameleon_img, shifted_rect)
             else:
                 shifted_rect = self.camera.apply_rect(self.rect)
                 pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
-    def render_camelion_ceiling_left(self, surface):
+    def render_chameleon_ceiling_left(self, surface):
         if 'ceiling_left' in self.sprites:
-            camelion_img = self.sprites['ceiling_left']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['ceiling_left']
+            rect = chameleon_img.get_rect()
             rect.centerx = self.rect.centerx
             rect.top = self.rect.top
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
-    def render_camelion_ceiling(self, surface):
+    def render_chameleon_ceiling(self, surface):
         if 'ceiling' in self.sprites:
-            camelion_img = self.sprites['ceiling']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['ceiling']
+            rect = chameleon_img.get_rect()
             rect.centerx = self.rect.centerx
             rect.top = self.rect.top
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
         
-    def render_camelion_left_wall(self, surface):
+    def render_chameleon_left_wall(self, surface):
         if 'left_wall' in self.sprites:
-            camelion_img = self.sprites['left_wall']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['left_wall']
+            rect = chameleon_img.get_rect()
             rect.left = self.rect.left
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
-    def render_camelion_right_wall(self, surface):
+    def render_chameleon_right_wall(self, surface):
         if 'right_wall' in self.sprites:
-            camelion_img = self.sprites['right_wall']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['right_wall']
+            rect = chameleon_img.get_rect()
             rect.right = self.rect.right
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
-    def render_camelion_right_wall_down(self, surface):
+    def render_chameleon_right_wall_down(self, surface):
         if 'right_wall_down' in self.sprites:
-            camelion_img = self.sprites['right_wall_down']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['right_wall_down']
+            rect = chameleon_img.get_rect()
             rect.right = self.rect.right
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
-    def render_camelion_left_wall_down(self, surface):
+    def render_chameleon_left_wall_down(self, surface):
         if 'left_wall_down' in self.sprites:
-            camelion_img = self.sprites['left_wall_down']
-            rect = camelion_img.get_rect()
+            chameleon_img = self.sprites['left_wall_down']
+            rect = chameleon_img.get_rect()
             rect.left = self.rect.left
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(camelion_img, shifted_rect)
+            surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)

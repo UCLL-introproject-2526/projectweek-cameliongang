@@ -25,7 +25,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 def create_main_surface():
     screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pg.display.set_caption('Camelion Run!')
+    pg.display.set_caption('chameleon Run!')
     return screen_size
 
 #standard music
