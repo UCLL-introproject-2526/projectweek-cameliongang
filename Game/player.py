@@ -382,6 +382,8 @@ class Player:
                 t_type = getattr(tile, 'type', 'X')
                 if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
+                if t_type == 'N':
+                    current_level_idx += 1
                 if dy < 0: # Moving Up
                      if t_type == 'S':
                          # Ceiling stick
