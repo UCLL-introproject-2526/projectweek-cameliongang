@@ -228,4 +228,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+
 survival_guide.html
