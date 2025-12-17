@@ -16,6 +16,8 @@ class HealthBar:
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
 
+    
+
 
 
 # Function to create and return the main game surface (window)
