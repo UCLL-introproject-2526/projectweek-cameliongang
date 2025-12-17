@@ -1,7 +1,7 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
-from menus import draw_menu, draw_death_menu
+from menus import draw_mainmenu, draw_death_menu, draw_levels_menu
 from player import Player
 from standard_use import play_music, game_background, HealthBar, create_main_surface
 
@@ -38,6 +38,8 @@ def main():
              command = draw_mainmenu(surface, font)
              if command == 1:
                 running = False
+             if command == 3:
+                draw_levels_menu(surface, font)
              if command == 4:
                 main_menu = False
              for event in pg.event.get():
