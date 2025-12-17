@@ -284,7 +284,7 @@ LEVEL_7 = [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_8 = [
+LEVEL_8 =  [
     "X           XX           X",
     "X           XX           X",
     "X           XX           X",
@@ -304,12 +304,12 @@ LEVEL_8 = [
     "X           XX           X",
     "X           XX           X",
     "X           XX           X",
-    "X       CC  XX           X",
-    "X     F     XX           X",
-    "X     C     XX           X",
-    "X   S   SS  XX           X",
-    "X   S   S   XX           X",
-    "X   SL RS  NXX           X",
+    "X           XX           X",
+    "X           XX           X",
+    "X           XX           X",
+    "X           XX           X",
+    "X           XX           X",
+    "X           XX           X",
     "S XXXXXXXXXXXX           X",
     "X X         XX           X",
     "X X   P   G XXX          X",
@@ -352,7 +352,7 @@ LEVEL_8 = [
     "S G         XX     X     X",
     "X           XX     X     X",
     "S           XX     X     X",
-    "X           XX     X     X",
+    "X     P     XX     X     X",
     "X    XXX    XX     X     X",
     "DDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
