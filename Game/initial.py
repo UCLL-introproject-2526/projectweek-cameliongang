@@ -20,7 +20,8 @@ def main():
     lvl = Level(current_level_idx)
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
-    enemy = Enemy()
+    # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
+    enemy = Enemy(800, 400) 
     running = True
     running = True
     levels_menu = False
@@ -139,8 +140,11 @@ def main():
              clock.tick(60)
              continue
         else:
-            enemy.spawn_enemy_1(surface)
-            # Handle events FIRST — buffer jump here
+            # Handling events
+            
+            # --- UPDATE ---
+            enemy.update()
+            
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -216,6 +220,7 @@ def main():
 
             # Render
             player.render_map(surface)  # Render tiles first
+            enemy.render(surface, camera) # Render enemy
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
