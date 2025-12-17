@@ -1,4 +1,5 @@
 const gridContainer = document.getElementById('grid-container');
+const importInput = document.getElementById('importInput');
 const widthInput = document.getElementById('widthInput');
 const heightInput = document.getElementById('heightInput');
 const resizeBtn = document.getElementById('resizeBtn');
@@ -244,9 +245,9 @@ function exportLevel() {
 }
 
 function importLevel() {
-    const raw = output.value;
+    const raw = importInput.value;
     if (!raw.trim()) {
-        alert("Paste Python list code into the text area below (the export box) and click Import.");
+        alert("Paste Python list code into the 'Import Level' box and click Import.");
         return;
     }
 
