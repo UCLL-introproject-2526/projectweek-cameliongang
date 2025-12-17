@@ -330,6 +330,7 @@ class Player:
                 if total_dx < 0:  # Moving Left
                     self.xcoor = tile.rect.right
                     self.momentum_x = 0 # crash stop
+                    
 
         # Vertical Movement Calculation
         dy = 0
@@ -399,6 +400,8 @@ class Player:
                      else:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
+                if t_type == 'N':
+                    self.level_complete = True  
                 elif dy > 0: # Falling / Moving Down
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
