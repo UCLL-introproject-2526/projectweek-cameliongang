@@ -23,6 +23,10 @@ def main():
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
+    enemies = []
+    enemycount = 3 
+    spawn_interval= 180  # enkel in factoren van 60 veranderen.
+    enemy_spawn_timer = 0
     y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
     enemy = Enemy(800, y_enemy) 
     running = True
@@ -92,6 +96,9 @@ def main():
                  # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                  player = Player(lvl, camera)
+                 # Reset enemies bij herstart (nieuw: lege lijst)
+                 enemies = []
+                 enemy_spawn_timer = 0  # Reset timer
              
              pg.display.flip()
              clock.tick(60)
@@ -143,8 +150,17 @@ def main():
         else:
             # Handling events
             
-            # --- UPDATE ---
-            enemy.update()
+            
+            enemy_spawn_timer += 1
+            if enemy_spawn_timer >= spawn_interval and len(enemies) < enemycount:
+                
+                y_enemy = random.randint(100, 500)
+                enemies.append(Enemy(LEVEL_WIDTH, y_enemy))  
+                enemy_spawn_timer = 0  
+            
+            
+            for enemy in enemies:
+                enemy.update()
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -243,7 +259,10 @@ def main():
             
             # Render
             player.render_map(surface)  # Render tiles first
-            enemy.render(surface, camera) # Render enemy
+            # Render alle enemies
+            for enemy in enemies:
+                enemy.render(surface, camera)
+            
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
