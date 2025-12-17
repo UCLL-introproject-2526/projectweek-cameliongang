@@ -7,9 +7,9 @@ class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y, type_enemy='enemy_1'):
         super().__init__()
         self.type_enemy = type_enemy
-        self.speed = 6
+        self.speed = 8
         self.damage = 10
-        self.hoveramplitude = 70
+        self.hoveramplitude = 30
         self.hover_speed = 0.1
         self.animation_index = 0
         self.hover_phase = 0

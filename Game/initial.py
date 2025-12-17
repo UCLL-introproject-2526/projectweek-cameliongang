@@ -4,8 +4,8 @@ from player import Player
 from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_death_menu, draw_loading_screen
-from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, game_background, play_music, create_main_surface
+from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
+from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, DeathCounter, game_background, play_music, create_main_surface
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 
@@ -24,7 +24,7 @@ def main():
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
     enemies = []
-    enemycount = 3 
+    enemycount = 1
     spawn_interval= 180  # enkel in factoren van 60 veranderen.
     enemy_spawn_timer = 0
     y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
@@ -37,8 +37,10 @@ def main():
     loading_timer = 0
     LOADING_DURATION = 120 # 2 seconds at 60 FPS
     death_menu = False
+    pause_menu = False
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
     health_bar = HealthBar(20, 20, 300, 40, 100)
+    death_counter = DeathCounter(font)
 
     #music playing
     play_music()
@@ -89,7 +91,7 @@ def main():
                  bg = game_background('background_img.jpg', width=level_module.LEVEL_WIDTH, height=level_module.LEVEL_HEIGHT)
                  
              progress = loading_timer / LOADING_DURATION
-             draw_loading_screen(surface, font, progress)
+             draw_loading_screen(surface, font, progress, current_level_idx)
              
              if loading_timer >= LOADING_DURATION:
                  loading_menu = False
@@ -105,20 +107,21 @@ def main():
              # Consume events to prevent queue buildup
              pg.event.pump()
              continue
-        elif death_menu:
-             command = draw_death_menu(surface, font)
-             if command == 1: # Restart
-                 death_menu = False
-                 loading_menu = True
-                 loading_timer = 0
+        elif pause_menu:
+             command = draw_pause_menu(surface, font)
+             if command == 1: # Resume
+                 pause_menu = False
              if command == 2: # Quit
                  running = False
              if command == 3: # Main Menu
-                 death_menu = False
+                 pause_menu = False
                  main_menu = True
              if command == 4: # Level Select
-                 death_menu = False
+                 pause_menu = False
                  levels_menu = True
+             if command == 5: # Restart
+                 player.reset()
+                 pause_menu = False
              
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -150,12 +153,12 @@ def main():
         else:
             # Handling events
             
-            
+ 
             enemy_spawn_timer += 1
             if enemy_spawn_timer >= spawn_interval and len(enemies) < enemycount:
                 
                 y_enemy = random.randint(100, 500)
-                enemies.append(Enemy(LEVEL_WIDTH, y_enemy))  
+                enemies.append(Enemy(LEVEL_WIDTH, y_enemy)) 
                 enemy_spawn_timer = 0  
             
             
@@ -167,6 +170,9 @@ def main():
                     running = False
 
                 elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        pause_menu = not pause_menu
+                    
                     if event.key in (pg.K_UP, pg.K_w):
                         player.request_jump()
 
@@ -216,7 +222,7 @@ def main():
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            player.update_physics(dx, keys, dt_factor)
+            player.update_physics(dx, keys, dt_factor, enemy.rect)
                         # Check for level completion
             if player.level_complete:
                 current_level_idx += 1
@@ -234,7 +240,8 @@ def main():
 
             # Check for death
             if player.is_dead:
-                death_menu = True
+                death_counter.count += 1
+                player.reset()
 
             # Update Camera
             player.camera.update(player)
@@ -297,6 +304,7 @@ def main():
 
             #healthbar creation
             health_bar.draw(surface)
+            death_counter.draw(surface)
             # Delta time
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
