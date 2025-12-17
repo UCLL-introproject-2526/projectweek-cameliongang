@@ -23,8 +23,8 @@ def main():
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
-    y_enemy = random.randint(100,500)
-    enemy = Enemy(LEVEL_WIDTH, y_enemy) 
+    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
+    enemy = Enemy(800, y_enemy) 
     running = True
     running = True
     levels_menu = False
