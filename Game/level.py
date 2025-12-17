@@ -27,6 +27,9 @@ class Tile(pygame.sprite.Sprite):
             elif type == 'D':
                  self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
                  self.image.fill((0, 0, 0, 0)) # Invisible
+        
+
+
             else:
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)

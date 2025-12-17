@@ -82,13 +82,15 @@ def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                if event.type == pg.KEYDOWN:
+                elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_UP:
                         player.request_jump()
 
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # left click
-                    player.grapple_target = event.pos
-                    player.grappling = True   # new flag
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    world_pos = player.camera.to_world(event.pos)
+                    player.grapple_target = world_pos
+                    player.grappling = True
+
 
                 elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
                     player.grappling = False  # stop pulling, keep momentum
@@ -108,6 +110,7 @@ def main():
                 dx = 5
                 facing_right = True
                 facing_left = False
+            
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
@@ -165,7 +168,9 @@ def main():
                     player.render_camelion_left(surface)
             
             if player.grappling and player.grapple_target:
-                pg.draw.line(surface, (200,200,200), player.rect.center, player.grapple_target, 2)
+                player_screen_pos = player.camera.apply_rect(player.rect).center
+                target_screen_pos = player.camera.to_screen(player.grapple_target)
+                pg.draw.line(surface, (200,200,200), player_screen_pos, target_screen_pos, 2)
                 
                 
 
