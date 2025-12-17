@@ -4,6 +4,7 @@ from camera import Camera
 from menus import draw_mainmenu, draw_death_menu, draw_levels_menu, draw_loading_screen
 from player import Player
 from standard_use import play_music, game_background, HealthBar, create_main_surface
+from enemy import Enemy
 
 
 # Main game loop function
@@ -13,6 +14,7 @@ def main():
     surface = create_main_surface()
     clock = pg.time.Clock()
     player = Player()
+    enemy = Enemy()
     running = True
     running = True
     levels_menu = False
