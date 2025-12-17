@@ -35,10 +35,14 @@ def play_music():
         pass
 
 #background
-def game_background(background_img):
+def game_background(background_img, menu = False):
     try:
-        background = pg.image.load(f".\\resources\\{background_img}").convert()
-        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
+        if menu == False:
+            background = pg.image.load(f".\\resources\\{background_img}").convert()
+            background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
+        else:
+            background = pg.image.load(f".\\resources\\{background_img}").convert()
+            background = pg.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except:
         background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
         background.fill((100, 100, 255))

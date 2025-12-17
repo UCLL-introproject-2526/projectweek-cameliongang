@@ -26,7 +26,7 @@ levels_button = Button('Choose Level', (300, 500))
 credits_button = Button('Credits', (500, 500))
 exit_button = Button('Quit Game', (700, 500))
 def draw_mainmenu(surface, font):
-    background = game_background('mainmenu_background.png')
+    background = game_background('mainmenu_background.png', True)
     surface.blit(background, (0, 0))
     command = 0
     start_button.draw(surface, font)
