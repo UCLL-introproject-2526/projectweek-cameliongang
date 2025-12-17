@@ -38,7 +38,7 @@ def play_music():
 def game_background(background_img):
     try:
         background = pg.image.load(f".\\resources\\{background_img}").convert()
-        background = pg.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
     except:
         background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
         background.fill((100, 100, 255))

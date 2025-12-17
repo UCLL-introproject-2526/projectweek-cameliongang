@@ -19,6 +19,7 @@ class Player:
         self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
         self.is_dead = False # Death state
+        self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
         self.grapple_speed=12
         self.grappling=False
@@ -63,6 +64,8 @@ class Player:
             self.sprites['ceiling_left'] = pg.image.load('./resources/camelion_ceiling_left.png').convert_alpha()
             self.sprites['left_wall'] = pg.image.load('./resources/camelion_left_wall.png').convert_alpha()
             self.sprites['right_wall'] = pg.image.load('./resources/camelion_right_wall.png').convert_alpha()
+            self.sprites['right_wall_down'] = pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha()
+            self.sprites['left_wall_down'] = pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha()
         except Exception as e:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
@@ -240,8 +243,10 @@ class Player:
             # Wall Climb
             if keys[pg.K_UP]:
                 dy = -5 * dt
+                self.wall_facing_down = False
             elif keys[pg.K_DOWN]:
                 dy = 5 * dt
+                self.wall_facing_down = True
         elif self.hanging:
             # Ceiling Stick
             if keys[pg.K_DOWN]:
@@ -360,7 +365,7 @@ class Player:
             camelion_img = self.sprites['left_wall']
             rect = camelion_img.get_rect()
             rect.left = self.rect.left
-            rect.top = self.rect.top
+            rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         else:
@@ -372,11 +377,35 @@ class Player:
             camelion_img = self.sprites['right_wall']
             rect = camelion_img.get_rect()
             rect.right = self.rect.right
-            rect.top = self.rect.top
+            rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
             surface.blit(camelion_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
+
+    def render_camelion_right_wall_down(self, surface):
+        if 'right_wall_down' in self.sprites:
+            camelion_img = self.sprites['right_wall_down']
+            rect = camelion_img.get_rect()
+            rect.right = self.rect.right
+            rect.bottom = self.rect.bottom
+            shifted_rect = self.camera.apply_rect(rect)
+            surface.blit(camelion_img, shifted_rect)
+        else:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (0, 0, 255), shifted_rect)
+
+    def render_camelion_left_wall_down(self, surface):
+        if 'left_wall_down' in self.sprites:
+            camelion_img = self.sprites['left_wall_down']
+            rect = camelion_img.get_rect()
+            rect.left = self.rect.left
+            rect.bottom = self.rect.bottom
+            shifted_rect = self.camera.apply_rect(rect)
+            surface.blit(camelion_img, shifted_rect)
+        else:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
 
