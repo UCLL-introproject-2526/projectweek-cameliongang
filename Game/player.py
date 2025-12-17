@@ -167,8 +167,10 @@ class Player:
             player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
             for tile in self.tiles:
                 if tile.rect.colliderect(player_rect):
-                    if getattr(tile, 'type', 'X') == 'D':
+                    t_type = getattr(tile, 'type', 'X')
+                    if t_type == 'D' or t_type == 'Y':
                         self.is_dead = True
+            
         else:
     # normal gravity, collisions, etc.
         # Validate existing wall stick (Persistent Player)
@@ -220,9 +222,10 @@ class Player:
         # Horizontal collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
-                if getattr(tile, 'type', 'X') == 'D':
+                t_type = getattr(tile, 'type', 'X')
+                if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
-                if getattr(tile, 'type', 'X') == 'S':
+                if t_type == 'S':
                     self.on_wall = True
                     self.wall_side = 1 if total_dx > 0 else -1
                     self.velocity_y = 0  # Stick to wall
@@ -290,10 +293,11 @@ class Player:
         # Vertical collision
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
-                if getattr(tile, 'type', 'X') == 'D':
+                t_type = getattr(tile, 'type', 'X')
+                if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
                 if dy < 0: # Moving Up
-                     if getattr(tile, 'type', 'X') == 'S':
+                     if t_type == 'S':
                          # Ceiling stick
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
