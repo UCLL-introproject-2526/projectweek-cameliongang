@@ -32,3 +32,7 @@ class Camera:
         
         # Update rect with integer values
         self.camera = pg.Rect(int(x), int(y), self.width, self.height)
+
+    def to_world(self, screen_pos):
+        """Convert a (x,y) screen position into world coordinates."""
+        return (screen_pos[0] - self.camera.x, screen_pos[1] - self.camera.y)
