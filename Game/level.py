@@ -89,25 +89,23 @@ LEVEL_1 = [
 ]
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
-LEVEL_2 = [
-
+LEVEL_2  = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X     XXXXXXXXXXXXXXXXXX     X",
+    "X     XXXXXYYXXXYYYYYYYX     X",
     "X                            X",
-    "X                            X",
-    "X                            X",
-    "XXXX                         X",
-    "XXXX                         X",
-    "XXXS  XXX                    X",
-    "XXXX  SXX                    X",
-    "XXXX  SXX                    X",
-    "XXXS  XXX                    X",
-    "XXXS  XXX                    X",
-    "XXXX  XXX                    X",
-    "XXXX  SXX                    X",
-    "XP    SXX                    X",
+    "XXXX                    G    X",
+    "XXXX       YY                X",
+    "XXXS  XXXXXXXXXXYYYYYYYXXXX  X",
+    "XXXX  SXXXXXXXXXXXXXXXXXXXX  X",
+    "XXXX  SXXXYYGYYYYYYYYGYYYYY  X",
+    "XXXS  XXXX                   X",
+    "XXXS  XXXX                   X",
+    "XXXX  XXXX   YYYYYY  YYYYY   X",
+    "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
+    "XP    SXXX                   X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
 ]
-  
 
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
