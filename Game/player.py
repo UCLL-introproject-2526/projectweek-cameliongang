@@ -1,6 +1,7 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
+import math
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -326,4 +327,17 @@ class Player:
 
     
     def grappling_hook(self):
-        #velocity
+        
+        if self.grapple_target:
+            # Move toward target
+            dx = self.grapple_target[0] - self.x
+            dy = self.grapple_target[1] - self.y
+            dist = math.hypot(dx, dy)
+
+            if dist > self.speed:
+                self.x += dx / dist * self.speed
+                self.y += dy / dist * self.speed
+            else:
+                # Arrived
+                self.x, self.y = self.grapple_target
+                self.grapple_target = None
