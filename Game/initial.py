@@ -53,17 +53,9 @@ def main():
         dx = 0
         if main_menu:
              command = draw_mainmenu(surface, font)
-             if command == 1:
-                 # Restart
-                 # Reset everything
-                 # Defer creation to loading loop
-                 
-                 loading_menu = True 
-                 loading_timer = 0
-                 
-                 main_menu = False
-                 levels_menu = False
-                 pass
+             if command == 'q':
+                 # Quit the game
+                 running = False
              if command == 3:
                  levels_menu = True
                  main_menu =False

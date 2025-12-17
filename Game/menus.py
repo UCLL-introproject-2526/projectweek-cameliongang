@@ -35,7 +35,7 @@ def draw_mainmenu(surface, font):
     credits_button.draw(surface, font)
     exit_button.draw(surface, font)
     if exit_button.check_clicked():
-        command = 1
+        command = 'q'
     if credits_button.check_clicked():
         command = 2
     if levels_button.check_clicked():
@@ -118,7 +118,7 @@ def draw_death_menu(surface, font):
     if restart_button.check_clicked():
         command = 1 # Restart
     if quit_death_button.check_clicked():
-        pg.quit
+        command = 2 # Quit
     if main_menu_death_button.check_clicked():
         command = 3 # Main Menu
     if level_select_death_button.check_clicked():
