@@ -256,7 +256,7 @@ class Player:
 
         self.grapple_to(target_tile.rect.center)
 
-    def update_physics(self, dx, keys, dt):
+    def update_physics(self, dx, keys, dt, rect):
         #grapling call
         
         if self.grappling and self.grapple_target:
@@ -318,6 +318,13 @@ class Player:
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
+        
+        
+        if self.rect.colliderect(rect):
+            HealthBar.hp -= 1
+            print('1 dammage')
+        
+        
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')

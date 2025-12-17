@@ -24,7 +24,7 @@ def main():
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
     enemies = []
-    enemycount = 3 
+    enemycount = 1
     spawn_interval= 180  # enkel in factoren van 60 veranderen.
     enemy_spawn_timer = 0
     y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
@@ -153,12 +153,12 @@ def main():
         else:
             # Handling events
             
-            
+ 
             enemy_spawn_timer += 1
             if enemy_spawn_timer >= spawn_interval and len(enemies) < enemycount:
                 
                 y_enemy = random.randint(100, 500)
-                enemies.append(Enemy(LEVEL_WIDTH, y_enemy))  
+                enemies.append(Enemy(LEVEL_WIDTH, y_enemy)) 
                 enemy_spawn_timer = 0  
             
             
@@ -222,7 +222,7 @@ def main():
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            player.update_physics(dx, keys, dt_factor)
+            player.update_physics(dx, keys, dt_factor, enemy.rect)
                         # Check for level completion
             if player.level_complete:
                 current_level_idx += 1
