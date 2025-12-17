@@ -13,8 +13,7 @@ def create_main_surface():
     return screen_size
 
 # Function to clear the surface by filling it with black
-def clear_surface(surface):
-    surface.fill((0, 0, 0))
+
 
 # Class to manage the game state, including position and rendering
 class state:
