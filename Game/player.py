@@ -41,11 +41,12 @@ class Player:
         self.jump_held = False
         self.started_rise = False
 
-    def update_coyote(self):
+    # Coyote reduction
+    def update_coyote(self, dt):
         if self.on_ground or self.hanging or self.on_wall:
             self.coyote_timer = self.coyote_time
         else:
-            self.coyote_timer = max(0, self.coyote_timer - 1)
+            self.coyote_timer = max(0, self.coyote_timer - 1 * dt)
 
     # Buffer jump intent instead of jumping immediately
     def request_jump(self):
@@ -65,7 +66,7 @@ class Player:
                         self.momentum_x = -kick_strength
                         did_wall_jump = True
                 elif self.wall_side == -1: # Wall on left
-                     if keys[pg.K_RIGHT]: # Must hold RIGHT to jump off left wall
+                    if keys[pg.K_RIGHT]: # Must hold RIGHT to jump off left wall
                         self.momentum_x = kick_strength
                         did_wall_jump = True
                 
@@ -86,7 +87,7 @@ class Player:
     def update_input_Player(self, keys):
         self.jump_held = keys[pg.K_UP]
 
-    def update_physics(self, dx, keys):
+    def update_physics(self, dx, keys, dt):
         # Validate existing wall stick (Persistent Player)
         if self.on_wall:
             # Check for pull-off (Moving away from wall)
@@ -112,9 +113,20 @@ class Player:
         # BUT new collisions must set it.
 
         # Apply Momentum
-        total_dx = dx + self.momentum_x
+        # Scale input movement by dt, but momentum is velocity, so apply it over time? 
+        # Actually dx is displacement per frame (speed * 1 frame). 
+        # So total_dx should be (dx + momentum) * dt.
+        # Ensure momentum decay handles dt correctly.
+        
+        # We need to treat dx as velocity here if we are scaling by dt.
+        # Currently dx is 5 pixels/frame. 
+        
+        total_dx = (dx + self.momentum_x) * dt
+        
         # Decay momentum (air resistance / friction)
-        self.momentum_x *= 0.9
+        # 0.9 per frame -> 0.9 ^ dt
+        self.momentum_x *= 0.9 ** dt
+        
         if abs(self.momentum_x) < 0.5:
              self.momentum_x = 0
 
@@ -158,19 +170,19 @@ class Player:
         if self.on_wall:
             # Wall Climb
             if keys[pg.K_UP]:
-                dy = -5
+                dy = -5 * dt
             elif keys[pg.K_DOWN]:
-                dy = 5
+                dy = 5 * dt
         elif self.hanging:
             # Ceiling Stick
             if keys[pg.K_DOWN]:
                 self.hanging = False # Drop
-                dy = 5
+                dy = 5 * dt
             # UP does nothing while hanging? Or maybe clamber?
         else:
             # Gravity
-            self.velocity_y += self.gravity
-            dy = self.velocity_y
+            self.velocity_y += self.gravity * dt
+            dy = self.velocity_y * dt
 
             # Mark when upward motion begins (for jump-cut gating)
             if self.velocity_y < 0:
@@ -179,7 +191,10 @@ class Player:
             # Jump cut
             if self.started_rise and not self.jump_held and self.velocity_y < 0:
                 self.velocity_y = max(self.velocity_y, self.jump_cut)
-                dy = self.velocity_y
+                # Recalculate dy with new velocity? Or just let it take effect next frame?
+                # Better to use updated velocity for consistency, but physics engines vary.
+                # Let's simple apply it.
+                dy = self.velocity_y * dt
 
         # Apply Vertical Move
         self.ycoor += dy
@@ -207,14 +222,14 @@ class Player:
         self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Update coyote after collision resolution
-        self.update_coyote()
+        self.update_coyote(dt)
 
         # Consume buffered jump now that collision is resolved
         self.try_consume_jump(keys)
 
         # Decay jump buffer
         if self.jump_buffer > 0:
-            self.jump_buffer -= 1
+            self.jump_buffer -= 1 * dt
 
     def render_map(self, surface):
         self.level.render(surface, self.camera)
@@ -308,3 +323,7 @@ class Player:
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
+
+    
+    def grappling_hook(self):
+        #velocity
