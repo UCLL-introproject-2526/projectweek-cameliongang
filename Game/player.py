@@ -145,6 +145,19 @@ class Player:
                 self.rect.center = self.grapple_target
                 self.grappling = False
                 self.grapple_target = None
+                
+    def grapple_to(self, pos):
+    # Set target and start grappling
+        self.grapple_target = pos
+        self.grappling = True
+
+    def try_grapple(self, target_tile):
+        if target_tile.grappleable:
+            # Allowed: do grapple logic
+            self.grapple_to(target_tile.pos)
+        else:
+        # Not allowed
+            print("Can't grapple this tile!")
 
     def update_physics(self, dx, keys, dt):
         #grapling call

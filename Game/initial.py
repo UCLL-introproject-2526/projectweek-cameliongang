@@ -1,7 +1,7 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
-from menus import draw_mainmenu, draw_death_menu, draw_levels_menu
+from menus import draw_mainmenu, draw_death_menu, draw_levels_menu, draw_loading_screen
 from player import Player
 from standard_use import play_music, game_background, HealthBar, create_main_surface
 
@@ -14,7 +14,11 @@ def main():
     clock = pg.time.Clock()
     player = Player()
     running = True
+    running = True
     main_menu = True
+    loading_menu = False
+    loading_timer = 0
+    LOADING_DURATION = 120 # 2 seconds at 60 FPS
     death_menu = False
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
     health_bar = HealthBar(20, 20, 300, 40, 100)
@@ -42,6 +46,8 @@ def main():
                  pass
              if command == 4:
                 main_menu = False
+                loading_menu = True
+                loading_timer = 0
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -49,11 +55,28 @@ def main():
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
              continue
+        elif loading_menu:
+             # Calculate progress (0.0 to 1.0)
+             progress = min(1.0, loading_timer / LOADING_DURATION)
+             draw_loading_screen(surface, font, progress)
+             
+             loading_timer += 1
+             if loading_timer >= LOADING_DURATION:
+                 loading_menu = False
+                 # Game starts now - Initialize Player here to cover the load time
+                 player = Player()
+             
+             pg.display.flip()
+             clock.tick(60)
+             # Consume events to prevent queue buildup
+             pg.event.pump()
+             continue
         elif death_menu:
              command = draw_death_menu(surface, font)
              if command == 1: # Restart
-                 player = Player()
                  death_menu = False
+                 loading_menu = True
+                 loading_timer = 0
                  # Reset background if needed? No, standard reuse.
                  # Re-fetch background cause player changed?
                  # background func uses player camera...

@@ -7,7 +7,7 @@ class Tile(pygame.sprite.Sprite):
         self.image = pygame.Surface((TILE_SIZE, TILE_SIZE))
         self.type = type
         self.rect = self.image.get_rect(topleft=pos)
-        
+        self.grappleable = (type== 'G')
         # Try loading sprite based on type
         try:
             if type == 'S':
@@ -91,7 +91,7 @@ LEVEL_MAP = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
     "XS                                        SX",
-    "XS                                        SX",
+    "XS           G                            SX",
     "XS   SSSS        SSSSSS     SSSSSS        SX",
     "XS   S  S        S    S     S    S        SX",
     "XS   S  S        S    S     S    S        SX",
@@ -136,6 +136,8 @@ class Level:
                      self.tiles.append(Tile((x, y), 'D'))
                 if cell == 'P':
                     self.player_start_pos = (x, y)
+                if cell == 'G':
+                    self.tiles.append(Tile((x,y), 'G'))
 
     def render(self, surface, camera):
         for tile in self.tiles:
