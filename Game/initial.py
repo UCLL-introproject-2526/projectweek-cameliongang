@@ -323,6 +323,8 @@ class state:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
 
+   
+
 
 
     def render_bush(self, surface):
