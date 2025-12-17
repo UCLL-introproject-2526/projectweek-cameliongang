@@ -19,13 +19,16 @@ class Enemy(pygame.sprite.Sprite):
         enemy_1_3 = pygame.image.load('./resources/enemy_1_50x50_3.png').convert_alpha()
         enemy_1_4 = pygame.image.load('./resources/enemy_1_50x50_4.png').convert_alpha()
         self.frames = [enemy_1_1,enemy_1_2,enemy_1_3,enemy_1_4]
-            
+        
+        self.speed = 400  #snelheid van enemy_1 
+        self.damage = 10   #schade van enemy_1 
+
         self.animation_index = 0
         self.image = self.frames[self.animation_index]
-           
 
-    def spawn_enemy_1(self, LEVEL_WIDTH):
-        self.rect = self.image.get_rect(midbottom = (LEVEL_WIDTH,200 ))
+
+    def spawn_enemy_1(self):
+        self.rect = self.image.get_rect(midbottom = (LEVEL_WIDTH,LEVEL_HEIGHT-300 ))
      # Bepalen spawnpoint enemy
     def animation_state(self):
         self.animation_index += 0.1
@@ -35,3 +38,10 @@ class Enemy(pygame.sprite.Sprite):
     
     def update(self):
         self.animation_state()
+      
+        if self.type_enemy == 'enemy_1':
+            x, y = self.rect.midbottom
+            x -= self.speed
+            if x < 0:
+                x = LEVEL_WIDTH
+            self.rect.midbottom = (x,y)
