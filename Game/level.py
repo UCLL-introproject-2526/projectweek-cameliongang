@@ -21,6 +21,8 @@ class Tile(pygame.sprite.Sprite):
                 # Death zone should be invisible or specific?
                 # If we want invisible, don't load image.
                 raise Exception("Invisible") # Trigger fallback to create empty surface
+            elif type == 'G':
+                loaded_img = pygame.image.load('./resources\grapple_block.png').convert_alpha()
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
             

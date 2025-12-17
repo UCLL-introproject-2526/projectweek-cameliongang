@@ -174,17 +174,19 @@ class Player:
         # Step along the line in small increments
         steps = int(math.hypot(x2 - x1, y2 - y1) / TILE_SIZE)
         for i in range(steps + 1):
-            t = i / steps
-            check_x = x1 + (x2 - x1) * t
-            check_y = y1 + (y2 - y1) * t
+            if steps != 0:
+                t = i / steps
+                check_x = x1 + (x2 - x1) * t
+                check_y = y1 + (y2 - y1) * t
+            
 
-            # Build a point rect to test collisions
-            point_rect = pg.Rect(check_x, check_y, 2, 2)
+                # Build a point rect to test collisions
+                point_rect = pg.Rect(check_x, check_y, 2, 2)
 
-            for tile in self.tiles:
-                if tile.type == 'X' or tile.type == 'S':  # solid types
-                    if tile.rect.colliderect(point_rect):
-                        return False  # blocked by a wall
+                for tile in self.tiles:
+                    if tile.type == 'X' or tile.type == 'S':  # solid types
+                        if tile.rect.colliderect(point_rect):
+                            return False  # blocked by a wall
 
         return True  # clear line of sight
     
@@ -195,7 +197,7 @@ class Player:
 
     def try_grapple(self, target_tile):
         if target_tile.grappleable and self.can_grapple_to(target_tile):
-            self.grapple_to(target_tile.pos)
+            self.grapple_to(target_tile.rect.center)
         else:
             print("Can't grapple this tile!")
 
