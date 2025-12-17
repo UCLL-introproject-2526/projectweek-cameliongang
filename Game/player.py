@@ -390,7 +390,7 @@ class Player:
                 if t_type == 'D' or t_type == 'Y':
                     self.is_dead = True
                 if t_type == 'N':
-                    current_level_idx += 1
+                    self.level_complete = True                                        
                 if dy < 0: # Moving Up
                      if t_type == 'S':
                          # Ceiling stick
