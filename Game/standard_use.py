@@ -1,7 +1,7 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 
-#health bar crezation
+#health bar creation
 class HealthBar:
     def __init__(self, x, y ,w, h, max_hp):
         self.x = x
@@ -29,14 +29,12 @@ def play_music():
         pass
 
 #background
-def game_background(surface, player):
+def game_background():
     try:
         background = pg.image.load(".\\resources\\background_img.jpg").convert()
         background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
-         # Create a background rect and shift it
-        bg_rect = background.get_rect()
-        surface.blit(background, player.camera.apply_rect(bg_rect))
     except:
         background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
         background.fill((100, 100, 255))
+    return background
         

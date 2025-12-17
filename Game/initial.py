@@ -46,20 +46,15 @@ def main():
     #music playing
     play_music()
 
+    #background
+    background = game_background()
+
     # Main game loop
     facing_left = False
     facing_right = True
     
     # Delta time initialization
     dt_factor = 1.0
-
-    # Load background image
-    try:
-        background = pg.image.load(".\\resources\\background_img.jpg").convert()
-        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
-    except:
-        background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
-        background.fill((100, 100, 255))
 
     while running:
         dx = 0
