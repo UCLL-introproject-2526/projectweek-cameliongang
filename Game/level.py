@@ -20,53 +20,50 @@ class Tile(pygame.sprite.Sprite):
             
         except Exception:
             # Fallback to color rendering
+            # Fallback to color rendering
             if type == 'S':
                 self.image.fill((0, 255, 0)) # Green for Sticky
                 pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
+            elif type == 'D':
+                 self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                 self.image.fill((0, 0, 0, 0)) # Invisible
             else:
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 
 # HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
-LEVEL_MAP = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
-    "X       S              S  X",
-    "X        P             X  X",
-    "X      XXXXX        S     X",
-    "X    X              X     X",
-    "X    XX      XX     XXX   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX"
-]
+# LEVEL_MAP = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "X        SSSS SS          X",
+#     "X                  S      X",
+#     "X       S          S      X",
+#     "X       S          X   S  X",
+#     "X       S              S  X",
+#     "X        P             X  X",
+#     "X      XXXXX        S     X",
+#     "X    X              X     X",
+#     "X    XX      XX     XXX   X",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
-# LEVEL_MAP = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-#     "XS                        SX",
-#     "XS    SSSSSSSSSS          SX",
-#     "XS    S        S          SX",
-#     "XS    S   P    S    SS    SX",
-#     "XS    S        S    SS    SX",
-#     "XS    SSSSSSSSSS    SS    SX",
-#     "XS                  SS    SX",
-#     "XS        SSSSSSSSSSSS    SX",
-#     "XS        S               SX",
-#     "XS        S      SSSSSSSSSSX",
-#     "XSSSSSSSSSS      S        SX",
-#     "X                S        SX",
-#     "X      SSSSSSSSSSS        SX",
-#     "X      S                  SX",
-#     "X      S         SSSSSSSSSSX",
-#     "X      S         S        SX",
-#     "XSSSSSSS         S        SX",
-#     "X                S        SX",
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-# ]
+LEVEL_MAP = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
+    "XS                        SX",
+    "XS     P                  SX",
+    "XS    XXX                 SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "XS                        SX",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 # LEVEL_MAP = [
@@ -115,7 +112,8 @@ LEVEL_MAP = [
 
 
 LEVEL_WIDTH = len(LEVEL_MAP[0]) * TILE_SIZE
-LEVEL_HEIGHT = len(LEVEL_MAP) * TILE_SIZE
+# Exclude the last row (death zone) from the camera height
+LEVEL_HEIGHT = (len(LEVEL_MAP) - 1) * TILE_SIZE
 
 class Level:
     def __init__(self):
@@ -133,6 +131,8 @@ class Level:
                     self.tiles.append(Tile((x, y), 'X'))
                 if cell == 'S':
                      self.tiles.append(Tile((x, y), 'S'))
+                if cell == 'D':
+                     self.tiles.append(Tile((x, y), 'D'))
                 if cell == 'P':
                     self.player_start_pos = (x, y)
 
