@@ -58,7 +58,20 @@ class Player:
         self.sprites = {}
         self.load_sprites()
 
-
+    def reset(self):
+        self.xcoor, self.ycoor = self.level.player_start_pos
+        self.velocity_y = 0
+        self.momentum_x = 0
+        self.on_ground = False
+        self.on_wall = False
+        self.wall_side = 0
+        self.hanging = False
+        self.is_dead = False
+        self.grappling = False
+        self.grapple_target = None
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+        # Reset health if needed, e.g. HealthBar.hp = 100 but HealthBar is global/static in standard_use usage
+        HealthBar.hp = 100
 
     def load_sprites(self):
 
