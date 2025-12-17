@@ -72,6 +72,14 @@ def main():
     # Delta time initialization
     dt_factor = 1.0
 
+    # Load background image
+    try:
+        background = pg.image.load(".\\resources\\background_img.jpg").convert()
+        background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
+    except:
+        background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
+        background.fill((100, 100, 255))
+
     while running:
         dx = 0
         if main_menu:
@@ -88,14 +96,6 @@ def main():
              clock.tick(60)
              continue
         else:
-
-                # Load background image
-            try:
-                background = pg.image.load(".\\resources\\background_img.jpg").convert()
-                background = pg.transform.scale(background, (LEVEL_WIDTH, LEVEL_HEIGHT))
-            except:
-                background = pg.Surface((LEVEL_WIDTH, LEVEL_HEIGHT))
-                background.fill((100, 100, 255))
             # Handle events FIRST — buffer jump here
             for event in pg.event.get():
                 if event.type == pg.QUIT:
