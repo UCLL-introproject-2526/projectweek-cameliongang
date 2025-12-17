@@ -3,6 +3,7 @@ from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
 from camera import Camera
 from menus import draw_menu
 from player import Player
+from standard_use import play_music, game_background, HealthBar
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -27,21 +28,6 @@ def render_bush(self, surface):
     except:
         bush_rect = pg.Rect(800, 450, 50, 50)
         pg.draw.rect(surface, (0, 255, 0), self.camera.apply_rect(bush_rect))
-        
-class HealthBar:
-    def __init__(self, x, y ,w, h, max_hp):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.hp = max_hp
-        self.max_hp = max_hp
-
-    def draw(self, surface):
-        ratio = self.hp / self.max_hp
-        pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
-        pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
-health_bar = HealthBar(20, 20, 300, 40, 100)
 
     
 
@@ -51,19 +37,14 @@ def main():
     pg.init()
     surface = create_main_surface()
     clock = pg.time.Clock()
-    status = Player()
+    player = Player()
     running = True
     main_menu = True
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
+    health_bar = HealthBar(20, 20, 300, 40, 100)
 
-    # music
-    try:
-        pg.mixer.music.load('.\\resources\\themesong.mp3')
-        pg.mixer.music.play(-1)
-    except:
-        pass
-    #######################
-
+    #music playing
+    play_music()
 
     # Main game loop
     facing_left = False
@@ -97,11 +78,11 @@ def main():
                     running = False
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_UP:
-                        status.request_jump()
+                        player.request_jump()
 
             # Held keys per frame
             keys = pg.key.get_pressed()
-            status.update_input_Player(keys)
+            player.update_input_Player(keys)
 
             # Input Handling for horizontal movement and facing
             if keys[pg.K_LEFT]:
@@ -116,10 +97,10 @@ def main():
             
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            status.update_physics(dx, keys)
+            player.update_physics(dx, keys)
 
             # Update Camera
-            status.camera.update(status)
+            player.camera.update(player)
 
             # Draw background first (apply camera offset to bg?)
             # For parallax or simple static BG?
@@ -128,35 +109,35 @@ def main():
             surface.fill((0,0,0)) # Clear
             # Create a background rect and shift it
             bg_rect = background.get_rect()
-            surface.blit(background, status.camera.apply_rect(bg_rect))
+            surface.blit(background, player.camera.apply_rect(bg_rect))
 
             # Render
-            status.render_map(surface)  # Render tiles first
-            if status.hanging==True:
+            player.render_map(surface)  # Render tiles first
+            if player.hanging==True:
 
                 if facing_right:
-                    status.render_camelion_ceiling(surface)
+                    player.render_camelion_ceiling(surface)
 
                 elif facing_left:
-                    status.render_camelion_ceiling_left(surface)
+                    player.render_camelion_ceiling_left(surface)
 
-            elif status.on_wall == True:
+            elif player.on_wall == True:
 
-                if status.wall_side > 0:
+                if player.wall_side > 0:
                     # Wall is to the RIGHT. We want to face RIGHT.
-                    status.render_camelion_right_wall(surface)
+                    player.render_camelion_right_wall(surface)
                 
                 else:
                     # Wall is to the LEFT. We want to face LEFT.
-                    status.render_camelion_left_wall(surface)
+                    player.render_camelion_left_wall(surface)
 
             else:
-                if not status.hanging and facing_right:
-                    status.render_camelion(surface)
+                if not player.hanging and facing_right:
+                    player.render_camelion(surface)
             
 
-                elif not status.hanging and facing_left:
-                    status.render_camelion_left(surface)
+                elif not player.hanging and facing_left:
+                    player.render_camelion_left(surface)
                 
                 
                 
@@ -167,7 +148,7 @@ def main():
             clock.tick(60)
             pg.display.flip()
 
-    pg.quit()
+pg.quit()
 
 if __name__ == "__main__":
     main()
