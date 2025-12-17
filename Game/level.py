@@ -90,19 +90,36 @@ LEVEL_1 = [
 
 # LEVEL 3: DE TOREN (VERTICALE KLIM)
 LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSS SSSSSSSSSSSSX",
-    "XS                        SX",
-    "XS     P                  SX",
-    "XS    XXX                 SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "XS                        SX",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X                                                                                                           X",
+    "X    S      XXXX                                                                                            X", 
+    "X    S                                                                                                      X", 
+    "X           S                                                                                               X", 
+    "X           S   Y                                                                                           X", 
+    "X    S          Y                                                                                           X", 
+    "X    S          Y                                                                                           X", 
+    "X               Y                                                                                           X", 
+    "X           S   Y                                                                                           X",
+    "X  P        S   Y                                                                                           X", 
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  
 ]
 
 # LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
