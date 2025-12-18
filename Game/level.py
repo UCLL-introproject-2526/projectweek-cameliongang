@@ -446,7 +446,6 @@ class Level:
                 if cell == 'E':
                     self.enemy_spawns.append((x, y))
                     self.has_enemy = True
-                    print("true enemey")
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:

@@ -156,16 +156,15 @@ def main():
 
             for enemy in enemies:
                 enemy.update()
-            
+
                 if player.rect.colliderect(enemy.rect):
                     if not enemy.has_hit_player:
                         health_bar.hp -= enemy.damage
-                        print(f'{enemy.damage} damage')
                         enemy.has_hit_player = True
                 else:
                     # reset zodra ze niet meer botsen
                     enemy.has_hit_player = False
-            
+
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -202,8 +201,7 @@ def main():
                             if tile.grappleable:
                                 player.try_grapple(tile)
                             else:
-                                print("Can't grapple this tile!")
-                            break
+                                break
 
 
                 elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
@@ -324,12 +322,10 @@ def main():
             tongue_hitbox= player.get_tongue_hitbox()
 
             if lvl.has_enemy:
-                print("faka enemy")
                 if tongue_hitbox:
                     for enemy in enemies:
                         if tongue_hitbox.colliderect(enemy.rect):
                                 
-                                print("tongue HIT")
                                 enemy.kill_enemy()
                                 health_bar.hp += 10
         
