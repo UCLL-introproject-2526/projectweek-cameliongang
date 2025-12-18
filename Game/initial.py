@@ -131,7 +131,12 @@ def main():
              progress = loading_timer / LOADING_DURATION
              draw_loading_screen(surface, font, progress, current_level_idx)
              
+             draw_loading_screen(surface, font, progress, current_level_idx)
+             
              if loading_timer >= LOADING_DURATION:
+                # Reset level-specific deaths for new level
+                death_counter.reset_level_counter()
+                
                 loading_menu = False
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
@@ -387,7 +392,7 @@ def main():
         
             #healthbar creation
             health_bar.draw(surface)
-            death_counter.draw(surface)
+            death_counter.draw(surface, current_level_idx + 1)
             # Draw hints
             if current_level_idx == 0:
                 for hint in hints:

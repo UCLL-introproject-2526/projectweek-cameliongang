@@ -227,7 +227,7 @@ LEVEL_3 = [
     "S     S      S      S      S             SX ",
     "S    XX      X      X      X             XX ",
     "S     SSSSSSSS      SSSSSSSS           SSSX ",
-    "S                          C           S  X ",
+    "S                          C           S  N ",
     "S      G          G          G            XE",
     "S           S            S            S   X ",
     "X           X           RXL     Y  F  X   X ",

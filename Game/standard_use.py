@@ -24,11 +24,27 @@ class DeathCounter:
     def __init__(self, font):
         self.font = font
         self.count = 0
+        self.level_count = 0 
+        self.previous_level_deaths_snapshot = 0 # To calculate deaths in *current* level
 
-    def draw(self, surface):
-        text = self.font.render(f"Deaths: {self.count}", True, (255, 255, 255))
-        rect = text.get_rect(topright=(1260, 20)) 
-        surface.blit(text, rect)
+    def reset_level_counter(self):
+        self.previous_level_deaths_snapshot = self.count
+
+    def draw(self, surface, level_num=1):
+        # Draw Total Deaths (top right)
+        text_total = self.font.render(f"Total Deaths: {self.count}", True, (255, 255, 255))
+        rect_total = text_total.get_rect(topright=(1260, 20)) 
+        surface.blit(text_total, rect_total)
+        
+        # Draw Level Info (top left, below healthbar)
+        # Healthbar is usually at (10, 10, 200, 20) -> bottom is 30.
+        # So we draw at y=40.
+        level_deaths = self.count - self.previous_level_deaths_snapshot
+        
+        info_text = f"Level: {level_num} | Deaths: {level_deaths}"
+        text_level = self.font.render(info_text, True, (255, 255, 255))
+        rect_level = text_level.get_rect(topleft=(19, 75))
+        surface.blit(text_level, rect_level)
 
 class Hints:
     def __init__(self, font, pos, text):
