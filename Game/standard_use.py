@@ -43,7 +43,6 @@ def play_music():
         pass
 
 #background
-#background
 def game_background(background_img, width=None, height=None, menu=False):
     # Determine target size
     target_w = width if width else SCREEN_WIDTH
