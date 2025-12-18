@@ -57,7 +57,6 @@ class Enemy(pg.sprite.Sprite):
         self.rect.x -= self.speed
         if self.rect.right < 0:
             self.rect.right = LEVEL_WIDTH + 500
-            self.base_y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
             self.hover_phase = 0  
             self.rect.y = self.base_y
 

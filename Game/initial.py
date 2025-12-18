@@ -303,6 +303,9 @@ def main():
                 elif not player.hanging and player.facing_dir == -1 :
                     player.render_chameleon_left(surface)
             
+            if show_hitboxes:
+                pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
+            
             if player.grappling and player.grapple_target:
                 player_screen_pos = player.camera.apply_rect(player.rect).center
                 target_screen_pos = player.camera.to_screen(player.grapple_target)
