@@ -297,7 +297,7 @@ def main():
                         player.render_chameleon_left_wall_down(surface)
                     else:
                         player.render_chameleon_left_wall(surface)
-
+ 
             else:
                 if not player.hanging and player.facing_dir == 1 :
                     player.render_chameleon(surface, keys)
@@ -324,6 +324,7 @@ def main():
                 if tongue_hitbox:
                     for enemy in enemies:
                         if tongue_hitbox.colliderect(enemy.rect):
+                                
                                 print("tongue HIT")
                                 enemy.kill_enemy()
                                 health_bar.hp += 10
