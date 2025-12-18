@@ -2,7 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-import time
+from time import sleep
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -30,6 +30,7 @@ class Player:
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
         self.level_complete = False
+        self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
         self.tijdelijkright_frame_index = 0
@@ -110,12 +111,12 @@ class Player:
                 (self.width, self.visual_height)
             )
             self.sprites['left_wall'] = pg.transform.scale(
-                pg.image.load('./resource/chameleon_left_wall.png').convert_alpha(),
+                pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
                 (self.visual_height, self.width)  # Swap voor verticale orientatie
             )
             self.sprites['right_wall_up'] = [
                 pg.transform.scale(
-                    pg.image.load(f'./resources/camiboywalkingleftup/frame_{i}.png').convert_alpha(),
+                    pg.image.load(f'./resources/camiboywaklingleftup/frame_{i}.png').convert_alpha(),
                     (self.visual_width, self.visual_height)
                 )
                 for i in range(35)
@@ -312,7 +313,7 @@ class Player:
                 point_rect = pg.Rect(check_x, check_y, 2, 2)
 
                 for tile in self.tiles:
-                    if tile.type == 'X' or tile.type == 'S' or tile.type == 'F':  # solid types
+                    if tile.type == 'X' or tile.type == 'S':  # solid types
                         if tile.rect.colliderect(point_rect):
                             return False  # blocked by a wall
 
@@ -343,6 +344,7 @@ class Player:
         dist = math.hypot(dx, dy)
 
         if dist > self.max_grapple_dist:
+            print("Too far to grapple!")
             return
 
         # Facing check using dot product
@@ -351,9 +353,11 @@ class Player:
 
         dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
         if dot <= 0:
+            print("Tile is behind you!")
             return
 
         if not self.can_grapple_to(target_tile):
+            print("Blocked by wall!")
             return
 
         self.grapple_to(target_tile.rect.center)
@@ -437,6 +441,18 @@ class Player:
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
+        
+        
+        if self.rect.colliderect(rect):
+           if not self.al_geraakt:
+               healthbar.hp -= 10
+               self.al_geraakt = True
+        else:
+           # reset zodra ze niet meer botsen
+           self.al_geraakt = False
+
+        
+        
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
@@ -672,11 +688,11 @@ class Player:
             pg.draw.rect(surface, (0, 0, 0), shifted_rect)
 
     def render_chameleon_right_wall(self, surface, keys):
-        try:
+        
             frame = self.sprites['right_wall_up'][0] 
             cup = 0
             if keys[pg.K_UP]:
-                cup = 0.5
+                cup = 0.7
             if 'right_wall_up' in self.sprites:
                 self.tijdelijkright_frame_index += cup
                 if self.tijdelijkright_frame_index >=len(self.sprites['right_wall_up']):
@@ -697,9 +713,7 @@ class Player:
             shifted_rect.y += self.visual_y_offset 
             
             surface.blit(frame, shifted_rect)
-        except:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (0, 0, 255), shifted_rect)
+        
 
     def render_chameleon_right_wall_down(self, surface):
         if 'right_wall_down' in self.sprites:
