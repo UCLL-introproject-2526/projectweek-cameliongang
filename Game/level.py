@@ -464,3 +464,14 @@ class Level:
             # DEBUG: Draw Hitboxes
             if show_hitboxes:
                 pygame.draw.rect(surface, (255, 0, 0), camera.apply_rect(tile.rect), 1)
+    
+
+    def find_pixel_loc(tile_x, tile_y):
+        pixel_x = tile_x * TILE_SIZE
+        pixel_y = tile_y * TILE_SIZE
+        print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
+    
+    find_pixel_loc(10,18)
+
+
+    
