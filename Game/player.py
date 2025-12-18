@@ -45,7 +45,7 @@ class Player:
         self.hanging = False # New Player for ceiling stick
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
-        self.grapple_speed=12
+        self.grapple_speed=14
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
@@ -307,10 +307,10 @@ class Player:
                 nearest_tile = tile
 
         return nearest_tile
-    def grappling_hook(self, dt):
-        if self.grappling and self.grapple_target:
-            dx = self.grapple_target[0] - self.rect.centerx
-            dy = self.grapple_target[1] - self.rect.centery
+    def grappling_hook(self, dt):               # Move player toward grapple target
+        if self.grappling and self.grapple_target:          
+            dx = self.grapple_target[0] - self.rect.centerx     # Vector to target
+            dy = self.grapple_target[1] - self.rect.centery     # Vector to target
             dist = math.hypot(dx, dy)
 
             step = self.grapple_speed * dt
@@ -651,8 +651,6 @@ class Player:
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
-            
-
 
     def render_chameleon_left(self, surface, keys):
         
@@ -758,6 +756,7 @@ class Player:
 
             
             surface.blit(frame, shifted_rect)
+
     def render_chameleon_left_wall_down(self, surface, keys):
             frame = self.sprites['left_wall_down'][0] 
             cdown = 0
@@ -806,7 +805,6 @@ class Player:
             
             surface.blit(frame, shifted_rect)
         
-
     def render_chameleon_right_wall_down(self, surface, keys):
             frame = self.sprites['right_wall_down'][0] 
             cdown = 0
