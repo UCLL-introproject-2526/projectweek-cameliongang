@@ -26,6 +26,18 @@ class Player:
         self.wall_visual_offset_x = -3
         self.wall_visual_offset_y = 35
 
+        # Ceiling Visual Dimensions
+        self.ceiling_visual_width = 70
+        self.ceiling_visual_height = 50
+        self.ceiling_visual_offset_x = 0
+        self.ceiling_visual_offset_y = 0
+
+        # Left Wall Visual Dimensions
+        self.left_wall_visual_width = 70
+        self.left_wall_visual_height = 80
+        self.left_wall_visual_offset_x = 0
+        self.left_wall_visual_offset_y = 35
+
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -113,20 +125,20 @@ class Player:
             self.sprites['ceiling'] = [
                 pg.transform.scale(
                     pg.image.load(f'./resources/ceiling_right/frame_{i}.png').convert_alpha(),
-                    (self.visual_width, self.visual_height)
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
                 )
                 for i in range(35)
             ]
             self.sprites['ceiling_left'] = [pg.transform.scale(
                     pg.image.load(f'./resources/ceiling_left/frame_{i}.png').convert_alpha(),
-                    (self.visual_width, self.visual_height)
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
                 )
                 for i in range(35)
             ]    
             self.sprites['left_wall'] = [
                 pg.transform.scale(
                     pg.image.load(f'./resources/right up/frame_{i}.png').convert_alpha(),
-                    (self.wall_visual_width, self.wall_visual_height)
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
                 )
                 for i in range(35)
             ]
@@ -147,7 +159,7 @@ class Player:
             self.sprites['left_wall_down'] = [
                 pg.transform.scale(
                     pg.image.load(f'./resources/camiboywalkingrightdown/frame_{i}.png').convert_alpha(),
-                    (self.wall_visual_width, self.wall_visual_height)
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
                 )
                 for i in range(35)
             ]
@@ -693,9 +705,8 @@ class Player:
             rect.centerx = self.rect.centerx
             
             shifted_rect = self.camera.apply_rect(rect)
-            # Optional: Extra manual offset if needed (e.g. -10 y)
-            shifted_rect.y -= (self.visual_height - self.height) // 2 
-            shifted_rect.y += self.visual_y_offset 
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
             
             surface.blit(frame, shifted_rect)
 
@@ -719,9 +730,8 @@ class Player:
             rect.centerx = self.rect.centerx
             
             shifted_rect = self.camera.apply_rect(rect)
-            # Optional: Extra manual offset if needed (e.g. -10 y)
-            shifted_rect.y -= (self.visual_height - self.height) // 2 
-            shifted_rect.y += self.visual_y_offset 
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
             
             surface.blit(frame, shifted_rect)
         
@@ -742,9 +752,8 @@ class Player:
             rect.centerx = self.rect.centerx
             
             shifted_rect = self.camera.apply_rect(rect)
-            # Use specific wall offsets now
-            shifted_rect.x += self.wall_visual_offset_x
-            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
 
             
             surface.blit(frame, shifted_rect)
@@ -765,9 +774,8 @@ class Player:
             rect.centerx = self.rect.centerx
             
             shifted_rect = self.camera.apply_rect(rect)
-            # Use specific wall offsets now
-            shifted_rect.x += self.wall_visual_offset_x
-            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
 
             
             surface.blit(frame, shifted_rect)
