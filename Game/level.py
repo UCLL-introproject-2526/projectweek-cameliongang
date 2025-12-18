@@ -124,9 +124,9 @@ class Tile(pygame.sprite.Sprite):
 LEVEL_1 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
+    "X                  S      E",
+    "X       S          S      E",
+    "X       S          X   S  E",
     "X       S              S  X",
     "X        P             X  X",
     "X      XXXXX        S     X",
@@ -378,6 +378,7 @@ class Level:
 
     def setup_level(self):
         self.tiles = []
+        self.enemy_spawns = []
         for row_index, row in enumerate(self.current_map):
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_SIZE
@@ -405,6 +406,9 @@ class Level:
                     self.tiles.append(Tile((x,y), 'L'))
                 if cell == 'R':
                     self.tiles.append(Tile((x,y), 'R'))
+                # Enemy Spawns
+                if cell == 'E':
+                    self.enemy_spawns.append((x, y))
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:

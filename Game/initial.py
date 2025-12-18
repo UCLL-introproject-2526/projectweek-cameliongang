@@ -22,13 +22,9 @@ def main():
     lvl = Level(current_level_idx)
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
-    # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
-    enemies = []
-    enemycount = 1
-    spawn_interval= 180  # enkel in factoren van 60 veranderen.
-    enemy_spawn_timer = 0
-    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
-    enemy = Enemy(800, y_enemy) 
+    # Initialize enemies from level
+    enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+    
     # Debug
     show_hitboxes = False
 
@@ -100,9 +96,7 @@ def main():
                  # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                  player = Player(lvl, camera)
-                 # Reset enemies bij herstart (nieuw: lege lijst)
-                 enemies = []
-                 enemy_spawn_timer = 0  # Reset timer
+                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
              
              pg.display.flip()
              clock.tick(60)
@@ -155,17 +149,17 @@ def main():
         else:
             # Handling events
             
- 
-            enemy_spawn_timer += 1
-            if enemy_spawn_timer >= spawn_interval and len(enemies) < enemycount:
-                
-                y_enemy = random.randint(100, 500)
-                enemies.append(Enemy(LEVEL_WIDTH, y_enemy)) 
-                enemy_spawn_timer = 0  
-            
+            # Enemy spawning from level (static) - No longer random spawning
+            # if enemy_spawn_timer checks removed
+
             
             for enemy in enemies:
                 enemy.update()
+                # Check collision with player
+                if player.rect.colliderect(enemy.rect):
+                    health_bar.hp -= enemy.damage
+                    print('10 damage')
+
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -229,7 +223,9 @@ def main():
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            player.update_physics(dx, keys, dt_factor, enemy.rect, health_bar)
+            # Update Physics (now takes keys for wall behavior and jump-cut gating)
+            # Pass dummy rect for enemy collision (handled in loop above)
+            player.update_physics(dx, keys, dt_factor, pg.Rect(0,0,0,0), health_bar)
                         # Check for level completion
             if player.level_complete:
                 current_level_idx += 1
