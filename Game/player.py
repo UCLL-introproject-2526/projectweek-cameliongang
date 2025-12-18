@@ -15,9 +15,17 @@ class Player:
         self.height = 23  # Hitbox height (smaller than visual)
         self.base_width = 50
         self.base_height = 23
+        
+
+        #Visual Dimensions
         self.visual_width = 70 # New visual width
         self.visual_height = 50 # New visual height 
         self.visual_y_offset = 24 # Offset for rendering loop tweak neg is omhoog
+        self.wall_visual_width = 70
+        self.wall_visual_height = 50 
+        self.wall_visual_offset_x = 0
+        self.wall_visual_offset_y = 0
+
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -112,22 +120,22 @@ class Player:
             )
             self.sprites['left_wall'] = pg.transform.scale(
                 pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
-                (self.visual_height, self.width)  # Swap voor verticale orientatie
+                (self.wall_visual_height, self.wall_visual_width)  # Swap voor verticale orientatie
             )
             self.sprites['right_wall_up'] = [
                 pg.transform.scale(
                     pg.image.load(f'./resources/camiboywaklingleftup/frame_{i}.png').convert_alpha(),
-                    (self.visual_width, self.visual_height)
+                    (self.wall_visual_width, self.wall_visual_height)
                 )
                 for i in range(35)
             ]
             self.sprites['right_wall_down'] = pg.transform.scale(
                 pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
+                (self.wall_visual_height, self.wall_visual_width)
             )
             self.sprites['left_wall_down'] = pg.transform.scale(
                 pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
+                (self.wall_visual_height, self.wall_visual_width)
             )
         except Exception as e:
             print(f"Error loading sprites: {e}")
@@ -682,6 +690,8 @@ class Player:
             rect.left = self.rect.left
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += self.wall_visual_offset_y
             surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
@@ -699,18 +709,16 @@ class Player:
                     self.tijdelijkright_frame_index = 0
                 frame = self.sprites['right_wall_up'][int(self.tijdelijkright_frame_index)]
                     
-                    
-                    
-
             rect = frame.get_rect()
            
             rect.bottom = self.rect.bottom
             rect.centerx = self.rect.centerx
             
             shifted_rect = self.camera.apply_rect(rect)
-            # Optional: Extra manual offset if needed (e.g. -10 y)
-            shifted_rect.y -= (self.visual_height - self.height) // 2 
-            shifted_rect.y += self.visual_y_offset 
+            # Use specific wall offsets now
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+
             
             surface.blit(frame, shifted_rect)
         
@@ -722,6 +730,8 @@ class Player:
             rect.right = self.rect.right
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += self.wall_visual_offset_y
             surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
@@ -733,6 +743,8 @@ class Player:
             rect.left = self.rect.left
             rect.bottom = self.rect.bottom
             shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += self.wall_visual_offset_y
             surface.blit(chameleon_img, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
