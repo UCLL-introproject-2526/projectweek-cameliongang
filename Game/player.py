@@ -11,11 +11,13 @@ class Player:
         self.gravity = 0.675
         self.jump_strength = -15
         self.jump_cut = -4
-        self.width = 55  # Approx player width
-        self.height = 40  # Approx player height (reduced for hitbox)
+        self.width = 50  # Hitbox width
+        self.height = 23  # Hitbox height (smaller than visual)
         self.base_width = 50
         self.base_height = 23
-        self.visual_height = 50 
+        self.visual_width = 70 # New visual width
+        self.visual_height = 50 # New visual height 
+        self.visual_y_offset = 24 # Offset for rendering loop tweak neg is omhoog
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -87,7 +89,7 @@ class Player:
             self.sprites['right'] = [
                 pg.transform.scale(
                     pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
-                    (self.width, self.visual_height)
+                    (self.visual_width, self.visual_height)
                 )
                 for i in range(35)
             ]
@@ -593,9 +595,24 @@ class Player:
                 
 
             rect = frame.get_rect()
+            # Align image center-bottom with hitbox center-bottom (or slightly adjust)
+            # Hitbox is smaller than image.
+            # Visual height 50, Hitbox height 23.
+            # We want feet at same level? Or image slightly higher?
+            # rect.bottom = self.rect.bottom
+            # rect.centerx = self.rect.centerx
+            
+            # Offset upwards to center image vertically on hitbox or place feet?
+            # If hitbox is just the body/feet area.
+            # Let's align bottoms matches.
+            rect.bottom = self.rect.bottom
             rect.centerx = self.rect.centerx
-            rect.top = self.rect.top
+            
             shifted_rect = self.camera.apply_rect(rect)
+            # Optional: Extra manual offset if needed (e.g. -10 y)
+            shifted_rect.y -= (self.visual_height - self.height) // 2 
+            shifted_rect.y += self.visual_y_offset 
+            
             surface.blit(frame, shifted_rect)
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
