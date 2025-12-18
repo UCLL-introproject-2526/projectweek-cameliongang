@@ -1,6 +1,10 @@
 
 import pygame
 import os
+import math
+
+def distance(c1, c2):
+    return math.sqrt(sum([(a - b) ** 2 for a, b in zip(c1, c2)]))
 
 def remove_background(filepath):
     pygame.display.init()
@@ -8,20 +12,30 @@ def remove_background(filepath):
 
     try:
         image = pygame.image.load(filepath).convert()
-        # Get color at (0,0) assuming it is the background
-        bg_color = image.get_at((0, 0))
-        print(f"Detected background color at (0,0): {bg_color}")
-        
-        # Set colorkey
-        image.set_colorkey(bg_color)
+        width, height = image.get_size()
         
         # Create a new surface with alpha channel
-        new_image = pygame.Surface(image.get_size(), pygame.SRCALPHA)
-        new_image.blit(image, (0, 0))
+        new_image = pygame.Surface((width, height), pygame.SRCALPHA)
+        
+        # Target Magenta
+        target_color = (255, 0, 255)
+        # Tolerance usually needed for generated images (compression artifacts)
+        threshold = 100 
+
+        for x in range(width):
+            for y in range(height):
+                p_color = image.get_at((x, y))
+                # Compare RGB only, ignore Alpha of original if present
+                if distance(p_color[:3], target_color) < threshold:
+                    # Make transparent
+                    new_image.set_at((x, y), (0, 0, 0, 0))
+                else:
+                    # Copy pixel
+                    new_image.set_at((x, y), p_color)
         
         # Save overwrite
         pygame.image.save(new_image, filepath)
-        print(f"Successfully processed and saved: {filepath}")
+        print(f"Successfully processed (with tolerance) and saved: {filepath}")
         
     except Exception as e:
         print(f"Error processing image: {e}")
