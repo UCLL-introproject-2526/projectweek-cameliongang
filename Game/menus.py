@@ -103,7 +103,7 @@ quit_pause_button = Button('Quit Game', (850, 600))
 def draw_pause_menu(surface, font):
     surface.fill((0, 0, 0))
     # Reuse gameover background or change if desired, keeping as requested
-    background = game_background('gameover_background.jpg', menu=True)
+    background = game_background('gameover_background.png', menu=True)
     surface.blit(background, (0, 0))
     # Semi-transparent overlay
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
