@@ -139,11 +139,11 @@ LEVEL_1 = [
     "X                        E  X ",
     "X                     E     XE",
     "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
-    "X  SSSSSSS            X  XXXX ",
-    "X N                   X  XXXX ",
-    "XXXX       S  FFFFFFF X  XXXX ",
-    "X       S  S  FSSSSSF X  XXXX ",
-    "X       S                XXXX ",
+    "XSSSSSSSSSFF          X  XXXX ",
+    "X          F          X  XXXX ",
+    "X N        SFFFFFFFFFFX  XXXX ",
+    "XXXX       S  FSSSSSF X  XXXX ",
+    "X          S             XXXX ",
     "X                        XXXX ",
     "X         XXXXXX    S    XXXX ",
     "X                   S    XXXX ",
@@ -153,48 +153,48 @@ LEVEL_1 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 
+
 ]
-
-# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
-# LEVEL_1 = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "X        SSSS SS          X",
-#     "X                  S      X",
-#     "X       S          S      X",
-#     "X       S          X   S  X",
-#     "X       S              S  E",
-#     "X        P             X  E",
-#     "X      XXXXX        S     X",
-#     "X    X              XN    X",
-#     "X    XX      XX     XXX   X",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
-# ]
-
-
 
 LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-    "XS                                        SX",
-    "XS           G     YYY                    SX",
-    "XS   SSSS        SSSSSS     SSSSSS        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S  P     S    S     S    S        SX",
-    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
-    "XS   S           S     Y         S        SX",
-    "XS   S           S               S        SX",
-    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
-    "XS                                        SX",
-    "XS        SSSXSS           SSSSSS         SX",
-    "XS            NS           S              SX",
-    "XSSSSSSSS      S           S      SSSSSSSSSX",
-    "X       S      S           S      S        X",
-    "X       S      S           S      S        X",
-    "X       XXXXXXXX           XXXXXXXX        X",
-    "X                                          X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X        SSSS SS          X",
+    "X                  S      X",
+    "X       S          S      X",
+    "X       S          X   S  X",
+    "X       S              S  E",
+    "X        P             X  E",
+    "X      XXXXX        S     X",
+    "X    X              XN    X",
+    "X    XX      XX     XXX   X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
+
+
+
+# LEVEL_2 = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+#     "XS                                        SX",
+#     "XS           G     YYY                    SX",
+#     "XS   SSSS        SSSSSS     SSSSSS        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S        S    S     S    S        SX",
+#     "XS   S  S  P     S    S     S    S        SX",
+#     "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+#     "XS   S           S     Y         S        SX",
+#     "XS   S           S               S        SX",
+#     "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+#     "XS                                        SX",
+#     "XS        SSSXSS           SSSSSS         SX",
+#     "XS            NS           S              SX",
+#     "XSSSSSSSS      S           S      SSSSSSSSSX",
+#     "X       S      S           S      S        X",
+#     "X       S      S           S      S        X",
+#     "X       XXXXXXXX           XXXXXXXX        X",
+#     "X                                          X",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
 
 
 LEVEL_3 = [

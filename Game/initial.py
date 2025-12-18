@@ -328,6 +328,7 @@ def main():
                 if tongue_hitbox:
                     for enemy in enemies:
                         if tongue_hitbox.colliderect(enemy.rect):
+                                
                                 print("tongue HIT")
                                 enemy.kill_enemy()
                                 health_bar.hp += 10
