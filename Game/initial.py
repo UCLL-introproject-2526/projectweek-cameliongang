@@ -243,7 +243,6 @@ def main():
 
             if health_bar.hp <= 0:
                 death_counter.count += 1
-                player.is_dead = True
                 player.reset(health_bar)
 
             # Update Camera
