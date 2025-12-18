@@ -1,5 +1,6 @@
 import pygame as pg
 import random
+import time
 from player import Player
 from camera import Camera
 import level as level_module
@@ -22,7 +23,7 @@ def main():
     
     # Load Logo
     try:
-        logo_img = pg.image.load('./resources/game_logo.png').convert_alpha()
+        logo_img = pg.transform.scale(pg.image.load('./resources/game_logo.png').convert_alpha(),(500,500))
         logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20)) # Slightly up to fit text below if needed
         surface.blit(logo_img, logo_rect)
     except:
@@ -31,8 +32,25 @@ def main():
         text = font_loading.render("CAMELION GANG", True, (255, 255, 255))
         rect = text.get_rect(center=(surface.get_width()//2, surface.get_height()//2))
         surface.blit(text, rect)
-        
+
+   
+    
     pg.display.flip()
+
+    # Wait for 3.7 seconds or until SPACE is pressed
+    start_wait = time.time()
+    waiting = True
+    while waiting and (time.time() - start_wait < 3.7):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                return
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    waiting = False
+        pg.time.wait(10) 
+                    
+
     # No asyncio.sleep here for synchronous desktop version
     
     clock = pg.time.Clock()
