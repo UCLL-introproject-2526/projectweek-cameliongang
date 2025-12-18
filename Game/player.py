@@ -615,7 +615,7 @@ class Player:
             shifted_rect.y += self.visual_y_offset 
             
             surface.blit(frame, shifted_rect)
-        else:
+        except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
             
