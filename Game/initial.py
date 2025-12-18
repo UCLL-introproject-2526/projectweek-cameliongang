@@ -317,10 +317,11 @@ def main():
             player.render_tongue(surface)
             tongue_hitbox= player.get_tongue_hitbox()
 
-            if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
-                print("tongue HIT")
-                enemy.kill_enemy()
-                health_bar.hp += 10
+            if lvl.has_enemy:
+                if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
+                    print("tongue HIT")
+                    enemy.kill_enemy()
+                    health_bar.hp += 10
         
             #healthbar creation
             health_bar.draw(surface)

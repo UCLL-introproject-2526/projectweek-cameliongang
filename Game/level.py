@@ -245,7 +245,7 @@ LEVEL_6  = [
     "XXXS  XXXX                   X",
     "XXXX  XXXX   YYYYYY  YYYYY   X",
     "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
-    "XP    SXXX                  NX",
+    "XP    XXXX                  NX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
@@ -375,6 +375,7 @@ class Level:
         LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE
         LEVEL_HEIGHT = (len(self.current_map) - 1) * TILE_SIZE
         self.setup_level()
+        self.has_enemy=False
 
     def setup_level(self):
         self.tiles = []
@@ -409,6 +410,7 @@ class Level:
                 # Enemy Spawns
                 if cell == 'E':
                     self.enemy_spawns.append((x, y))
+                    self.has_enemy = True
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:
