@@ -1,6 +1,6 @@
-import asyncio
 import pygame as pg
 import random
+import time
 from player import Player
 from camera import Camera
 import level as level_module
@@ -13,27 +13,45 @@ camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
 # Main game loop function
-async def main():
+def main():
     # Initialization of Pygame and game variables
     pg.init()
     surface = create_main_surface()
     
-    # Initial Loading Screen
+    # Initial Loading Screen with Logo
     surface.fill((0,0,0))
     
     # Load Logo
     try:
-        logo_img = pg.image.load('./resources/game_logo.png').convert_alpha()
-        logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20))
+        logo_img = pg.transform.scale(pg.image.load('./resources/game_logo.png').convert_alpha(),(500,500))
+        logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20)) # Slightly up to fit text below if needed
         surface.blit(logo_img, logo_rect)
     except:
-        font_loading = pg.font.Font(None, 36)
-        text = font_loading.render("Loading...", True, (255, 255, 255))
+        # Fallback text if logo fails
+        font_loading = pg.font.Font(None, 48)
+        text = font_loading.render("CAMELION GANG", True, (255, 255, 255))
         rect = text.get_rect(center=(surface.get_width()//2, surface.get_height()//2))
         surface.blit(text, rect)
 
+   
+    
     pg.display.flip()
-    await asyncio.sleep(0) # Give browser a chance to render it
+
+    # Wait for 3.7 seconds or until SPACE is pressed
+    start_wait = time.time()
+    waiting = True
+    while waiting and (time.time() - start_wait < 3.7):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                return
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    waiting = False
+        pg.time.wait(10) 
+                    
+
+    # No asyncio.sleep here for synchronous desktop version
     
     clock = pg.time.Clock()
     
@@ -55,13 +73,20 @@ async def main():
     LOADING_DURATION = 120 # 2 seconds at 60 FPS
     death_menu = False
     pause_menu = False
-    # Font loading with web-compatible path
-    font = pg.font.Font('./resources/ARIAL.TTF', 24)
+    font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
     
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
     
+    # Initialize hints
+    hints = [
+        Hints(font, (200, 300), "Press 'D' to move Right"),
+        Hints(font, (400, 300), "Press 'Space' or 'W' to Jump"),
+        Hints(font, (700, 200), "Press 'E' to Shoot Tongue"),
+    ]
+    
+
     #music playing
     play_music()
 
@@ -73,11 +98,15 @@ async def main():
     facing_right = True
     
     # Delta time initialization
+    # Delta time initialization
     dt_factor = 1.0
+    
+    levels_page = 0 # Track current page in level selector
 
     while running:
         dx = 0
         if main_menu:
+             levels_page = 0 # Reset page when returning to main menu
              command = draw_mainmenu(surface, font)
              if command == 'q':
                  # Quit the game
@@ -95,10 +124,9 @@ async def main():
              pg.display.flip()
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
-             await asyncio.sleep(0)
              continue
         elif loading_menu:
-             # Draw Loading Screen
+            # ... loading logic ... (abbreviated for context match)
              loading_timer += 1
              
              # Perform heavy loading on the first few frames to ensure UI has rendered at least once
@@ -114,28 +142,52 @@ async def main():
              progress = loading_timer / LOADING_DURATION
              draw_loading_screen(surface, font, progress, current_level_idx)
              
+             draw_loading_screen(surface, font, progress, current_level_idx)
+             
              if loading_timer >= LOADING_DURATION:
+                # Reset level-specific deaths for new level
+                death_counter.reset_level_counter()
+                
                 loading_menu = False
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                 player = Player(lvl, camera)
                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
                 print(current_level_idx)
-                if current_level_idx == 0:
-                    hints = [
-                        Hints(font, (1440, 550), "Hold G and arrow keys to grapple"),
-                        Hints(font, (550, 550), "Let go off G early to swing with momentum"),
-                        Hints(font, (100, 100), "Move and Jump with arrow keys"),
-                        Hints(font, (120, 850), "Press E to eat the flies"),
-                        Hints(font, (600,1472), "Press left/right + up to jump off slime walls")
-                            ]
+             
+             # Handle events for loading screen (quit)
+             for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
              
              pg.display.flip()
              clock.tick(60)
-             # Consume events to prevent queue buildup
-             pg.event.pump()
-             await asyncio.sleep(0)
              continue
+
+        elif levels_menu:
+            command = draw_levels_menu(surface, font, levels_page)
+            if command == 2:
+                levels_menu = False
+                main_menu = True
+            elif command == 8: # Prev Page
+                if levels_page > 0:
+                    levels_page -= 1
+            elif command == 9: # Next Page
+                levels_page += 1
+            elif command > 10:
+                current_level_idx = command - 10
+                levels_menu = False
+                loading_menu = True # Go to loading!
+                loading_timer = 0
+            
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+            
+            pg.display.flip()
+            clock.tick(60)
+            continue
+
         elif pause_menu:
              command = draw_pause_menu(surface, font)
              if command == 1: # Resume
@@ -158,7 +210,6 @@ async def main():
              
              pg.display.flip()
              clock.tick(60)
-             await asyncio.sleep(0)
              continue
         elif levels_menu:
              command = draw_levels_menu(surface, font)
@@ -179,7 +230,6 @@ async def main():
              
              pg.display.flip()
              clock.tick(60)
-             await asyncio.sleep(0)
              continue
         else:
             # Handling events
@@ -202,6 +252,13 @@ async def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 3:
+                        player.shoot_tongue()
+
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # Grapple key pressed
+                    target_tile = player.find_nearest_grapple_tile()
+                    if target_tile:
+                        player.try_grapple(target_tile)
 
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
@@ -209,13 +266,13 @@ async def main():
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
                     
-                    if event.key in (pg.K_UP, pg.K_w):
+                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE):
                         player.request_jump()
                     
                     if event.key == pg.K_e:
                         player.shoot_tongue()
-
-                    elif event.key == pg.K_g:  # Grapple key pressed
+                    
+                    if event.key == pg.K_g:  # Grapple key pressed
                         target_tile = player.find_nearest_grapple_tile()
                         if target_tile:
                             player.try_grapple(target_tile)
@@ -225,20 +282,22 @@ async def main():
                         player.grappling = False
                         player.grapple_target = None
 
+                elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                    player.grappling = False
+                    player.grapple_target = None
+                    
+
                 elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     world_pos = player.camera.to_world(event.pos)
 
-                    # Find the tile under the mouse
-                    for tile in lvl.tiles: # Use lvl here
-                        if tile.rect.collidepoint(world_pos):
-                            if tile.grappleable:
-                                player.try_grapple(tile)
-                            else:
-                                break
+                    # # Find the tile under the mouse
+                    # for tile in lvl.tiles: # Use lvl here
+                    #     if tile.rect.collidepoint(world_pos):
+                    #         if tile.grappleable:
+                    #             player.try_grapple(tile)
+                    #         else:
+                    #             break
 
-
-                elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                    player.grappling = False
 
 
 
@@ -364,7 +423,7 @@ async def main():
         
             #healthbar creation
             health_bar.draw(surface)
-            death_counter.draw(surface)
+            death_counter.draw(surface, current_level_idx + 1)
             # Draw hints
             if current_level_idx == 0:
                 for hint in hints:
@@ -375,7 +434,6 @@ async def main():
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
-            await asyncio.sleep(0)
 
 if __name__ == "__main__":
     main()

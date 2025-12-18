@@ -82,6 +82,22 @@ button:hover { background: #0098ff; }
 .palette-item[data-type="X"], .cell.type-X { background-color: #8b4513; color: white; } /* Brown */
 .palette-item[data-type="S"], .cell.type-S { background-color: #32cd32; color: black; } /* Lime Green */
 .palette-item[data-type="G"], .cell.type-G { background-color: #ffd700; color: black; } /* Gold */
+/* Grapple Range Indicator */
+.cell.type-G { position: relative; }
+.cell.type-G:hover::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 390px; /* 7.8 tiles radius * 25px * 2 = 390px diameter */
+    height: 390px;
+    border: 2px dashed rgba(255, 215, 0, 0.6);
+    background-color: rgba(255, 215, 0, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 20;
+}
 /* Spikes: Bottom aligned triangles/strip */
 .palette-item[data-type="Y"] { background-color: #9400d3; color: white; }
 .cell.type-Y { 
