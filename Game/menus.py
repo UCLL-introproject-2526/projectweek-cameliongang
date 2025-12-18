@@ -63,28 +63,62 @@ for i, lvl in enumerate(LEVELS):
     level_buttons.append((i, btn))
 
 back_button = Button("Back", (500, 600))
+prev_button = Button("Prev", (200, 600))
+next_button = Button("Next", (800, 600))
 
-def draw_levels_menu(surface, font):
+def draw_levels_menu(surface, font, page=0):
     surface.fill((0, 0, 0)) # Clear previous screen content
     background = game_background('levels_background.png', menu=True)
     surface.blit(background, (0, 0))
     command = 0
     
     # Draw title
-    title = font.render('Select Level', True, 'black')
+    title = font.render(f'Select Level - Page {page+1}', True, 'black')
     surface.blit(title, (500, 100))
 
+    # Pagination Logic
+    ITEMS_PER_PAGE = 8
+    start_idx = page * ITEMS_PER_PAGE
+    end_idx = start_idx + ITEMS_PER_PAGE
+    page_items = level_buttons[start_idx:end_idx]
+
     # Draw dynamic buttons
-    for idx, btn in level_buttons:
+    # We need to re-position them dynamically based on their "slot" on the current page
+    # because they were initialized with absolute positions for a single big list (maybe).
+    # Actually code above initialized them with row based on 'i'.
+    # If we have 100 levels, row 50 is off screen.
+    # So we MUST re-calculate position based on visible slot index.
+    
+    for relative_idx, (real_idx, btn) in enumerate(page_items):
+        col = relative_idx % 2
+        row = relative_idx // 2
+        x = 300 + (col * 350)
+        y = 200 + (row * 100)
+        
+        # Hacky: Update button position on the fly?
+        # Or Just create new Render Buttons?
+        # Since Button class stores pos, let's update it.
+        btn.pos = (x, y)
+        btn.button = pg.rect.Rect((x, y), (260,50)) # Update collision rect
+        
         btn.draw(surface, font)
         if btn.check_clicked():
-            command = 10 + idx # 10=lvl1, 11=lvl2, etc.
+            command = 10 + real_idx # 10=lvl1, 11=lvl2, etc.
 
     back_button.draw(surface, font)
     if back_button.check_clicked():
-        command = 2 # Back to main menu (credits command was 2, need to check main menu codes)
-        # Actually in initial.py check:
-        # 1=Start/Restart, 2=Credits?, 3=LevelSelect, 0=None
+        command = 2 # Back to main menu
+    
+    # Draw Pagination Controls
+    if page > 0:
+        prev_button.draw(surface, font)
+        if prev_button.check_clicked():
+            command = 8 # Prev Page
+            
+    if end_idx < len(level_buttons):
+        next_button.draw(surface, font)
+        if next_button.check_clicked():
+            command = 9 # Next Page
     
     return command
 

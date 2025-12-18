@@ -79,6 +79,13 @@ def main():
     death_counter = DeathCounter(font)
     shoot=False
     
+    # Initialize hints
+    hints = [
+        Hints(font, (200, 300), "Press 'D' to move Right"),
+        Hints(font, (400, 300), "Press 'Space' or 'W' to Jump"),
+        Hints(font, (700, 200), "Press 'E' to Shoot Tongue"),
+    ]
+    
 
     #music playing
     play_music()
@@ -91,11 +98,15 @@ def main():
     facing_right = True
     
     # Delta time initialization
+    # Delta time initialization
     dt_factor = 1.0
+    
+    levels_page = 0 # Track current page in level selector
 
     while running:
         dx = 0
         if main_menu:
+             levels_page = 0 # Reset page when returning to main menu
              command = draw_mainmenu(surface, font)
              if command == 'q':
                  # Quit the game
@@ -115,7 +126,7 @@ def main():
              clock.tick(60)
              continue
         elif loading_menu:
-             # Draw Loading Screen
+            # ... loading logic ... (abbreviated for context match)
              loading_timer += 1
              
              # Perform heavy loading on the first few frames to ensure UI has rendered at least once
@@ -143,20 +154,40 @@ def main():
                 player = Player(lvl, camera)
                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
                 print(current_level_idx)
-                if current_level_idx == 0:
-                    hints = [
-                        Hints(font, (1440, 550), "Hold G and arrow keys to grapple"),
-                        Hints(font, (550, 550), "Let go off G early to swing with momentum"),
-                        Hints(font, (100, 100), "Move and Jump with arrow keys"),
-                        Hints(font, (120, 850), "Press E to eat the flies"),
-                        Hints(font, (600,1472), "Press left/right + up to jump off slime walls")
-                            ]
+             
+             # Handle events for loading screen (quit)
+             for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
              
              pg.display.flip()
              clock.tick(60)
-             # Consume events to prevent queue buildup
-             pg.event.pump()
              continue
+
+        elif levels_menu:
+            command = draw_levels_menu(surface, font, levels_page)
+            if command == 2:
+                levels_menu = False
+                main_menu = True
+            elif command == 8: # Prev Page
+                if levels_page > 0:
+                    levels_page -= 1
+            elif command == 9: # Next Page
+                levels_page += 1
+            elif command > 10:
+                current_level_idx = command - 10
+                levels_menu = False
+                loading_menu = True # Go to loading!
+                loading_timer = 0
+            
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+            
+            pg.display.flip()
+            clock.tick(60)
+            continue
+
         elif pause_menu:
              command = draw_pause_menu(surface, font)
              if command == 1: # Resume
