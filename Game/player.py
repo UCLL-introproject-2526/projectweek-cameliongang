@@ -45,7 +45,7 @@ class Player:
         self.hanging = False # New Player for ceiling stick
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
-        self.grapple_speed=14
+        self.grapple_speed=12.5
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500

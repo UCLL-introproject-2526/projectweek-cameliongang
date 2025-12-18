@@ -235,6 +235,11 @@ def main():
                     
                     if event.key == pg.K_e:
                         player.shoot_tongue()
+                    
+                    if event.key == pg.K_g:  # Grapple key pressed
+                        target_tile = player.find_nearest_grapple_tile()
+                        if target_tile:
+                            player.try_grapple(target_tile)
 
                 elif event.type == pg.KEYUP:
                     if event.key == pg.K_g:  # Grapple key released

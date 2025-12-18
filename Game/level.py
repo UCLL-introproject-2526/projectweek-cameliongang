@@ -238,9 +238,9 @@ LEVEL_3 = [
 #LEVEL 4 | advanced grapling
 LEVEL_4 = [
 
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X           G          G         G         X",
-    "X P                                    G   X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXGXXXXXXXXXX",
+    "X           G          G              G    X",
+    "X P                                        X",
     "X                                          X",
     "XXXXXXS     XXXXXS     XXXXXX              X",
     "X     S     X    S     X    X              X",
