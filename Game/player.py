@@ -253,6 +253,8 @@ class Player:
     
     def grapple_to(self, pos):
     # Set target and start grappling
+        sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
+        sound.play()
         self.grapple_target = pos
         self.grappling = True
 
