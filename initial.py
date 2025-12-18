@@ -40,7 +40,6 @@ def main():
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
-    
 
     #music playing
     play_music()
@@ -304,9 +303,6 @@ def main():
                 elif not player.hanging and player.facing_dir == -1 :
                     player.render_chameleon_left(surface)
             
-            if show_hitboxes:
-                pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
-            
             if player.grappling and player.grapple_target:
                 player_screen_pos = player.camera.apply_rect(player.rect).center
                 target_screen_pos = player.camera.to_screen(player.grapple_target)
@@ -315,13 +311,12 @@ def main():
             #show tongue
             player.update_tongue()
             player.render_tongue(surface)
-            tongue_hitbox= player.get_tongue_hitbox()
+           
+                
 
-            if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
-                print("tongue HIT")
-                enemy.kill_enemy()
-                health_bar.hp += 10
-        
+                
+                
+
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface)

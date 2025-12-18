@@ -167,6 +167,7 @@ button:hover { background: #0098ff; }
 .palette-item[data-type="N"], .cell.type-N { background-color: #00ffff; color: black; } /* Cyan */
 .palette-item[data-type="D"], .cell.type-D { background-color: #b22222; color: white; } /* Firebrick */
 .palette-item[data-type="P"], .cell.type-P { background-color: #1e90ff; color: white; } /* Dodger Blue */
+.palette-item[data-type="E"], .cell.type-E { background-color: #ff00ff; color: white; } /* Magenta */
 .palette-item[data-type=" "], .cell.type-space { background-color: #444; color: #888; } /* Empty */
 .cell.keyboard-selected {
     box-shadow: inset 0 0 0 2px #fff, 0 0 10px #fff;

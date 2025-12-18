@@ -3,13 +3,12 @@ import random
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 import math
 
-
 class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.speed = 6
+        self.speed = 12
         self.damage = 10
-        self.hoveramplitude = 15
+        self.hoveramplitude = 30
         self.hover_speed = 0.1
         self.animation_index = 0
         self.hover_phase = 0
@@ -58,6 +57,7 @@ class Enemy(pg.sprite.Sprite):
         self.rect.x -= self.speed
         if self.rect.right < 0:
             self.rect.right = LEVEL_WIDTH + 500
+            self.base_y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
             self.hover_phase = 0  
             self.rect.y = self.base_y
 
@@ -65,5 +65,3 @@ class Enemy(pg.sprite.Sprite):
         shifted_rect = camera.apply_rect(self.rect)
         surface.blit(self.image, shifted_rect)
 
-    def kill_enemy(self):
-        self.rect.right = LEVEL_WIDTH + 750 
