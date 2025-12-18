@@ -1,5 +1,6 @@
 import pygame
 TILE_SIZE = 64
+SPIKE_PADDING = 10 # Controls how much smaller the spike hitbox is (pixels removed from sides)
 IMAGE_CACHE = {}
 
 class Tile(pygame.sprite.Sprite):
@@ -26,29 +27,29 @@ class Tile(pygame.sprite.Sprite):
     def _apply_hitbox(self, type, pos):
         # Hitbox Adjustments based on type
         # HITBOX ADJUSTMENTS: Reduced width/height to be "less wide" (more forgiving)
-        PADDING = 15 # Increased padding to 15 pixels based on user feedback to make sides smaller/centered
+        # SPIKE_PADDING is defined at top of file
         
         if type == 'Y':
                 # Floor Spikes: 1/4 tile high, full width (minus padding), at bottom
                 spike_height = TILE_SIZE // 4
                 # Rect: x+padding, y+offset, width-2*padding, height
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1] + (TILE_SIZE - spike_height), TILE_SIZE - (2*PADDING), spike_height)
+                self.rect = pygame.Rect(pos[0] + SPIKE_PADDING, pos[1] + (TILE_SIZE - spike_height), TILE_SIZE - (2*SPIKE_PADDING), spike_height)
         elif type == 'C':
                 # Ceiling Spikes: 1/4 tile high, full width (minus padding), at top
                 spike_height = TILE_SIZE // 4
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1], TILE_SIZE - (2*PADDING), spike_height)
+                self.rect = pygame.Rect(pos[0] + SPIKE_PADDING, pos[1], TILE_SIZE - (2*SPIKE_PADDING), spike_height)
         elif type == 'L':
                 # Left Wall Spikes: 1/4 tile wide, full height (minus padding), at left
                 spike_width = TILE_SIZE // 4
-                self.rect = pygame.Rect(pos[0], pos[1] + PADDING, spike_width, TILE_SIZE - (2*PADDING))
+                self.rect = pygame.Rect(pos[0], pos[1] + SPIKE_PADDING, spike_width, TILE_SIZE - (2*SPIKE_PADDING))
         elif type == 'R':
                 # Right Wall Spikes: 1/4 tile wide, full height (minus padding), at right
                 spike_width = TILE_SIZE // 4
                 # Note: Corrected x position logic to match visual
-                self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1] + PADDING, spike_width, TILE_SIZE - (2*PADDING))
+                self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1] + SPIKE_PADDING, spike_width, TILE_SIZE - (2*SPIKE_PADDING))
         elif type == 'F':
                 # Full Block Spike: Add padding on all sides
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1] + PADDING, TILE_SIZE - (2*PADDING), TILE_SIZE - (2*PADDING))
+                self.rect = pygame.Rect(pos[0] + SPIKE_PADDING, pos[1] + SPIKE_PADDING, TILE_SIZE - (2*SPIKE_PADDING), TILE_SIZE - (2*SPIKE_PADDING))
         
     def _load_image_and_cache(self, type):
         # Try loading sprite based on type
@@ -148,8 +149,8 @@ LEVEL_1 =  [
     "X P        Y   Y   YYYY     X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXXXXXGXXXXXXXXXXXXX  X ",
+    "XXXXXX   SXXXXXXXXXXXXXXXX  X ",
+    "XXXXXXXXSSXXGXXXXXXXXXXXXX  X ",
     "X                   G       X ",
     "X                           X ",
     "X                           X ",
@@ -469,15 +470,15 @@ class Level:
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:
-            shifted_rect = camera.apply_rect(tile.rect)
-            if tile.type == 'Y':
-                 # Visual fix: The hitbox is bottom 1/4 (16px), but image is full 64px.
-                 # Shift rendering UP by 48px to align visual bottom with hitbox bottom.
-                 shifted_rect.y -= 48 
-            if tile.type == 'R':
-                 # Visual fix: Hitbox is right 1/4 (shifted +48), but image is full 64px.
-                 # Shift rendering LEFT by 48px to align visual right with hitbox right.
-                 shifted_rect.x -= 48
+            # Use original position for rendering images to ensure they are aligned with grid/visuals
+            # and not shifted by hitbox padding.
+            render_rect = pygame.Rect(tile.pos[0], tile.pos[1], TILE_SIZE, TILE_SIZE)
+            shifted_rect = camera.apply_rect(render_rect)
+            
+            # Previous manual offsets (y-=48, x-=48) are no longer needed because 
+            # we are rendering from the top-left of the tile grid cell (pos),
+            # and the images are 64x64.
+            
             surface.blit(tile.image, shifted_rect)
             
             # DEBUG: Draw Hitboxes
