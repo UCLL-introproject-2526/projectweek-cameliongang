@@ -82,17 +82,44 @@ class Player:
         healthbar.hp = 100
 
     def load_sprites(self):
-
         try:
+            # Load and scale all walking frames
+            self.sprites['right'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
+                    (self.width, self.visual_height)
+                )
+                for i in range(35)
+            ]
             
-            self.sprites['right'] = [pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha() for i in range(35)]
-            self.sprites['left'] = pg.image.load('./resources/chameleon_left.png').convert_alpha()
-            self.sprites['ceiling'] = pg.image.load('./resources/chameleon_ceiling.png').convert_alpha()
-            self.sprites['ceiling_left'] = pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha()
-            self.sprites['left_wall'] = pg.image.load('./resources/chameleon_left_wall.png').convert_alpha()
-            self.sprites['right_wall'] = pg.image.load('./resources/chameleon_right_wall.png').convert_alpha()
-            self.sprites['right_wall_down'] = pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha()
-            self.sprites['left_wall_down'] = pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha()
+            self.sprites['left'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_left.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['ceiling'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_ceiling.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['ceiling_left'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['left_wall'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
+                (self.visual_height, self.width)  # Swap voor verticale orientatie
+            )
+            self.sprites['right_wall'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_right_wall.png').convert_alpha(),
+                (self.visual_height, self.width)  # Swap voor verticale orientatie
+            )
+            self.sprites['right_wall_down'] = pg.transform.scale(
+                pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha(),
+                (self.visual_height, self.width)
+            )
+            self.sprites['left_wall_down'] = pg.transform.scale(
+                pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha(),
+                (self.visual_height, self.width)
+            )
         except Exception as e:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
@@ -389,12 +416,7 @@ class Player:
 
         # Apply Momentum
         # Scale input movement by dt, but momentum is velocity, so apply it over time? 
-        # Actually dx is displacement per frame (speed * 1 frame). 
-        # So total_dx should be (dx + momentum) * dt.
-        # Ensure momentum decay handles dt correctly.
-        
-        # We need to treat dx as velocity here if we are scaling by dt.
-        # Currently dx is 5 pixels/frame. 
+        # Actually dx is 5 pixels/frame. 
         
         total_dx = (dx + self.momentum_x) * dt
         
