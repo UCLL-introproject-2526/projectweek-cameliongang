@@ -103,10 +103,10 @@ def main():
                 print(current_level_idx)
                 if current_level_idx == 0:
                     hints = [
-                        Hints(font, (1550, 550), "Hold G to grapple"),
-                        Hints(font, (500, 510), "Let go off G early to swing with momentum"),
+                        Hints(font, (1440, 550), "Hold G and arrow keys to grapple"),
+                        Hints(font, (550, 550), "Let go off G early to swing with momentum"),
                         Hints(font, (100, 100), "Move and Jump with arrow keys"),
-                        Hints(font, (100, 150), "Press E to eat the flies"),
+                        Hints(font, (120, 850), "Press E to eat the flies"),
                         Hints(font, (448,1152), "Press left + up to jump off slime walls")
                             ]
              
@@ -299,7 +299,7 @@ def main():
                 if player.wall_side > 0:
                     
                     if player.wall_facing_down:
-                        player.render_chameleon_right_wall_down(surface,keys)
+                        player.render_chameleon_right_wall_down(surface, keys)
                     else:
                         player.render_chameleon_right_wall(surface, keys)
                 
