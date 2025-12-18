@@ -1,6 +1,6 @@
 import pygame as pg
 import random
-from level import LEVEL_WIDTH, LEVEL_HEIGHT, 
+from level import LEVEL_WIDTH, LEVEL_HEIGHT
 import math
 
 
