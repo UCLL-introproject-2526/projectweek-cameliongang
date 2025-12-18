@@ -164,13 +164,16 @@ def main():
             # Enemy spawning from level (static) - No longer random spawning
             # if enemy_spawn_timer checks removed
 
-            
             for enemy in enemies:
                 enemy.update()
-                # Check collision with player
+
                 if player.rect.colliderect(enemy.rect):
-                    health_bar.hp -= enemy.damage
-                    print('10 damage')
+                    if not enemy.has_hit_player:
+                        health_bar.hp -= enemy.damage
+                        enemy.has_hit_player = True
+                else:
+                    # reset zodra ze niet meer botsen
+                    enemy.has_hit_player = False
 
             
             for event in pg.event.get():
@@ -208,8 +211,7 @@ def main():
                             if tile.grappleable:
                                 player.try_grapple(tile)
                             else:
-                                print("Can't grapple this tile!")
-                            break
+                                break
 
 
                 elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
@@ -295,11 +297,11 @@ def main():
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
-                    # Wall is to the RIGHT.
+                    
                     if player.wall_facing_down:
                         player.render_chameleon_right_wall_down(surface)
                     else:
-                        player.render_chameleon_right_wall(surface)
+                        player.render_chameleon_right_wall(surface, keys)
                 
                 else:
                     # Wall is to the LEFT.
@@ -314,7 +316,7 @@ def main():
             
 
                 elif not player.hanging and player.facing_dir == -1 :
-                    player.render_chameleon_left(surface)
+                    player.render_chameleon_left(surface, keys)
             
             if show_hitboxes:
                 pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
@@ -334,7 +336,6 @@ def main():
                     for enemy in enemies:
                         if tongue_hitbox.colliderect(enemy.rect):
                                 
-                                print("tongue HIT")
                                 enemy.kill_enemy()
                                 health_bar.hp += 10
         
@@ -354,5 +355,5 @@ def main():
 
 pg.quit()
 
-if __name__ == "__main__":
+if __name__== "__main__":
     main()
