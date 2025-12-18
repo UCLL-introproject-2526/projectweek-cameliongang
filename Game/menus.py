@@ -90,17 +90,19 @@ def draw_levels_menu(surface, font):
 
 
 # Death Menu Content
-# Death Menu Content
+# Pause Menu Content (Repurposed Death Menu)
 # Rearrange for better layout with 4 buttons
 # Row 1
-restart_button = Button('Restart', (350, 500))
-level_select_death_button = Button('Choose Level', (650, 500))
+resume_button = Button('Resume', (350, 500))
+restart_pause_button = Button('Restart', (650, 500))
 # Row 2
-main_menu_death_button = Button('Main Menu', (350, 600))
-quit_death_button = Button('Quit Game', (650, 600))
+main_menu_pause_button = Button('Main Menu', (250, 600))
+level_select_pause_button = Button('Choose Level', (550, 600))
+quit_pause_button = Button('Quit Game', (850, 600))
 
-def draw_death_menu(surface, font):
+def draw_pause_menu(surface, font):
     surface.fill((0, 0, 0))
+    # Reuse gameover background or change if desired, keeping as requested
     background = game_background('gameover_background.jpg', menu=True)
     surface.blit(background, (0, 0))
     # Semi-transparent overlay
@@ -108,30 +110,35 @@ def draw_death_menu(surface, font):
     overlay.fill((0, 0, 0, 100))
     surface.blit(overlay, (0,0))
     
+    # Title "PAUSED" could be added here if font available, but buttons suffice
+    
     command = 0
     
-    restart_button.draw(surface, font)
-    level_select_death_button.draw(surface, font)
-    main_menu_death_button.draw(surface, font)
-    quit_death_button.draw(surface, font)
+    resume_button.draw(surface, font)
+    restart_pause_button.draw(surface, font)
+    level_select_pause_button.draw(surface, font)
+    main_menu_pause_button.draw(surface, font)
+    quit_pause_button.draw(surface, font)
     
-    if restart_button.check_clicked():
-        command = 1 # Restart
-    if quit_death_button.check_clicked():
+    if resume_button.check_clicked():
+        command = 1 # Resume
+    if quit_pause_button.check_clicked():
         command = 2 # Quit
-    if main_menu_death_button.check_clicked():
+    if main_menu_pause_button.check_clicked():
         command = 3 # Main Menu
-    if level_select_death_button.check_clicked():
+    if level_select_pause_button.check_clicked():
         command = 4 # Level Select
+    if restart_pause_button.check_clicked():
+        command = 5 # Restart
         
     return command
 
-def draw_loading_screen(surface, font, progress):
+def draw_loading_screen(surface, font, progress, level_idx=0):
     # Reuse main menu background or black
     surface.fill((0, 0, 0))
     
     # Text
-    text = font.render("Loading...", True, (255, 255, 255))
+    text = font.render(f"Loading Level {level_idx + 1}...", True, (255, 255, 255))
     text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
     surface.blit(text, text_rect)
     
@@ -146,3 +153,4 @@ def draw_loading_screen(surface, font, progress):
     
     # Draw progress
     fill_width = int(bar_width * progress)
+    pg.draw.rect(surface, 'green', (bar_x, bar_y, fill_width, bar_height))

@@ -2,7 +2,6 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-from standard_use import HealthBar
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -19,7 +18,6 @@ class Player:
         self.wall_side = 0 # 1 for right, -1 for left
         self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
-        self.is_dead = False # Death state
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
         self.grapple_speed=12
@@ -58,7 +56,19 @@ class Player:
         self.sprites = {}
         self.load_sprites()
 
-
+    def reset(self, healthbar):
+        self.xcoor, self.ycoor = self.level.player_start_pos
+        self.velocity_y = 0
+        self.momentum_x = 0
+        self.on_ground = False
+        self.on_wall = False
+        self.wall_side = 0
+        self.hanging = False
+        self.grappling = False
+        self.grapple_target = None
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+        # Reset health if needed, e.g. HealthBar.hp = 100 but HealthBar is global/static in standard_use usage
+        healthbar.hp = 100
 
     def load_sprites(self):
 
@@ -132,6 +142,10 @@ class Player:
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
+
+    def shoot_tongue(self, surface):
+         pg.draw.line(surface, (240, 29, 29),self.rect.center, (self.rect.center[0], self.rect.center[1] + 300) , 5)
+
     
     def find_nearest_grapple_tile(self):
         nearest_tile = None
@@ -243,7 +257,7 @@ class Player:
 
         self.grapple_to(target_tile.rect.center)
 
-    def update_physics(self, dx, keys, dt, rect):
+    def update_physics(self, dx, keys, dt, rect,healthbar):
         #grapling call
         
         if self.grappling and self.grapple_target:
@@ -253,8 +267,8 @@ class Player:
             for tile in self.tiles:
                 if tile.rect.colliderect(player_rect):
                     t_type = getattr(tile, 'type', 'X')
-                    if t_type == 'D' or t_type == 'Y':
-                        self.is_dead = True
+                    if t_type == 'D' or t_type == 'Y' or t_type == "C"or t_type == "F"or t_type == "L"or t_type == "R":
+                        healthbar.hp = 0
             
         else:
     # normal gravity, collisions, etc.
@@ -308,15 +322,15 @@ class Player:
         
         
         if self.rect.colliderect(rect):
-            
-            print('1 dammage')
+            healthbar.hp -= 10
+            print('10 damage')
         
         
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D' or t_type == 'Y':
-                    self.is_dead = True
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
+                    healthbar.hp = 0
                 
             
                 if t_type == 'N':
@@ -393,8 +407,8 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type == 'D' or t_type == 'Y':
-                    self.is_dead = True
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
+                    healthbar.hp = 0
                 if t_type == 'N':
                     self.level_complete = True                                        
                 if dy < 0: # Moving Up
@@ -429,8 +443,8 @@ class Player:
 
         
 
-    def render_map(self, surface):
-        self.level.render(surface, self.camera)
+    def render_map(self, surface, show_hitboxes=False):
+        self.level.render(surface, self.camera, show_hitboxes)
 
     def render_chameleon(self, surface):
         
@@ -519,7 +533,6 @@ class Player:
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
-
     def render_chameleon_left_wall_down(self, surface):
         if 'left_wall_down' in self.sprites:
             chameleon_img = self.sprites['left_wall_down']
@@ -531,5 +544,3 @@ class Player:
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
-
-
