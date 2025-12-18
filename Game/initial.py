@@ -40,6 +40,7 @@ def main():
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
+    
 
     #music playing
     play_music()
@@ -312,15 +313,12 @@ def main():
             player.update_tongue()
             player.render_tongue(surface)
             tongue_hitbox= player.get_tongue_hitbox()
+
             if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
                 print("tongue HIT")
-                
-
-                
-
-                
-                
-
+                enemy.kill_enemy()
+                health_bar.hp += 10
+        
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface)

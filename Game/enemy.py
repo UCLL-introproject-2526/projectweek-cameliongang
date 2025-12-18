@@ -1,6 +1,6 @@
 import pygame as pg
 import random
-from level import LEVEL_WIDTH, LEVEL_HEIGHT, 
+from level import LEVEL_WIDTH, LEVEL_HEIGHT
 import math
 
 
@@ -65,3 +65,6 @@ class Enemy(pg.sprite.Sprite):
     def render(self, surface, camera):
         shifted_rect = camera.apply_rect(self.rect)
         surface.blit(self.image, shifted_rect)
+
+    def kill_enemy(self):
+        self.rect.right = LEVEL_WIDTH + 750 
