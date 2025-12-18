@@ -289,26 +289,26 @@ def main():
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
-                    player.render_chameleon_ceiling(surface, keys)
+                    player.render_chameleon_ceiling(surface)
 
                 elif player.facing_dir == -1:
-                    player.render_chameleon_ceiling_left(surface, keys)
+                    player.render_chameleon_ceiling_left(surface)
 
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
                     
                     if player.wall_facing_down:
-                        player.render_chameleon_right_wall_down(surface, keys)
+                        player.render_chameleon_right_wall_down(surface)
                     else:
                         player.render_chameleon_right_wall(surface, keys)
                 
                 else:
                     # Wall is to the LEFT.
                     if player.wall_facing_down:
-                        player.render_chameleon_left_wall_down(surface, keys)
+                        player.render_chameleon_left_wall_down(surface)
                     else:
-                        player.render_chameleon_left_wall(surface, keys)
+                        player.render_chameleon_left_wall(surface)
  
             else:
                 if not player.hanging and player.facing_dir == 1 :
@@ -349,5 +349,3 @@ def main():
 
 pg.quit()
 
-if __name__ == "__main__":
-    main()
