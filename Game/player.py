@@ -220,7 +220,7 @@ class Player:
     # Track held key Player per frame
     def update_input_Player(self, keys):
     # Jump held: either UP arrow or W key
-        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)

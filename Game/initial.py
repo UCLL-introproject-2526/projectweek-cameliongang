@@ -198,8 +198,13 @@ def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 3:
                         player.shoot_tongue()
+
+                if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # Grapple key pressed
+                    target_tile = player.find_nearest_grapple_tile()
+                    if target_tile:
+                        player.try_grapple(target_tile)
 
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
@@ -207,36 +212,33 @@ def main():
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
                     
-                    if event.key in (pg.K_UP, pg.K_w):
+                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE):
                         player.request_jump()
                     
                     if event.key == pg.K_e:
                         player.shoot_tongue()
 
-                    elif event.key == pg.K_SPACE or event.key == pg.K_g:  # Grapple key pressed
-                        target_tile = player.find_nearest_grapple_tile()
-                        if target_tile:
-                            player.try_grapple(target_tile)
-
                 elif event.type == pg.KEYUP:
-                    if event.key == pg.K_SPACE or event.key == pg.K_g:  # Grapple key released
+                    if event.key == pg.K_g:  # Grapple key released
                         player.grappling = False
                         player.grapple_target = None
+
+                elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
+                    player.grappling = False
+                    player.grapple_target = None
+                    
 
                 elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
                     world_pos = player.camera.to_world(event.pos)
 
-                    # Find the tile under the mouse
-                    for tile in lvl.tiles: # Use lvl here
-                        if tile.rect.collidepoint(world_pos):
-                            if tile.grappleable:
-                                player.try_grapple(tile)
-                            else:
-                                break
+                    # # Find the tile under the mouse
+                    # for tile in lvl.tiles: # Use lvl here
+                    #     if tile.rect.collidepoint(world_pos):
+                    #         if tile.grappleable:
+                    #             player.try_grapple(tile)
+                    #         else:
+                    #             break
 
-
-                elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-                    player.grappling = False
 
 
 
