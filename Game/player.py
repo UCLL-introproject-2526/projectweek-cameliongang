@@ -15,7 +15,7 @@ class Player:
         self.height = 23  # Approx player height (reduced for hitbox)
         self.base_width = 50
         self.base_height = 23
-        self.visual_height = 60 # Full visual height including tail
+        self.visual_height = 50 
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -566,7 +566,7 @@ class Player:
             if self.tijdelijkright_frame_index >=len(self.sprites['right']):
                 self.tijdelijkright_frame_index = 0
             frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
-            print(self.velocity_y)    
+                
                  
                 
 
