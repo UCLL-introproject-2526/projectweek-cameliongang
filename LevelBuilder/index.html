@@ -15,6 +15,21 @@
             <label>Height: <input type="number" id="heightInput" value="15" min="5" max="50"></label>
             <button id="resizeBtn">Reset Grid</button>
             <div class="separator" style="width: 1px; height: 20px; background: #666; margin: 0 5px;"></div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; gap: 2px;">
+                    <button id="addColLeft" title="Add Column Left" style="padding: 2px 5px;">+Col L</button>
+                    <button id="addColRight" title="Add Column Right" style="padding: 2px 5px;">+Col R</button>
+                    <button id="remColLeft" title="Remove Column Left" style="padding: 2px 5px; color: red;">-Col L</button>
+                    <button id="remColRight" title="Remove Column Right" style="padding: 2px 5px; color: red;">-Col R</button>
+                </div>
+                <div style="display: flex; gap: 2px;">
+                    <button id="addRowTop" title="Add Row Top" style="padding: 2px 5px;">+Row T</button>
+                    <button id="addRowBottom" title="Add Row Bottom" style="padding: 2px 5px;">+Row B</button>
+                     <button id="remRowTop" title="Remove Row Top" style="padding: 2px 5px; color: red;">-Row T</button>
+                    <button id="remRowBottom" title="Remove Row Bottom" style="padding: 2px 5px; color: red;">-Row B</button>
+                </div>
+            </div>
+            <div class="separator" style="width: 1px; height: 20px; background: #666; margin: 0 5px;"></div>
             <button id="toolBrush" class="tool-btn active">Brush</button>
             <button id="toolBucket" class="tool-btn">Fill</button>
             <div class="separator" style="width: 1px; height: 20px; background: #666; margin: 0 5px;"></div>
@@ -35,6 +50,7 @@
             <div class="palette-item" data-type="N" title="Next Level">N</div>
             <div class="palette-item" data-type="D" title="Death Zone">D</div>
             <div class="palette-item" data-type="P" title="Player Start">P</div>
+            <div class="palette-item" data-type="E" title="Enemy Spawn">E</div>
             <div class="palette-item" data-type=" " title="Empty (Eraser)">Eraser</div>
         </div>
 

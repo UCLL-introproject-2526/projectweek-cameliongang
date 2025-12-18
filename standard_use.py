@@ -11,10 +11,7 @@ class HealthBar:
         self.hp = max_hp
         self.max_hp = max_hp
 
-
     def draw(self, surface):
-        if self.hp > self.max_hp:
-            self.hp = self.max_hp
         ratio = self.hp / self.max_hp
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
@@ -41,7 +38,6 @@ def create_main_surface():
 def play_music():
     try:
         pg.mixer.music.load('.\\resources\\themesong.mp3')
-        pg.mixer.music.set_volume(0.3)
         pg.mixer.music.play(-1)
     except:
         pass

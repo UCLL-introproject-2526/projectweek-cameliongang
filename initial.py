@@ -40,7 +40,6 @@ def main():
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
-    
 
     #music playing
     play_music()
@@ -154,18 +153,14 @@ def main():
             # Enemy spawning from level (static) - No longer random spawning
             # if enemy_spawn_timer checks removed
 
+            
             for enemy in enemies:
                 enemy.update()
-            
+                # Check collision with player
                 if player.rect.colliderect(enemy.rect):
-                    if not enemy.has_hit_player:
-                        health_bar.hp -= enemy.damage
-                        print(f'{enemy.damage} damage')
-                        enemy.has_hit_player = True
-                else:
-                    # reset zodra ze niet meer botsen
-                    enemy.has_hit_player = False
-            
+                    health_bar.hp -= enemy.damage
+                    print('10 damage')
+
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -275,8 +270,6 @@ def main():
             # Render alle enemies
             for enemy in enemies:
                 enemy.render(surface, camera)
-                if show_hitboxes:
-                    pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(enemy.rect), 1)
             
             if player.hanging==True:
 
@@ -301,17 +294,14 @@ def main():
                         player.render_chameleon_left_wall_down(surface)
                     else:
                         player.render_chameleon_left_wall(surface)
- 
+
             else:
                 if not player.hanging and player.facing_dir == 1 :
-                    player.render_chameleon(surface, keys)
+                    player.render_chameleon(surface)
             
 
                 elif not player.hanging and player.facing_dir == -1 :
                     player.render_chameleon_left(surface)
-            
-            if show_hitboxes:
-                pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
             
             if player.grappling and player.grapple_target:
                 player_screen_pos = player.camera.apply_rect(player.rect).center
@@ -321,18 +311,12 @@ def main():
             #show tongue
             player.update_tongue()
             player.render_tongue(surface)
-            tongue_hitbox= player.get_tongue_hitbox()
+           
+                
 
-            if lvl.has_enemy:
-                print("faka enemy")
-                if tongue_hitbox:
-                    for enemy in enemies:
-                        if tongue_hitbox.colliderect(enemy.rect):
-                                
-                                print("tongue HIT")
-                                enemy.kill_enemy()
-                                health_bar.hp += 10
-        
+                
+                
+
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface)

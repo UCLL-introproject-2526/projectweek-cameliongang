@@ -2,7 +2,6 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-import time
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -11,13 +10,9 @@ class Player:
         self.gravity = 0.675
         self.jump_strength = -15
         self.jump_cut = -4
-        self.width = 50  # Hitbox width
-        self.height = 23  # Hitbox height (smaller than visual)
-        self.base_width = 50
-        self.base_height = 23
-        self.visual_width = 70 # New visual width
-        self.visual_height = 50 # New visual height 
-        self.visual_y_offset = 24 # Offset for rendering loop tweak neg is omhoog
+        self.width = 50  # Approx player width
+        self.height = 23  # Approx player height (reduced for hitbox)
+        self.visual_height = 60 # Full visual height including tail
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -30,12 +25,9 @@ class Player:
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
         self.level_complete = False
+        self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
-        self.tijdelijkright_frame_index = 0
-        self.tijdelijkright_frame_timer = 0.0
-        self.tijdelijkright_frame_fps = 12       
-        self.tongue_cooldown = False
 
 
         # Momentum
@@ -83,44 +75,16 @@ class Player:
         healthbar.hp = 100
 
     def load_sprites(self):
+
         try:
-            # Load and scale all walking frames
-            self.sprites['right'] = [
-                pg.transform.scale(
-                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
-                    (self.visual_width, self.visual_height)
-                )
-                for i in range(35)
-            ]
-            
-            self.sprites['left'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_left.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['ceiling'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_ceiling.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['ceiling_left'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['left_wall'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
-                (self.visual_height, self.width)  # Swap voor verticale orientatie
-            )
-            self.sprites['right_wall'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_right_wall.png').convert_alpha(),
-                (self.visual_height, self.width)  # Swap voor verticale orientatie
-            )
-            self.sprites['right_wall_down'] = pg.transform.scale(
-                pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
-            )
-            self.sprites['left_wall_down'] = pg.transform.scale(
-                pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
-            )
+            self.sprites['right'] = pg.image.load('./resources/chameleon.png').convert_alpha()
+            self.sprites['left'] = pg.image.load('./resources/chameleon_left.png').convert_alpha()
+            self.sprites['ceiling'] = pg.image.load('./resources/chameleon_ceiling.png').convert_alpha()
+            self.sprites['ceiling_left'] = pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha()
+            self.sprites['left_wall'] = pg.image.load('./resources/chameleon_left_wall.png').convert_alpha()
+            self.sprites['right_wall'] = pg.image.load('./resources/chameleon_right_wall.png').convert_alpha()
+            self.sprites['right_wall_down'] = pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha()
+            self.sprites['left_wall_down'] = pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha()
         except Exception as e:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
@@ -187,45 +151,21 @@ class Player:
    
 
     def shoot_tongue(self):
-        if not self.grappling and not self.tongue_cooldown and not self.on_wall:
-            self.tongue_timer = 15   # tongue stays visible for 15 frames
-            self.tongue_length = 150 # distance in front of player
+        dx = 200 * self.facing_dir
+        self.tongue_end = (self.rect.center[0] + dx, self.rect.center[1])
+        self.tongue_timer = 15   # tongue stays visible for 15 frames
 
     def update_tongue(self):
         if self.tongue_timer > 0:
             self.tongue_timer -= 1
 
     def render_tongue(self, surface):
-        if self.tongue_timer > 0:
-            # Player’s current screen position
+        if self.tongue_timer > 0 and self.tongue_end:
+            # Convert world positions to screen positions
             start_pos = self.camera.apply_rect(self.rect).center
-
-            # Offset start so it comes from the mouth
-            if self.facing_dir == 1:
-                start_pos = (start_pos[0] + 18, start_pos[1])
-                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
-            else:
-                start_pos = (start_pos[0] - 18, start_pos[1])
-                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
+            end_pos = self.camera.to_screen(self.tongue_end)
 
             pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
-
-    def get_tongue_hitbox(self):
-        if self.tongue_timer > 0:
-            start_x, start_y = self.rect.center
-            if self.facing_dir == 1:
-                start_x += 18
-                end_x = start_x + self.tongue_length
-            else:
-                start_x -= 18
-                end_x = start_x - self.tongue_length
-
-            width = abs(end_x - start_x)
-            height = 5  # same as line thickness
-            return pg.Rect(min(start_x, end_x), start_y - height//2, width, height)
-        return None
-            
-            
         
 
 
@@ -305,7 +245,7 @@ class Player:
                 point_rect = pg.Rect(check_x, check_y, 2, 2)
 
                 for tile in self.tiles:
-                    if tile.type == 'X' or tile.type == 'S' or tile.type == 'F':  # solid types
+                    if tile.type == 'X' or tile.type == 'S':  # solid types
                         if tile.rect.colliderect(point_rect):
                             return False  # blocked by a wall
 
@@ -313,22 +253,8 @@ class Player:
     
     def grapple_to(self, pos):
     # Set target and start grappling
-        try:
-            sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
-            sound.play()
-        except:
-            pass
         self.grapple_target = pos
         self.grappling = True
-        
-        # Reset any wall/hanging state immediately
-        self.on_wall = False
-        self.hanging = False
-        self.wall_side = 0
-        
-        # Reset hitbox to standard horizontal shape
-        self.width = self.base_width
-        self.height = self.base_height
 
     def try_grapple(self, target_tile):
         dx = target_tile.rect.centerx - self.rect.centerx
@@ -372,25 +298,14 @@ class Player:
         # Validate existing wall stick (Persistent Player)
             if self.on_wall:
                 # Check for pull-off (Moving away from wall)
+                # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall Player for the kick)
                 if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
                     self.on_wall = False
                     self.wall_side = 0
-                    # Revert to horizontal - Expand width
-                    self.width = self.base_width
-                    self.height = self.base_height
-                    # Shift position if pulling off right wall to avoid clipping back into it?
-                    # xcoor is left-aligned. 
-                    # Right (side 1): we were at x. width=23. Right edge = x+23 = tile.left.
-                    # Now width=50. Right edge = x+50 = tile.left + 27. Overlap!
-                    # If pulling Left (dx<0), we need to shift x left by (50-23)=27.
-                    if dx < 0: # Pulling Left
-                         self.xcoor -= (self.base_width - self.base_height)
-
                 else:
                     # Check for physical connection (Sensor)
-                    # use current dimensions (vertical)
                     sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
-                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) 
+                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
                     touching = False
                     for tile in self.tiles:
                         if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
@@ -399,17 +314,6 @@ class Player:
                     if not touching:
                         self.on_wall = False
                         self.wall_side = 0
-                        # Revert dimensions
-                        self.width = self.base_width
-                        self.height = self.base_height
-                        # Falling off right wall? Shift left?
-                        # If we just slide down or fall off, maybe we don't need shift if gravity takes over?
-                        # But if we were right-aligned...
-                        # Let's assume falling off handles itself via physics, but shape change risks re-collision.
-                        # Ideally check wall_side before reset.
-                        # If we were on Right Wall, shift left.
-                        if sensor_x > self.xcoor + 10: # Rough check if we were testing right side
-                             self.xcoor -= (self.base_width - self.base_height)
 
         self.on_ground = False
         # Do not rely on side collision to set on_wall every frame if we want persistence,
@@ -417,7 +321,12 @@ class Player:
 
         # Apply Momentum
         # Scale input movement by dt, but momentum is velocity, so apply it over time? 
-        # Actually dx is 5 pixels/frame. 
+        # Actually dx is displacement per frame (speed * 1 frame). 
+        # So total_dx should be (dx + momentum) * dt.
+        # Ensure momentum decay handles dt correctly.
+        
+        # We need to treat dx as velocity here if we are scaling by dt.
+        # Currently dx is 5 pixels/frame. 
         
         total_dx = (dx + self.momentum_x) * dt
         
@@ -433,6 +342,18 @@ class Player:
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
+        
+        
+        if self.rect.colliderect(rect):
+           if not self.al_geraakt:
+               healthbar.hp -= 10
+               self.al_geraakt = True
+        else:
+           # reset zodra ze niet meer botsen
+           self.al_geraakt = False
+
+        
+        
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
@@ -450,13 +371,6 @@ class Player:
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
-                    
-                    # Switch to Vertical Hitbox if not already
-                    if self.width == self.base_width:
-                        self.width = self.base_height
-                        self.height = self.base_width
-                        # Position adjustment handled below by collision correction
-
 
                 if total_dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
@@ -537,11 +451,6 @@ class Player:
                 if t_type == 'N':
                     self.level_complete = True  
                 elif dy > 0: # Falling / Moving Down
-                    # Reset hitbox to horizontal if needed
-                    if self.width != self.base_width:
-                        self.width = self.base_width
-                        self.height = self.base_height
-                    
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
                     self.on_ground = True
@@ -567,46 +476,19 @@ class Player:
 
     
 
-    def render_chameleon(self, surface, keys):
-        try:
-            frame = self.sprites['right'][0] 
-            cright = 0
-            if keys[pg.K_RIGHT]:
-                cright = 0.5
+    def render_chameleon(self, surface):
+        
+
             if 'right' in self.sprites:
-                self.tijdelijkright_frame_index += cright
-                if self.tijdelijkright_frame_index >=len(self.sprites['right']):
-                    self.tijdelijkright_frame_index = 0
-                frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
-                    
-                    
-                    
-
-            rect = frame.get_rect()
-            # Align image center-bottom with hitbox center-bottom (or slightly adjust)
-            # Hitbox is smaller than image.
-            # Visual height 50, Hitbox height 23.
-            # We want feet at same level? Or image slightly higher?
-            # rect.bottom = self.rect.bottom
-            # rect.centerx = self.rect.centerx
-            
-            # Offset upwards to center image vertically on hitbox or place feet?
-            # If hitbox is just the body/feet area.
-            # Let's align bottoms matches.
-            rect.bottom = self.rect.bottom
-            rect.centerx = self.rect.centerx
-            
-            shifted_rect = self.camera.apply_rect(rect)
-            # Optional: Extra manual offset if needed (e.g. -10 y)
-            shifted_rect.y -= (self.visual_height - self.height) // 2 
-            shifted_rect.y += self.visual_y_offset 
-            
-            surface.blit(frame, shifted_rect)
-        except:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
-            
-
+                chameleon_img = self.sprites['right']
+                rect = chameleon_img.get_rect()
+                rect.centerx = self.rect.centerx
+                rect.top = self.rect.top
+                shifted_rect = self.camera.apply_rect(rect)
+                surface.blit(chameleon_img, shifted_rect)
+            else:
+                shifted_rect = self.camera.apply_rect(self.rect)
+                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_chameleon_left(self, surface):
         

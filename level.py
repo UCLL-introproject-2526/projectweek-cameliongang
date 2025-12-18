@@ -28,13 +28,13 @@ class Tile(pygame.sprite.Sprite):
                 loaded_img=pygame.image.load('./resources/end_gate.png').convert_alpha()
 
             elif type == 'F':
-                loaded_img = pygame.image.load('./resources/spikes_full.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spike_full.png').convert_alpha()
             elif type == 'C':
-                loaded_img = pygame.image.load('./resources/spikes_ceiling.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spike_ceiling.png').convert_alpha()
             elif type == 'L':
-                loaded_img = pygame.image.load('./resources/spikes_left.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spike_left.png').convert_alpha()
             elif type == 'R':
-                loaded_img = pygame.image.load('./resources/spikes_right.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spike_right.png').convert_alpha()
 
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
@@ -120,50 +120,15 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
+# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
 LEVEL_1 = [
-
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "X                 SSSSSS    X ",
-    "X                           XE",
-    "X P        Y   Y   YYYY     X ",
-    "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXX  X ",
-    "X     G       G     G       X ",
-    "X                           X ",
-    "X                           X ",
-    "X XXXXFFFFFXXXFFFFXXXXFFFFXXX ",
-    "X XXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "X                      E    XE",
-    "X                        E  X ",
-    "X                     E     XE",
-    "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
-    "XSSSSSSSSSFF          X  XXXX ",
-    "X          F          X  XXXX ",
-    "X N        SFFFFFFFFFFX  XXXX ",
-    "XXXX       S  FSSSSSF X  XXXX ",
-    "X          S             XXXX ",
-    "X                        XXXX ",
-    "X         XXXXXX    S    XXXX ",
-    "X                   S    XXXX ",
-    "X                   S    XXXX ",
-    "X                   X    XXXX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
-
-
-]
-
-LEVEL_2 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
-    "X       S              S  E",
-    "X        P             X  E",
+    "X                  S      E",
+    "X       S          S      E",
+    "X       S          X   S  E",
+    "X       S              S  X",
+    "X        P             X  X",
     "X      XXXXX        S     X",
     "X    X              XN    X",
     "X    XX      XX     XXX   X",
@@ -172,31 +137,31 @@ LEVEL_2 = [
 
 
 
-# LEVEL_2 = [
-#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-#     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-#     "XS                                        SX",
-#     "XS           G     YYY                    SX",
-#     "XS   SSSS        SSSSSS     SSSSSS        SX",
-#     "XS   S  S        S    S     S    S        SX",
-#     "XS   S  S        S    S     S    S        SX",
-#     "XS   S  S  P     S    S     S    S        SX",
-#     "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
-#     "XS   S           S     Y         S        SX",
-#     "XS   S           S               S        SX",
-#     "XS   SSSSSSSSSSSSS               SSSSSS   SX",
-#     "XS                                        SX",
-#     "XS        SSSXSS           SSSSSS         SX",
-#     "XS            NS           S              SX",
-#     "XSSSSSSSS      S           S      SSSSSSSSSX",
-#     "X       S      S           S      S        X",
-#     "X       S      S           S      S        X",
-#     "X       XXXXXXXX           XXXXXXXX        X",
-#     "X                                          X",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
-# ]
+LEVEL_2 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
+    "XS                                        SX",
+    "XS           G     YYY                    SX",
+    "XS   SSSS        SSSSSS     SSSSSS        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S        S    S     S    S        SX",
+    "XS   S  S  P     S    S     S    S        SX",
+    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
+    "XS   S           S     Y         S        SX",
+    "XS   S           S               S        SX",
+    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
+    "XS                                        SX",
+    "XS        SSSXSS           SSSSSS         SX",
+    "XS            NS           S              SX",
+    "XSSSSSSSS      S           S      SSSSSSSSSX",
+    "X       S      S           S      S        X",
+    "X       S      S           S      S        X",
+    "X       XXXXXXXX           XXXXXXXX        X",
+    "X                                          X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+]
 
-
+# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
 LEVEL_3 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
@@ -280,42 +245,42 @@ LEVEL_6  = [
     "XXXS  XXXX                   X",
     "XXXX  XXXX   YYYYYY  YYYYY   X",
     "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
-    "XP    XXXX                  NX",
+    "XP    SXXX                  NX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 ]
 
 
 LEVEL_7 = [
-    "XXXXXX               XX                X",
-    "X    X  G            X                 X",
-    "X  N X        G      X  X      X       X",
-    "X SXGX                X  X             X",
-    "X           XX         X  XY     XS    X",
-    "G                 G     X  X      S    X",
-    "XXXX                     X  XY    S    X",
-    "X                GG  SSS  X  XY   S    X",
-    "X      XXX               X    XY  S    X",
-    "XYYYYXYYYYYYYYYYYYYYYYYY   XYYYX  S    X",
-    "XXXXXGXXXXXXXXXXXXXXXXXXXXXXXXXXXXS    X",
-    "X                                 S    X",
-    "X                      YYYYYYYY        X",
-    "X     XX XXXXXXXXXXX   XXXXXXXX    SSS S",
-    "X        X         X   X      X        S",
-    "X        X         X   X      X      S X",
-    "X   XXS  XXXX   XXXX   XXXXX  X      S X",
-    "X     S     X   X          X  X        S",
-    "X     G S   X   X          X  X        S",
-    "X       S   X   X          X  X        S",
-    "X     XXX   X   X          X  X      S X",
-    "XG          X   X      XXX X  X      S X",
-    "XX          X   X      X X X  X        S",
-    "XXX         X   X      X XXX  X        S",
-    "X           X   X      X      X      S X",
-    "X      G    XXXXX      XXXXXXXX      S X",
-    "X                      G     G     G   S",
-    "XP                                     S",
-    "XXXX             YYYYYYYXYYYYYXYYYYYXXXX",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X                                       ",
+    "X   SGSSS                               ",
+    "X                                       ",
+    "X                                       ",
+    "X        XXXXXXXXXXX   XXXXXXXX         ",
+    "XG       X         X   X      X         ",
+    "X        X         X   X      X         ",
+    "X        XXXX   XXXX   XXXXX  X         ",
+    "X           X   X          X  X         ",
+    "X     G     X   X          X  X         ",
+    "X           X   X          X  X         ",
+    "X           X   X          X  X         ",
+    "XG          X   X      XXX X  X         ",
+    "X           X   X      X X X  X         ",
+    "X           X   X      X XXX  X         ",
+    "X           X   X      X      X         ",
+    "X       G   XXXXX      XXXXXXXX         ",
+    "X                                       ",
+    "XP                                      ",
+    "XXXX                                    ",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
@@ -409,7 +374,6 @@ class Level:
         global LEVEL_WIDTH, LEVEL_HEIGHT
         LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE
         LEVEL_HEIGHT = (len(self.current_map) - 1) * TILE_SIZE
-        self.has_enemy=False
         self.setup_level()
 
     def setup_level(self):
@@ -445,8 +409,6 @@ class Level:
                 # Enemy Spawns
                 if cell == 'E':
                     self.enemy_spawns.append((x, y))
-                    self.has_enemy = True
-                    print("true enemey")
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:
