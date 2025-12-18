@@ -11,7 +11,10 @@ class HealthBar:
         self.hp = max_hp
         self.max_hp = max_hp
 
+
     def draw(self, surface):
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
         ratio = self.hp / self.max_hp
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
@@ -57,7 +60,6 @@ def game_background(background_img, width=None, height=None, menu=False):
         background = pg.image.load(f".\\resources\\{background_img}").convert_alpha()
         background = pg.transform.scale(background, (int(target_w), int(target_h)))
     except Exception as e:
-        print(f"Error loading background {background_img}: {e}")
         background = pg.Surface((int(target_w), int(target_h)))
         background.fill((100, 100, 255))
     return background
