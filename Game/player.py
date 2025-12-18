@@ -25,6 +25,7 @@ class Player:
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
         self.level_complete = False
+        self.al_geraakt = False
 
 
         # Momentum
@@ -322,8 +323,13 @@ class Player:
         
         
         if self.rect.colliderect(rect):
-            healthbar.hp -= 10
-            print('10 damage')
+           if not self.al_geraakt:
+               healthbar.hp -= 10
+               self.al_geraakt = True
+        else:
+           # reset zodra ze niet meer botsen
+           self.al_geraakt = False
+
         
         
         for tile in self.tiles:

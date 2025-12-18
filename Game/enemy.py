@@ -4,9 +4,9 @@ from level import LEVEL_WIDTH, LEVEL_HEIGHT
 import math
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self, x, y, speed):
+    def __init__(self, x, y):
         super().__init__()
-        self.speed = speed
+        self.speed = 12
         self.damage = 10
         self.hoveramplitude = 30
         self.hover_speed = 0.1
