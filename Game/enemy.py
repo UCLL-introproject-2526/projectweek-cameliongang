@@ -1,14 +1,15 @@
 import pygame as pg
 import random
-from level import LEVEL_WIDTH, LEVEL_HEIGHT
+from level import LEVEL_WIDTH, LEVEL_HEIGHT, 
 import math
+
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.speed = 12
+        self.speed = 6
         self.damage = 10
-        self.hoveramplitude = 30
+        self.hoveramplitude = 15
         self.hover_speed = 0.1
         self.animation_index = 0
         self.hover_phase = 0
@@ -63,4 +64,3 @@ class Enemy(pg.sprite.Sprite):
     def render(self, surface, camera):
         shifted_rect = camera.apply_rect(self.rect)
         surface.blit(self.image, shifted_rect)
-

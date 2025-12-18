@@ -2,6 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
+from time import sleep
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -30,6 +31,7 @@ class Player:
         self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
+        self.tongue_cooldown = False
 
 
         # Momentum
@@ -153,21 +155,45 @@ class Player:
    
 
     def shoot_tongue(self):
-        dx = 200 * self.facing_dir
-        self.tongue_end = (self.rect.center[0] + dx, self.rect.center[1])
-        self.tongue_timer = 15   # tongue stays visible for 15 frames
+        if not self.grappling and not self.tongue_cooldown and not self.on_wall:
+            self.tongue_timer = 15   # tongue stays visible for 15 frames
+            self.tongue_length = 150 # distance in front of player
 
     def update_tongue(self):
         if self.tongue_timer > 0:
             self.tongue_timer -= 1
 
     def render_tongue(self, surface):
-        if self.tongue_timer > 0 and self.tongue_end:
-            # Convert world positions to screen positions
+        if self.tongue_timer > 0:
+            # Player’s current screen position
             start_pos = self.camera.apply_rect(self.rect).center
-            end_pos = self.camera.to_screen(self.tongue_end)
+
+            # Offset start so it comes from the mouth
+            if self.facing_dir == 1:
+                start_pos = (start_pos[0] + 18, start_pos[1])
+                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+            else:
+                start_pos = (start_pos[0] - 18, start_pos[1])
+                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
 
             pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
+
+    def get_tongue_hitbox(self):
+        if self.tongue_timer > 0:
+            start_x, start_y = self.rect.center
+            if self.facing_dir == 1:
+                start_x += 18
+                end_x = start_x + self.tongue_length
+            else:
+                start_x -= 18
+                end_x = start_x - self.tongue_length
+
+            width = abs(end_x - start_x)
+            height = 5  # same as line thickness
+            return pg.Rect(min(start_x, end_x), start_y - height//2, width, height)
+        return None
+            
+            
         
 
 

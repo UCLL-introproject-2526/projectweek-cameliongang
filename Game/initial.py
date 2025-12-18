@@ -314,7 +314,11 @@ def main():
             #show tongue
             player.update_tongue()
             player.render_tongue(surface)
-           
+            tongue_hitbox= player.get_tongue_hitbox()
+            if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
+                print("tongue HIT")
+                
+
                 
 
                 
