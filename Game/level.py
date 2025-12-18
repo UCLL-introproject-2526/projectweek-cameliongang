@@ -176,19 +176,25 @@ LEVEL_1 =  [
 ]
 
 LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
-    "X       S              S  E",
-    "X        P             X  E",
-    "X      XXXXX        S     X",
-    "X    X              XN    X",
-    "X    XX      XX     XXX   X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+   
+    "                                         SX ",
+    "    N               G     G              SX ",
+    "   XXX                                   SX ",
+    "        XXX                      YY  YY  SX ",
+    "             X                   XXXXXX  SX ",
+    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
+    "X            SSSS SS                     SX ",
+    "X       G              S              S   X ",
+    "X           S          S    XX  XXXX  S   X ",
+    "S           S          S              S   X ",
+    "S  XXX      S                             X ",
+    "S                    G         YY        YX ",
+    "S          XXXXX        S   S XXXX Y  Y XXXE",
+    "X  P     X              S   S      XXXX   XE",
+    "X XXX    XX   XXXXX   X S                 X ",
+    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
 ]
-
 
 
 # LEVEL_2 = [
