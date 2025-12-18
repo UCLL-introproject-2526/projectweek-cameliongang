@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camelion Run! - Survival Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        customGreen: '#00ff00',
+                        customDark: '#1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold text-green-500 mb-4">Camelion Run! Survival Guide</h1>
+            <p class="text-xl text-gray-400">Verdediging Documentatie & Code Analyse</p>
+            <div class="mt-4 p-2 bg-yellow-900/30 border border-yellow-700/50 rounded inline-block text-sm text-yellow-500">
+                🚀 Laatste Update: Level Builder, Death Counter & Instant Respawn
+            </div>
+        </header>
+
+        <!-- Big Picture Section -->
+        <section class="mb-12 bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+            <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-600 pb-2">Het Grote Plaatje</h2>
+            <p class="mb-4">
+                Deze game is een 2D platformer gebouwd in Pygame. Het unieke aspect is de "kameleon" mechaniek (klimmen op muren/plafonds) en de aangepaste tools die we hebben gebouwd om development te versnellen.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Core Loop (`initial.py`)</h3>
+                    <p class="text-sm">Beheert de game loop, <strong>Death Counter</strong>, <strong>Pauze Menu</strong>, en render logic.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Fysica (`player.py`)</h3>
+                    <p class="text-sm">Beweging, zwaartekracht, wall-jumps, en de nieuwe <strong>Instant Reset</strong> functionaliteit.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Tools (`LevelBuilder/`)</h3>
+                    <p class="text-sm">Web-based tool om levels te tekenen en exporteren naar Python code. Inclusief Flood Fill en Import.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">UI (`menus.py` & `standard_use.py`)</h3>
+                    <p class="text-sm">Pauze menu's, HUD (Death Counter, Health), en laadschermen.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Breakdown -->
+        <section class="space-y-6">
+            
+            <!-- INITIAL.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 initial.py <span class="text-sm font-normal text-gray-500 ml-2">(De Motor)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Game Flow:</strong> Beheert nu statussen zoals `pause_menu`, `loading_menu`, en de `DeathCounter`.</li>
+                        <li><strong>Auto-Restart:</strong> Bij dood wordt het level niet meer volledig herladen. In plaats daarvan roepen we `player.reset()` aan. Dit is veel sneller.</li>
+                        <li><strong>Delta Time (`dt_factor`):</strong> Zorgt voor soepele beweging ongeacht FPS.</li>
+                    </ul>
+                    <div class="mt-4 bg-gray-900 p-3 rounded border border-gray-700">
+                        <p class="text-green-400 font-bold mb-1">Vraag van de docent:</p>
+                        <p class="italic text-gray-400">"Waarom geen 'Game Over' scherm meer?"</p>
+                        <p class="text-white mt-2"><strong>Antwoord:</strong> "In platformers zoals Celeste of Super Meat Boy is 'flow' belangrijk. Een menu onderbreekt de flow. Direct respawnen houdt de speler in de actie."</p>
+                    </div>
+                </div>
+            </details>
+
+            <!-- PLAYER.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 player.py <span class="text-sm font-normal text-gray-500 ml-2">(Het Brein)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Reset Functionaliteit:</strong> Nieuwe `reset()` methode zet de speler terug naar de startpositie en reset parameters (snelheid, grappling state) zonder assets opnieuw te laden.</li>
+                        <li><strong>Performance Opt (`load_sprites`):</strong> Sprites worden 1x geladen in `__init__`.</li>
+                        <li><strong>Collision Logic:</strong> Complex systeem voor "sticky" muren en plafonds.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- MENUS.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 menus.py <span class="text-sm font-normal text-gray-500 ml-2">(De UI)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Pauze Menu:</strong> Vervangt het oude dood-menu. Toegankelijk via ESC. Bevat nu een 'Restart' knop.</li>
+                        <li><strong>Loading Screen:</strong> Toont nu welk level geladen wordt (b.v. "Loading Level 2...").</li>
+                        <li><strong>Herbruikbaarheid:</strong> Gebruikt een generieke `Button` class voor alle menu's.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- STANDARD_USE.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 standard_use.py & Level Builder <span class="text-sm font-normal text-gray-500 ml-2">(Support)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>DeathCounter:</strong> Nieuwe class om het aantal doden rechtsboven bij te houden.</li>
+                        <li><strong>Level Builder (Web Tool):</strong> Ik heb een HTML/JS tool gemaakt om levels visueel te ontwerpen.
+                            <ul class="pl-4 list-[circle] text-gray-400 text-sm mt-1">
+                                <li>Ondersteunt Flood Fill (emmer tool) en Import van bestaande levels.</li>
+                                <li>Exporteert direct naar Python lijsten voor `level.py`.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+        </section>
+
+        <!-- Glossary -->
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-white mb-4">Begrippenlijst</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-3 bg-gray-800 border-l-4 border-green-500">
+                    <span class="block font-bold">Delta Time (dt)</span>
+                    <span class="text-xs text-gray-400">Tijdsverschil tussen frames.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-blue-500">
+                    <span class="block font-bold">Asset Caching</span>
+                    <span class="text-xs text-gray-400">Bestanden 1x laden in geheugen.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-purple-500">
+                    <span class="block font-bold">Rect</span>
+                    <span class="text-xs text-gray-400">De hitbox van een object.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-red-500">
+                    <span class="block font-bold">Respawn</span>
+                    <span class="text-xs text-gray-400">Speler resetten na dood.</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

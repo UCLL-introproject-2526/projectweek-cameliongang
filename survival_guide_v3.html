@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="nl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camelion Run! - Survival Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        customGreen: '#00ff00',
+                        customDark: '#1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold text-green-500 mb-4">Camelion Run! Survival Guide</h1>
+            <p class="text-xl text-gray-400">Verdediging Documentatie & Code Analyse</p>
+            <div class="mt-4 p-2 bg-yellow-900/30 border border-yellow-700/50 rounded inline-block text-sm text-yellow-500">
+                🚀 Laatste Update: Web Build Support, Performance Cache, & Bug Fixes
+            </div>
+        </header>
+
+        <!-- Big Picture Section -->
+        <section class="mb-12 bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+            <h2 class="text-3xl font-bold text-white mb-4 border-b border-gray-600 pb-2">Het Grote Plaatje</h2>
+            <p class="mb-4">
+                Deze game is een 2D platformer gebouwd in Pygame. Het unieke aspect is de "kameleon" mechaniek (klimmen op muren/plafonds) en de aangepaste tools die we hebben gebouwd om development te versnellen.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Core Loop (`initial.py`)</h3>
+                    <p class="text-sm">Nu met <strong>Asyncio</strong> ondersteuning voor web-browsers. Beheert states en de 60 FPS loop.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Fysica (`player.py`)</h3>
+                    <p class="text-sm">Verbeterde wall-climb detectie en <strong>Anti-Clip</strong> logica om bugs in hoeken te voorkomen.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Web Build (`game_itch/`)</h3>
+                    <p class="text-sm">Geoptimaliseerd voor <strong>itch.io</strong> via Pygbag. Draait op WebAssembly.</p>
+                </div>
+                <div class="bg-gray-700 p-4 rounded">
+                    <h3 class="font-bold text-green-400">Optimalisatie (`level.py`)</h3>
+                    <p class="text-sm"><strong>Image Caching</strong> systeem vermindert laadtijden drastisch voor grote levels.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Breakdown -->
+        <section class="space-y-6">
+            
+            <!-- INITIAL.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 initial.py <span class="text-sm font-normal text-gray-500 ml-2">(De Motor)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Asyncio Loop:</strong> De `main()` functie is nu `async`. Dit is <strong>verplicht</strong> voor web builds (zodat de browser niet bevriest). We gebruiken `await asyncio.sleep(0)` om controle terug te geven aan de browser.</li>
+                        <li><strong>Loading Screen:</strong> Toont nu het "Chameleon Run" logo tijdens het opstarten.</li>
+                        <li><strong>Debug Toggle ('H'):</strong> Schakelt hitbox visualisatie in/uit realtime.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- PLAYER.PY -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 player.py <span class="text-sm font-normal text-gray-500 ml-2">(Het Brein)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Nieuwe Collision Logic:</strong> Het dood-check systeem checkt nu op een lijst van gevaren: `['D', 'Y', 'F', 'C', 'L', 'R']`.</li>
+                        <li><strong>Reset Functionaliteit:</strong> `reset()` methode zet de speler terug zonder laadtijd.</li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- LEVEL.PY (NEW) -->
+            <details class="group bg-gray-800 rounded-xl shadow-lg border border-gray-700 cursor-pointer open:ring-2 open:ring-green-500/50 transition-all">
+                <summary class="p-6 flex justify-between items-center font-bold text-2xl hover:text-green-400">
+                    <span>📄 level.py <span class="text-sm font-normal text-gray-500 ml-2">(De Wereld)</span></span>
+                    <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="p-6 pt-0 border-t border-gray-700 mt-2">
+                    <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                        <li><strong>Hitbox Visualisatie:</strong> Als `show_hitboxes` aan staat, tekent deze file een rode rechthoek om `tile.rect`.</li>
+                        <li><strong>Nieuwe Spike Types:</strong>
+                            <ul class="pl-4 list-[circle] text-gray-400 text-sm mt-1">
+                                <li><strong>F (Full):</strong> Volledig blok stekels.</li>
+                                <li><strong>C (Ceiling):</strong> Stekels aan het plafond (top 1/4 hitbox).</li>
+                                <li><strong>L (Left):</strong> Stekels links op de muur.</li>
+                                <li><strong>R (Right):</strong> Stekels rechts op de muur.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Fallback Rendering:</strong> Als de plaatjes (`spike_full.png` etc.) ontbreken, tekent het gekleurde vlakken.</li>
+                    </ul>
+                </div>
+            </details>
+
+        </section>
+
+        <!-- Glossary -->
+        <section class="mt-12">
+            <h2 class="text-2xl font-bold text-white mb-4">Begrippenlijst</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-3 bg-gray-800 border-l-4 border-green-500">
+                    <span class="block font-bold">Delta Time (dt)</span>
+                    <span class="text-xs text-gray-400">Tijdsverschil tussen frames.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-blue-500">
+                    <span class="block font-bold">Hitbox (Rect)</span>
+                    <span class="text-xs text-gray-400">Het onzichtbare vlak dat collisions detecteert. Zie 'H' debug mode.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-red-500">
+                    <span class="block font-bold">Respawn</span>
+                    <span class="text-xs text-gray-400">Speler resetten na dood.</span>
+                </div>
+                 <div class="p-3 bg-gray-800 border-l-4 border-yellow-500">
+                    <span class="block font-bold">Level Builder</span>
+                    <span class="text-xs text-gray-400">HTML tool om levels te genereren.</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

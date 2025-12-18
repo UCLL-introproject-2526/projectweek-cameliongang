@@ -500,13 +500,24 @@ class Player:
                     
                 if t_type == 'S':
                     self.on_wall = True
-                    self.wall_side = 1 if total_dx > 0 else -1
+                    # Robust wall side detection: Compare player center to tile center
+                    # If player is to the LEFT of tile, wall is on RIGHT (side 1).
+                    if self.rect.centerx < tile.rect.centerx:
+                        self.wall_side = 1
+                    else:
+                        self.wall_side = -1
+                        
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
                     
                     # Switch to Vertical Hitbox if not already
                     if self.width == self.base_width:
+                        # Grow upwards to avoid clipping into floor
+                        # Old Bottom = y + old_h. New Bottom = new_y + new_h.
+                        # we want Old Bottom == New Bottom => new_y = y + old_h - new_h
+                        self.ycoor += (self.height - self.base_width)
+                        
                         self.width = self.base_height
                         self.height = self.base_width
                         # Position adjustment handled below by collision correction
@@ -598,8 +609,14 @@ class Player:
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
+                        # If we were on the RIGHT WALL (side 1), expanding width (left-to-right) will clip us into the wall.
+                        # We must shift X to the left to maintain our relative position.
+                        if self.wall_side == 1:
+                            self.xcoor -= (self.base_width - self.base_height)
+                        
                         self.width = self.base_width
                         self.height = self.base_height
+                        self.wall_side = 0 # Clear wall side so we don't double shift or act weird
                     
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
