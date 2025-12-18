@@ -86,7 +86,7 @@ class Player:
             # Load and scale all walking frames
             self.sprites['right'] = [
                 pg.transform.scale(
-                    pg.image.load(f'./resource/camiboywalkingright/frame_{i}.png').convert_alpha(),
+                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
                     (self.width, self.visual_height)
                 )
                 for i in range(35)
@@ -583,7 +583,7 @@ class Player:
             frame = self.sprites['right'][0] 
             cright = 0
             if keys[pg.K_RIGHT]:
-                cright = 0.1
+                cright = 0.5
             if 'right' in self.sprites:
                 self.tijdelijkright_frame_index += cright
                 if self.tijdelijkright_frame_index >=len(self.sprites['right']):
