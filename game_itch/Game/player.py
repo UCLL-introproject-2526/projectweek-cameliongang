@@ -1,0 +1,834 @@
+import pygame as pg
+from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
+from camera import Camera
+import math
+from time import sleep
+
+# Class to manage the game Player, including position and rendering
+class Player:
+    def __init__(self, level, camera):
+        self.velocity_y = 0
+        self.gravity = 0.675
+        self.jump_strength = -15
+        self.jump_cut = -4
+        self.width = 50  # Hitbox width
+        self.height = 23  # Hitbox height (smaller than visual)
+        self.base_width = 50
+        self.base_height = 23
+        
+
+        #Visual Dimensions
+        self.visual_width = 70 # New visual width
+        self.visual_height = 50 # New visual height 
+        self.visual_y_offset = 24 # Offset for rendering loop tweak neg is omhoog
+        self.wall_visual_width = 70
+        self.wall_visual_height = 80 
+        self.wall_visual_offset_x = -3
+        self.wall_visual_offset_y = 35
+
+        # Ceiling Visual Dimensions
+        self.ceiling_visual_width = 70
+        self.ceiling_visual_height = 50
+        self.ceiling_visual_offset_x = 0
+        self.ceiling_visual_offset_y = 35
+
+        # Left Wall Visual Dimensions
+        self.left_wall_visual_width = 70
+        self.left_wall_visual_height = 80
+        self.left_wall_visual_offset_x = 5
+        self.left_wall_visual_offset_y = 35
+
+        self.on_ground = False
+        self.on_wall = False
+        self.wall_side = 0 # 1 for right, -1 for left
+        self.wall_side = 0 # 1 for right, -1 for left
+        self.hanging = False # New Player for ceiling stick
+        self.wall_facing_down = False # Facing state for wall
+        self.grapple_target=None
+        self.grapple_speed=12
+        self.grappling=False
+        self.facing_dir = 1  # 1 = right, -1 = left
+        self.max_grapple_dist = 500
+        self.level_complete = False
+        self.al_geraakt = False
+        self.tongue_timer = 0   # counts down frames
+        self.tongue_end = None
+        self.tijdelijkright_frame_index = 0
+        self.tijdelijkright_frame_timer = 0.0
+        self.tijdelijkright_frame_fps = 12       
+        self.tongue_cooldown = False
+
+
+        # Momentum
+        self.momentum_x = 0
+
+        # Load Level
+        self.level = level
+        self.xcoor, self.ycoor = self.level.player_start_pos
+        self.tiles = self.level.tiles
+
+        #find location of player
+        # Camera
+        self.camera = camera
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
+        # Coyote time
+        self.coyote_timer = 0
+        self.coyote_time = 6
+
+        # Jump buffer (frames to remember jump input)
+        self.jump_buffer = 0
+        self.jump_buffer_time = 6
+
+        # Gated jump-cut
+        self.jump_held = False
+        self.started_rise = False
+        
+        # Pre-load Sprites
+        self.sprites = {}
+        self.load_sprites()
+
+    
+    def reset(self, healthbar):
+        self.xcoor, self.ycoor = self.level.player_start_pos
+        self.velocity_y = 0
+        self.momentum_x = 0
+        self.on_ground = False
+        self.on_wall = False
+        self.wall_side = 0
+        self.hanging = False
+        self.grappling = False
+        self.grapple_target = None
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+        # Reset health if needed, e.g. HealthBar.hp = 100 but HealthBar is global/static in standard_use usage
+        healthbar.hp = 100
+
+    def load_sprites(self):
+        try:
+            # Load and scale all walking frames
+            self.sprites['right'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
+                    (self.visual_width, self.visual_height)
+                )
+                for i in range(35)
+            ]
+            
+            self.sprites['left'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingleft/frame_{i}.png').convert_alpha(),
+                    (self.visual_width, self.visual_height)
+                )
+                for i in range(35)
+            ]
+            
+            self.sprites['ceiling'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/ceiling_right/frame_{i}.png').convert_alpha(),
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['ceiling_left'] = [pg.transform.scale(
+                    pg.image.load(f'./resources/ceiling_left/frame_{i}.png').convert_alpha(),
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
+                )
+                for i in range(35)
+            ]    
+            self.sprites['left_wall'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/right up/frame_{i}.png').convert_alpha(),
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['right_wall_up'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywaklingleftup/frame_{i}.png').convert_alpha(),
+                    (self.wall_visual_width, self.wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['right_wall_down'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingleftdown/frame_{i}.png').convert_alpha(),
+                    (self.wall_visual_width, self.wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['left_wall_down'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingrightdown/frame_{i}.png').convert_alpha(),
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
+                )
+                for i in range(35)
+            ]
+        except Exception as e:
+            print(f"Error loading sprites: {e}")
+            # Sprites will be missing, render methods should handle key errors or check existence
+        
+        # Load bush (static for now, but good to cache if used often)
+        try:
+             self.bush_img = pg.image.load('./resources/bush.png').convert()
+             self.bush_img.set_colorkey((0, 0, 0))
+        except:
+             self.bush_img = None
+
+
+    # Coyote reduction
+    def update_coyote(self, dt):
+        if self.on_ground or self.hanging or self.on_wall:
+            self.coyote_timer = self.coyote_time
+        else:
+            self.coyote_timer = max(0, self.coyote_timer - 1 * dt)
+
+    # Buffer jump intent instead of jumping immediately
+    def request_jump(self):
+        self.jump_buffer = self.jump_buffer_time
+
+    # Consume buffered jump after collision resolution
+    def try_consume_jump(self, keys):
+        if (self.on_ground or self.coyote_timer > 0 or self.on_wall or self.hanging) and self.jump_buffer > 0:
+            
+            # Wall Jump Logic: Only fire if holding AWAY from wall
+            if self.on_wall:
+                kick_strength = 10
+                did_wall_jump = False
+                
+                if self.wall_side == 1: # Wall on right
+                    if keys[pg.K_LEFT]: # Must hold LEFT to jump off right wall
+                        self.momentum_x = -kick_strength
+                        did_wall_jump = True
+                elif self.wall_side == -1: # Wall on left
+                    if keys[pg.K_RIGHT]: # Must hold RIGHT to jump off left wall
+                        self.momentum_x = kick_strength
+                        did_wall_jump = True
+                
+                if not did_wall_jump:
+                    return # Do not consume jump if direction is wrong (allow climbing/holding)
+
+            # Execute Jump
+            self.velocity_y = self.jump_strength
+            self.on_ground = False
+            self.on_wall = False
+            self.wall_side = 0
+            self.hanging = False
+            self.coyote_timer = 0
+            self.jump_buffer = 0
+            self.started_rise = False  # reset gating for a new jump
+
+    # Track held key Player per frame
+    def update_input_Player(self, keys):
+    # Jump held: either UP arrow or W key
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+
+    # You can also add other continuous input checks here later
+    # (for example crouch, dash, etc.)
+
+    
+   
+
+    def shoot_tongue(self):
+        if not self.grappling and not self.tongue_cooldown and not self.on_wall:
+            self.tongue_timer = 15   # tongue stays visible for 15 frames
+            self.tongue_length = 150 # distance in front of player
+
+    def update_tongue(self):
+        if self.tongue_timer > 0:
+            self.tongue_timer -= 1
+
+    def render_tongue(self, surface):
+        if self.tongue_timer > 0:
+            # Player’s current screen position
+            start_pos = self.camera.apply_rect(self.rect).center
+
+            # Offset start so it comes from the mouth
+            if self.facing_dir == 1:
+                start_pos = (start_pos[0] + 18, start_pos[1])
+                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+            else:
+                start_pos = (start_pos[0] - 18, start_pos[1])
+                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
+
+            pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
+
+    def get_tongue_hitbox(self):
+        if self.tongue_timer > 0:
+            start_x, start_y = self.rect.center
+            if self.facing_dir == 1:
+                start_x += 18
+                end_x = start_x + self.tongue_length
+            else:
+                start_x -= 18
+                end_x = start_x - self.tongue_length
+
+            width = abs(end_x - start_x)
+            height = 5  # same as line thickness
+            return pg.Rect(min(start_x, end_x), start_y - height//2, width, height)
+        return None
+            
+            
+        
+
+
+    
+    def find_nearest_grapple_tile(self):
+        nearest_tile = None
+        nearest_dist = float("inf")
+
+        for tile in self.tiles:
+            if not getattr(tile, "grappleable", False):
+                continue
+
+            # Vector to tile
+            dx = tile.rect.centerx - self.rect.centerx
+            dy = tile.rect.centery - self.rect.centery
+            dist = math.hypot(dx, dy)
+
+            # Distance gate
+            if dist > self.max_grapple_dist:
+                continue
+
+            # Facing cone check (wide ~120°)
+            fx, fy = (self.facing_dir, 0)  # facing vector
+            if dist > 0:
+                nx, ny = dx / dist, dy / dist
+                dot = fx * nx + fy * ny
+                if dot < -0.5:  # outside cone
+                    continue
+
+            # Line-of-sight check
+            if not self.can_grapple_to(tile):
+                continue
+
+            # If we reach here, tile is valid → compare distance
+            if dist < nearest_dist:
+                nearest_dist = dist
+                nearest_tile = tile
+
+        return nearest_tile
+    def grappling_hook(self, dt):
+        if self.grappling and self.grapple_target:
+            dx = self.grapple_target[0] - self.rect.centerx
+            dy = self.grapple_target[1] - self.rect.centery
+            dist = math.hypot(dx, dy)
+
+            step = self.grapple_speed * dt
+            if dist > step:
+                # Move toward target
+                vx = dx / dist * step
+                vy = dy / dist * step
+                self.rect.centerx += vx
+                self.rect.centery += vy
+
+                # Store momentum so it persists when released
+                self.momentum_x = vx
+                self.velocity_y = vy
+            else:
+                # Snap to target
+                self.rect.center = self.grapple_target
+                self.grappling = False
+                self.grapple_target = None
+    def can_grapple_to(self, target_tile):
+    # Vector from player to tile
+        x1, y1 = self.rect.center
+        x2, y2 = target_tile.rect.center
+
+        # Step along the line in small increments
+        steps = int(math.hypot(x2 - x1, y2 - y1) / TILE_SIZE)
+        for i in range(steps + 1):
+            if steps != 0:
+                t = i / steps
+                check_x = x1 + (x2 - x1) * t
+                check_y = y1 + (y2 - y1) * t
+            
+
+                # Build a point rect to test collisions
+                point_rect = pg.Rect(check_x, check_y, 2, 2)
+
+                for tile in self.tiles:
+                    if tile.type == 'X' or tile.type == 'S':  # solid types
+                        if tile.rect.colliderect(point_rect):
+                            return False  # blocked by a wall
+
+        return True  # clear line of sight
+    
+    def grapple_to(self, pos):
+    # Set target and start grappling
+        try:
+            # sound =pg.mixer.Sound('./resources/yoshi_sound.mp3')
+            # sound.play()
+            pass
+        except:
+            pass
+        self.grapple_target = pos
+        self.grappling = True
+        
+        # Reset any wall/hanging state immediately
+        self.on_wall = False
+        self.hanging = False
+        self.wall_side = 0
+        
+        # Reset hitbox to standard horizontal shape
+        self.width = self.base_width
+        self.height = self.base_height
+
+    def try_grapple(self, target_tile):
+        dx = target_tile.rect.centerx - self.rect.centerx
+        dy = target_tile.rect.centery - self.rect.centery
+        dist = math.hypot(dx, dy)
+
+        if dist > self.max_grapple_dist:
+            print("Too far to grapple!")
+            return
+
+        # Facing check using dot product
+        facing_vector = (self.facing_dir, 0)  # (1,0) for right, (-1,0) for left
+        to_tile_vector = (dx, dy)
+
+        dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
+        if dot <= 0:
+            print("Tile is behind you!")
+            return
+
+        if not self.can_grapple_to(target_tile):
+            print("Blocked by wall!")
+            return
+
+        self.grapple_to(target_tile.rect.center)
+
+    def update_physics(self, dx, keys, dt, rect,healthbar):
+        #grapling call
+        
+        if self.grappling and self.grapple_target:
+            self.grappling_hook(dt)
+            # IMPORTANT: Still check for death even while grappling
+            player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+            for tile in self.tiles:
+                if tile.rect.colliderect(player_rect):
+                    t_type = getattr(tile, 'type', 'X')
+                    if t_type == 'D' or t_type == 'Y' or t_type == "C"or t_type == "F"or t_type == "L"or t_type == "R":
+                        healthbar.hp = 0
+            
+        else:
+    # normal gravity, collisions, etc.
+        # Validate existing wall stick (Persistent Player)
+            if self.on_wall:
+                # Check for pull-off (Moving away from wall)
+                if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
+                    self.on_wall = False
+                    self.wall_side = 0
+                    # Revert to horizontal - Expand width
+                    self.width = self.base_width
+                    self.height = self.base_height
+                    # Shift position if pulling off right wall to avoid clipping back into it?
+                    # xcoor is left-aligned. 
+                    # Right (side 1): we were at x. width=23. Right edge = x+23 = tile.left.
+                    # Now width=50. Right edge = x+50 = tile.left + 27. Overlap!
+                    # If pulling Left (dx<0), we need to shift x left by (50-23)=27.
+                    if dx < 0: # Pulling Left
+                         self.xcoor -= (self.base_width - self.base_height)
+
+                else:
+                    # Check for physical connection (Sensor)
+                    # use current dimensions (vertical)
+                    sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
+                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) 
+                    touching = False
+                    for tile in self.tiles:
+                        if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
+                            touching = True
+                            break
+                    if not touching:
+                        self.on_wall = False
+                        self.wall_side = 0
+                        # Revert dimensions
+                        self.width = self.base_width
+                        self.height = self.base_height
+                        # Falling off right wall? Shift left?
+                        # If we just slide down or fall off, maybe we don't need shift if gravity takes over?
+                        # But if we were right-aligned...
+                        # Let's assume falling off handles itself via physics, but shape change risks re-collision.
+                        # Ideally check wall_side before reset.
+                        # If we were on Right Wall, shift left.
+                        if sensor_x > self.xcoor + 10: # Rough check if we were testing right side
+                             self.xcoor -= (self.base_width - self.base_height)
+
+        self.on_ground = False
+        # Do not rely on side collision to set on_wall every frame if we want persistence,
+        # BUT new collisions must set it.
+
+        # Apply Momentum
+        # Scale input movement by dt, but momentum is velocity, so apply it over time? 
+        # Actually dx is 5 pixels/frame. 
+        
+        total_dx = (dx + self.momentum_x) * dt
+        
+        # Decay momentum (air resistance / friction)
+        # 0.9 per frame -> 0.9 ^ dt
+        self.momentum_x *= 0.9 ** dt
+        
+        if abs(self.momentum_x) < 0.5:
+             self.momentum_x = 0
+
+        # Horizontal Movement
+        self.xcoor += total_dx
+        player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
+        # Horizontal collision
+        
+        
+        if self.rect.colliderect(rect):
+           if not self.al_geraakt:
+               healthbar.hp -= 10
+               self.al_geraakt = True
+        else:
+           # reset zodra ze niet meer botsen
+           self.al_geraakt = False
+
+        
+        
+        for tile in self.tiles:
+            if tile.rect.colliderect(player_rect):
+                t_type = getattr(tile, 'type', 'X')
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
+                    healthbar.hp = 0
+                
+            
+                if t_type == 'N':
+                    self.level_complete = True                                        
+                    
+                    
+                if t_type == 'S':
+                    self.on_wall = True
+                    self.wall_side = 1 if total_dx > 0 else -1
+                    self.velocity_y = 0  # Stick to wall
+                    self.hanging = False # Wall/Side overrides hanging?
+                    self.momentum_x = 0 # Stop momentum on hit
+                    
+                    # Switch to Vertical Hitbox if not already
+                    if self.width == self.base_width:
+                        self.width = self.base_height
+                        self.height = self.base_width
+                        # Position adjustment handled below by collision correction
+
+
+                if total_dx > 0:  # Moving Right
+                    self.xcoor = tile.rect.left - self.width
+                    self.momentum_x = 0 # crash stop
+                if total_dx < 0:  # Moving Left
+                    self.xcoor = tile.rect.right
+                    self.momentum_x = 0 # crash stop
+                    
+
+        # Vertical Movement Calculation
+        dy = 0
+        
+        # Check if hanging is still valid (must be touching 'S' above)
+        if self.hanging:
+            # Create a sensor rect slightly above
+            sensor = pg.Rect(self.xcoor, self.ycoor - 1, self.width, 1)
+            still_touching = False
+            for tile in self.tiles:
+                if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
+                    still_touching = True
+                    break
+            if not still_touching:
+                self.hanging = False
+
+        
+        if self.on_wall:
+            # Wall Climb
+            if keys[pg.K_UP] or keys[pg.K_w]:
+                dy = -5 * dt
+                self.wall_facing_down = False
+            elif keys[pg.K_DOWN] or keys[pg.K_s]:
+                dy = 5 * dt
+                self.wall_facing_down = True
+        elif self.hanging:
+            # Ceiling Stick
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
+                self.hanging = False # Drop
+                dy = 5 * dt
+            # UP does nothing while hanging? Or maybe clamber?
+        else:
+            # Gravity
+            self.velocity_y += self.gravity * dt
+            dy = self.velocity_y * dt
+
+            # Mark when upward motion begins (for jump-cut gating)
+            if self.velocity_y < 0:
+                self.started_rise = True
+    
+            # Jump cut
+            if self.started_rise and not self.jump_held and self.velocity_y < 0:
+                self.velocity_y = max(self.velocity_y, self.jump_cut)
+                # Recalculate dy with new velocity? Or just let it take effect next frame?
+                # Better to use updated velocity for consistency, but physics engines vary.
+                # Let's simple apply it.
+                dy = self.velocity_y * dt
+
+        # Apply Vertical Move
+        self.ycoor += dy
+        player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
+        # Vertical collision
+        for tile in self.tiles:
+            if tile.rect.colliderect(player_rect):
+                t_type = getattr(tile, 'type', 'X')
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
+                    healthbar.hp = 0
+                if t_type == 'N':
+                    self.level_complete = True                                        
+                if dy < 0: # Moving Up
+                     if t_type == 'S':
+                         # Ceiling stick
+                         self.ycoor = tile.rect.bottom
+                         self.velocity_y = 0
+                         self.hanging = True
+                     else:
+                         self.ycoor = tile.rect.bottom
+                         self.velocity_y = 0
+                if t_type == 'N':
+                    self.level_complete = True  
+                    
+                elif dy > 0: # Falling / Moving Down
+                    # Reset hitbox to horizontal if needed
+                    if self.width != self.base_width:
+                        self.width = self.base_width
+                        self.height = self.base_height
+                    
+                    self.ycoor = tile.rect.top - self.height
+                    self.velocity_y = 0
+                    self.on_ground = True
+                    self.momentum_x = 0 # Friction on ground? Maybe not instantly, but let's reset for control consistency
+        
+        # Update rect for camera use
+        self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
+
+        # Update coyote after collision resolution
+        self.update_coyote(dt)
+
+        # Consume buffered jump now that collision is resolved
+        self.try_consume_jump(keys)
+
+        # Decay jump buffer
+        if self.jump_buffer > 0:
+            self.jump_buffer -= 1 * dt
+
+        
+
+    def render_map(self, surface, show_hitboxes=False):
+        self.level.render(surface, self.camera, show_hitboxes)
+
+    
+
+    def render_chameleon(self, surface, keys):
+        try:
+            frame = self.sprites['right'][0] 
+            cright = 0
+            if keys[pg.K_RIGHT]:
+                cright = 0.5
+            if 'right' in self.sprites:
+                self.tijdelijkright_frame_index += cright
+                if self.tijdelijkright_frame_index >=len(self.sprites['right']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            # Optional: Extra manual offset if needed (e.g. -10 y)
+            shifted_rect.y -= (self.visual_height - self.height) // 2 
+            shifted_rect.y += self.visual_y_offset 
+            
+            surface.blit(frame, shifted_rect)
+        except:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            
+
+
+    def render_chameleon_left(self, surface, keys):
+        
+
+        try:
+            frame = self.sprites['left'][0] 
+            cleft = 0
+            if keys[pg.K_LEFT]:
+                cleft = 0.5
+            if 'left' in self.sprites:
+                self.tijdelijkright_frame_index += cleft
+                if self.tijdelijkright_frame_index >=len(self.sprites['left']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            # Optional: Extra manual offset if needed (e.g. -10 y)
+            shifted_rect.y -= (self.visual_height - self.height) // 2 
+            shifted_rect.y += self.visual_y_offset 
+            
+            surface.blit(frame, shifted_rect)
+        except:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+
+    def render_chameleon_ceiling_left(self, surface, keys):
+            frame = self.sprites['ceiling_left'][0] 
+            cleft = 0
+            if keys[pg.K_LEFT]:
+                cleft = 0.5
+            if 'ceiling_left' in self.sprites:
+                self.tijdelijkright_frame_index += cleft
+                if self.tijdelijkright_frame_index >=len(self.sprites['ceiling_left']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['ceiling_left'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
+            
+            surface.blit(frame, shifted_rect)
+
+    def render_chameleon_ceiling(self, surface, keys):
+            frame = self.sprites['ceiling'][0] 
+            cright = 0
+            if keys[pg.K_RIGHT]:
+                cright = 0.5
+            if 'ceiling' in self.sprites:
+                self.tijdelijkright_frame_index += cright
+                if self.tijdelijkright_frame_index >=len(self.sprites['ceiling']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['ceiling'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
+            
+            surface.blit(frame, shifted_rect)
+        
+    def render_chameleon_left_wall(self, surface, keys):
+            frame = self.sprites['left_wall'][0] 
+            cup = 0
+            if keys[pg.K_UP]:
+                cup = 0.7
+            if 'left_wall' in self.sprites:
+                self.tijdelijkright_frame_index += cup
+                if self.tijdelijkright_frame_index >=len(self.sprites['left_wall']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left_wall'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+    def render_chameleon_left_wall_down(self, surface, keys):
+            frame = self.sprites['left_wall_down'][0] 
+            cdown = 0
+            if keys[pg.K_DOWN]:
+                cdown = 0.7
+            if 'left_wall_down' in self.sprites:
+                self.tijdelijkright_frame_index += cdown
+                if self.tijdelijkright_frame_index >=len(self.sprites['left_wall_down']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left_wall_down'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+        
+    def render_chameleon_right_wall(self, surface, keys):
+        
+            frame = self.sprites['right_wall_up'][0] 
+            cup = 0
+            if keys[pg.K_UP]:
+                cup = 0.7
+            if 'right_wall_up' in self.sprites:
+                self.tijdelijkright_frame_index += cup
+                if self.tijdelijkright_frame_index >=len(self.sprites['right_wall_up']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right_wall_up'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            # Use specific wall offsets now
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+        
+
+    def render_chameleon_right_wall_down(self, surface, keys):
+            frame = self.sprites['right_wall_down'][0] 
+            cdown = 0
+            if keys[pg.K_DOWN]:
+                cdown = 0.7
+            if 'right_wall_down' in self.sprites:
+                self.tijdelijkright_frame_index += cdown
+                if self.tijdelijkright_frame_index >=len(self.sprites['right_wall_down']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right_wall_down'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            # Use specific wall offsets now
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+        

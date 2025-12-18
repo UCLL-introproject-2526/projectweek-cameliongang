@@ -1,3 +1,4 @@
+import asyncio
 import pygame as pg
 import random
 from player import Player
@@ -12,28 +13,27 @@ camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
 # Main game loop function
-def main():
+async def main():
     # Initialization of Pygame and game variables
     pg.init()
     surface = create_main_surface()
     
-    # Initial Loading Screen with Logo
+    # Initial Loading Screen
     surface.fill((0,0,0))
     
     # Load Logo
     try:
         logo_img = pg.image.load('./resources/game_logo.png').convert_alpha()
-        logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20)) # Slightly up to fit text below if needed
+        logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20))
         surface.blit(logo_img, logo_rect)
     except:
-        # Fallback text if logo fails
-        font_loading = pg.font.Font(None, 48)
-        text = font_loading.render("CAMELION GANG", True, (255, 255, 255))
+        font_loading = pg.font.Font(None, 36)
+        text = font_loading.render("Loading...", True, (255, 255, 255))
         rect = text.get_rect(center=(surface.get_width()//2, surface.get_height()//2))
         surface.blit(text, rect)
-        
+
     pg.display.flip()
-    # No asyncio.sleep here for synchronous desktop version
+    await asyncio.sleep(0) # Give browser a chance to render it
     
     clock = pg.time.Clock()
     
@@ -55,13 +55,13 @@ def main():
     LOADING_DURATION = 120 # 2 seconds at 60 FPS
     death_menu = False
     pause_menu = False
-    font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
+    # Font loading with web-compatible path
+    font = pg.font.Font('./resources/ARIAL.TTF', 24)
     
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
     
-
     #music playing
     play_music()
 
@@ -95,6 +95,7 @@ def main():
              pg.display.flip()
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
+             await asyncio.sleep(0)
              continue
         elif loading_menu:
              # Draw Loading Screen
@@ -133,6 +134,7 @@ def main():
              clock.tick(60)
              # Consume events to prevent queue buildup
              pg.event.pump()
+             await asyncio.sleep(0)
              continue
         elif pause_menu:
              command = draw_pause_menu(surface, font)
@@ -156,6 +158,7 @@ def main():
              
              pg.display.flip()
              clock.tick(60)
+             await asyncio.sleep(0)
              continue
         elif levels_menu:
              command = draw_levels_menu(surface, font)
@@ -176,6 +179,7 @@ def main():
              
              pg.display.flip()
              clock.tick(60)
+             await asyncio.sleep(0)
              continue
         else:
             # Handling events
@@ -371,6 +375,7 @@ def main():
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
+            await asyncio.sleep(0)
 
 if __name__ == "__main__":
     main()

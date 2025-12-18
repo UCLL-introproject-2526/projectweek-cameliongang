@@ -9,47 +9,52 @@ class Tile(pygame.sprite.Sprite):
         self.type = type
         self.rect = self.image.get_rect(topleft=pos)
         self.grappleable = (type== 'G')
+        self.pos = pos
         self.grappleable = (type== 'G')
         self.pos = pos
         
         # Check cache first
         if type in IMAGE_CACHE:
-             self.image = IMAGE_CACHE[type]
-        else:
+            self.image = IMAGE_CACHE[type]
+             # Hitbox logic still needs to run because rect depends on pos... 
+             # Wait, rect is set at line 9. But specialized hitboxes (Y, R, L etc) adjust rect.
+             # So we must run the hitbox adjustment logic or cache that too?
+             # The Hitbox adjustment logic is inside the `try` block or `except` block.
+             # This refactor is tricky because logic is mixed with loading.
+             # Let's simplify: Only cache the self.image. We must still replicate the rect logic.
+             # Actually, simpler: Let's cache the LOADED and SCALED image.
+        
+        if type not in IMAGE_CACHE:
             self._load_image_and_cache(type)
         
-        self.image = IMAGE_CACHE.get(type, self.image)
+        self.image = IMAGE_CACHE.get(type, self.image) # Use cached or default (from line 7)
 
-        # Apply Hitbox Adjustments based on type
+        # Apply Rect/Hitbox logic separately
         self._apply_hitbox(type, pos)
 
     def _apply_hitbox(self, type, pos):
         # Hitbox Adjustments based on type
-        # HITBOX ADJUSTMENTS: Reduced width/height to be "less wide" (more forgiving)
-        PADDING = 15 # Increased padding to 15 pixels based on user feedback to make sides smaller/centered
-        
         if type == 'Y':
-                # Floor Spikes: 1/4 tile high, full width (minus padding), at bottom
+                # Floor Spikes: 1/4 tile high, full width, at bottom
                 spike_height = TILE_SIZE // 4
-                # Rect: x+padding, y+offset, width-2*padding, height
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1] + (TILE_SIZE - spike_height), TILE_SIZE - (2*PADDING), spike_height)
+                self.rect = pygame.Rect(pos[0], pos[1] + (TILE_SIZE - spike_height), TILE_SIZE, spike_height)
         elif type == 'C':
-                # Ceiling Spikes: 1/4 tile high, full width (minus padding), at top
+                # Ceiling Spikes: 1/4 tile high, full width, at top
                 spike_height = TILE_SIZE // 4
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1], TILE_SIZE - (2*PADDING), spike_height)
+                self.rect = pygame.Rect(pos[0], pos[1], TILE_SIZE, spike_height)
         elif type == 'L':
-                # Left Wall Spikes: 1/4 tile wide, full height (minus padding), at left
+                # Left Wall Spikes: 1/4 tile wide, full height, at left
                 spike_width = TILE_SIZE // 4
-                self.rect = pygame.Rect(pos[0], pos[1] + PADDING, spike_width, TILE_SIZE - (2*PADDING))
+                self.rect = pygame.Rect(pos[0], pos[1], spike_width, TILE_SIZE)
         elif type == 'R':
-                # Right Wall Spikes: 1/4 tile wide, full height (minus padding), at right
+                # Right Wall Spikes: 1/4 tile wide, full height, at right
                 spike_width = TILE_SIZE // 4
-                # Note: Corrected x position logic to match visual
-                self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1] + PADDING, spike_width, TILE_SIZE - (2*PADDING))
+                self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1], spike_width, TILE_SIZE)
         elif type == 'F':
-                # Full Block Spike: Add padding on all sides
-                self.rect = pygame.Rect(pos[0] + PADDING, pos[1] + PADDING, TILE_SIZE - (2*PADDING), TILE_SIZE - (2*PADDING))
-        
+                # Full Block Spike
+                pass
+        # Else default rect from __init__ is fine
+
     def _load_image_and_cache(self, type):
         # Try loading sprite based on type
         try:
@@ -64,7 +69,7 @@ class Tile(pygame.sprite.Sprite):
                 # If we want invisible, don't load image.
                 raise Exception("Invisible") # Trigger fallback to create empty surface
             elif type == 'G':
-                loaded_img = pygame.image.load('./resources\grapple_block.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/grapple_block.png').convert_alpha()
 
             elif type == 'N':
                 loaded_img=pygame.image.load('./resources/end_gate.png').convert_alpha()
@@ -85,8 +90,31 @@ class Tile(pygame.sprite.Sprite):
             if loaded_img:
                 self.image = pygame.transform.scale(loaded_img, (TILE_SIZE, TILE_SIZE))
                 IMAGE_CACHE[type] = self.image
-
+            
         except Exception:
+            # Fallback to color rendering
+            if type == 'S':
+                 # Floor Spikes: 1/4 tile high, full width, at bottom
+                 spike_height = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0], pos[1] + (TILE_SIZE - spike_height), TILE_SIZE, spike_height)
+            elif type == 'C':
+                 # Ceiling Spikes: 1/4 tile high, full width, at top
+                 spike_height = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0], pos[1], TILE_SIZE, spike_height)
+            elif type == 'L':
+                 # Left Wall Spikes: 1/4 tile wide, full height, at left
+                 spike_width = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0], pos[1], spike_width, TILE_SIZE)
+            elif type == 'R':
+                 # Right Wall Spikes: 1/4 tile wide, full height, at right
+                 spike_width = TILE_SIZE // 4
+                 self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1], spike_width, TILE_SIZE)
+            elif type == 'F':
+                 # Full Block Spike: Full hitbox (already default), no change needed to rect logic
+                 pass
+            
+        except Exception:
+            # Fallback to color rendering
             if type == 'S':
                 self.image.fill((0, 255, 0)) # Green for Sticky
                 pygame.draw.rect(self.image, (0, 100, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
