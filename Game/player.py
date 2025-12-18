@@ -30,12 +30,12 @@ class Player:
         self.ceiling_visual_width = 70
         self.ceiling_visual_height = 50
         self.ceiling_visual_offset_x = 0
-        self.ceiling_visual_offset_y = 0
+        self.ceiling_visual_offset_y = 35
 
         # Left Wall Visual Dimensions
         self.left_wall_visual_width = 70
         self.left_wall_visual_height = 80
-        self.left_wall_visual_offset_x = 0
+        self.left_wall_visual_offset_x = 5
         self.left_wall_visual_offset_y = 35
 
         self.on_ground = False
