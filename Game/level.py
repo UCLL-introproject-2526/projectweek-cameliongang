@@ -286,7 +286,7 @@ LEVEL_6  = [
 
 
 LEVEL_7 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXX               XX                X",
     "X    X  G            X                 X",
     "X  N X        G      X  X      X       X",
     "X SXGX                X  X             X",
@@ -317,7 +317,6 @@ LEVEL_7 = [
     "XXXX             YYYYYYYXYYYYYXYYYYYXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
-
 LEVEL_8 =  [
     "X           XX           X",
     "X           XX           X",
@@ -390,6 +389,8 @@ LEVEL_8 =  [
     "X    XXX    XX     X     X",
     "DDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
+
+
 LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8]
 
 # Default width/height based on first level (or dynamic per level load)
