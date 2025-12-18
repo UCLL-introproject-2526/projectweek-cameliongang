@@ -1,5 +1,6 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
+lvl=Level
 
 #health bar creation
 class HealthBar:
@@ -28,6 +29,21 @@ class DeathCounter:
         text = self.font.render(f"Deaths: {self.count}", True, (255, 255, 255))
         rect = text.get_rect(topright=(1260, 20)) 
         surface.blit(text, rect)
+
+class Hints:
+    def __init__(self, font, pos, text):
+        self.font = font
+        self.pos = pg.Vector2(pos)
+        self.text = text
+    
+    def draw(self, surface, camera):
+        text = self.font.render(self.text, True, (255,255,255))
+        rect = text.get_rect()
+        rect.topleft = camera.apply_rect(pg.Rect(self.pos, (0,0))).topleft
+        surface.blit(text,rect)
+
+  
+    
 
 # Function to create and return the main game surface (window)
 SCREEN_WIDTH = 1280

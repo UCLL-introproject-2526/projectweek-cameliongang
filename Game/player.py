@@ -590,6 +590,7 @@ class Player:
                          self.velocity_y = 0
                 if t_type == 'N':
                     self.level_complete = True  
+                    
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
