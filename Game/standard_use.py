@@ -11,10 +11,10 @@ class HealthBar:
         self.hp = max_hp
         self.max_hp = max_hp
 
-        if self.hp > self.max_hp:
-            self.hp = max_hp
 
     def draw(self, surface):
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
         ratio = self.hp / self.max_hp
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))

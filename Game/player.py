@@ -2,7 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-from time import sleep
+import time
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -30,7 +30,6 @@ class Player:
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
         self.level_complete = False
-        self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
         self.tijdelijkright_frame_index = 0
@@ -434,18 +433,6 @@ class Player:
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
-        
-        
-        if self.rect.colliderect(rect):
-           if not self.al_geraakt:
-               healthbar.hp -= 10
-               self.al_geraakt = True
-        else:
-           # reset zodra ze niet meer botsen
-           self.al_geraakt = False
-
-        
-        
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')

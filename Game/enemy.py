@@ -15,6 +15,7 @@ class Enemy(pg.sprite.Sprite):
         self.hover_phase = 0
         self.base_y = y
         self.size = (50,50)
+        self.has_hit_player = False
         
         
         self.frames = []
