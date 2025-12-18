@@ -11,11 +11,11 @@ class Player:
         self.gravity = 0.675
         self.jump_strength = -15
         self.jump_cut = -4
-        self.width = 50  # Approx player width
-        self.height = 23  # Approx player height (reduced for hitbox)
+        self.width = 55  # Approx player width
+        self.height = 40  # Approx player height (reduced for hitbox)
         self.base_width = 50
         self.base_height = 23
-        self.visual_height = 60 # Full visual height including tail
+        self.visual_height = 50 
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -31,6 +31,9 @@ class Player:
         self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
+        self.tijdelijkright_frame_index = 0
+        self.tijdelijkright_frame_timer = 0.0
+        self.tijdelijkright_frame_fps = 12       
         self.tongue_cooldown = False
 
 
@@ -79,16 +82,44 @@ class Player:
         healthbar.hp = 100
 
     def load_sprites(self):
-
         try:
-            self.sprites['right'] = pg.image.load('./resources/chameleon.png').convert_alpha()
-            self.sprites['left'] = pg.image.load('./resources/chameleon_left.png').convert_alpha()
-            self.sprites['ceiling'] = pg.image.load('./resources/chameleon_ceiling.png').convert_alpha()
-            self.sprites['ceiling_left'] = pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha()
-            self.sprites['left_wall'] = pg.image.load('./resources/chameleon_left_wall.png').convert_alpha()
-            self.sprites['right_wall'] = pg.image.load('./resources/chameleon_right_wall.png').convert_alpha()
-            self.sprites['right_wall_down'] = pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha()
-            self.sprites['left_wall_down'] = pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha()
+            # Load and scale all walking frames
+            self.sprites['right'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
+                    (self.width, self.visual_height)
+                )
+                for i in range(35)
+            ]
+            
+            self.sprites['left'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_left.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['ceiling'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_ceiling.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['ceiling_left'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha(),
+                (self.width, self.visual_height)
+            )
+            self.sprites['left_wall'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
+                (self.visual_height, self.width)  # Swap voor verticale orientatie
+            )
+            self.sprites['right_wall'] = pg.transform.scale(
+                pg.image.load('./resources/chameleon_right_wall.png').convert_alpha(),
+                (self.visual_height, self.width)  # Swap voor verticale orientatie
+            )
+            self.sprites['right_wall_down'] = pg.transform.scale(
+                pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha(),
+                (self.visual_height, self.width)
+            )
+            self.sprites['left_wall_down'] = pg.transform.scale(
+                pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha(),
+                (self.visual_height, self.width)
+            )
         except Exception as e:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
@@ -385,12 +416,7 @@ class Player:
 
         # Apply Momentum
         # Scale input movement by dt, but momentum is velocity, so apply it over time? 
-        # Actually dx is displacement per frame (speed * 1 frame). 
-        # So total_dx should be (dx + momentum) * dt.
-        # Ensure momentum decay handles dt correctly.
-        
-        # We need to treat dx as velocity here if we are scaling by dt.
-        # Currently dx is 5 pixels/frame. 
+        # Actually dx is 5 pixels/frame. 
         
         total_dx = (dx + self.momentum_x) * dt
         
@@ -552,19 +578,28 @@ class Player:
 
     
 
-    def render_chameleon(self, surface):
-        
+    def render_chameleon(self, surface, keys):
+        frame = self.sprites['right'][0] 
+        cright = 0
+        if keys[pg.K_RIGHT]:
+            cright = 0.1
+        if 'right' in self.sprites:
+            self.tijdelijkright_frame_index += cright
+            if self.tijdelijkright_frame_index >=len(self.sprites['right']):
+                self.tijdelijkright_frame_index = 0
+            frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
+                
+                 
+                
 
-            if 'right' in self.sprites:
-                chameleon_img = self.sprites['right']
-                rect = chameleon_img.get_rect()
-                rect.centerx = self.rect.centerx
-                rect.top = self.rect.top
-                shifted_rect = self.camera.apply_rect(rect)
-                surface.blit(chameleon_img, shifted_rect)
-            else:
-                shifted_rect = self.camera.apply_rect(self.rect)
-                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            rect = frame.get_rect()
+            rect.centerx = self.rect.centerx
+            rect.top = self.rect.top
+            shifted_rect = self.camera.apply_rect(rect)
+            surface.blit(frame, shifted_rect)
+        else:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_chameleon_left(self, surface):
         
