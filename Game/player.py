@@ -26,6 +26,8 @@ class Player:
         self.max_grapple_dist = 500
         self.level_complete = False
         self.al_geraakt = False
+        self.tongue_timer = 0   # counts down frames
+        self.tongue_end = None
 
 
         # Momentum
@@ -57,6 +59,7 @@ class Player:
         self.sprites = {}
         self.load_sprites()
 
+    
     def reset(self, healthbar):
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.velocity_y = 0
@@ -144,8 +147,27 @@ class Player:
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
 
-    def shoot_tongue(self, surface):
-         pg.draw.line(surface, (240, 29, 29),self.rect.center, (self.rect.center[0], self.rect.center[1] + 300) , 5)
+    
+   
+
+    def shoot_tongue(self):
+        dx = 200 * self.facing_dir
+        self.tongue_end = (self.rect.center[0] + dx, self.rect.center[1])
+        self.tongue_timer = 15   # tongue stays visible for 15 frames
+
+    def update_tongue(self):
+        if self.tongue_timer > 0:
+            self.tongue_timer -= 1
+
+    def render_tongue(self, surface):
+        if self.tongue_timer > 0 and self.tongue_end:
+            # Convert world positions to screen positions
+            start_pos = self.camera.apply_rect(self.rect).center
+            end_pos = self.camera.to_screen(self.tongue_end)
+
+            pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
+        
+
 
     
     def find_nearest_grapple_tile(self):
@@ -451,6 +473,8 @@ class Player:
 
     def render_map(self, surface, show_hitboxes=False):
         self.level.render(surface, self.camera, show_hitboxes)
+
+    
 
     def render_chameleon(self, surface):
         
