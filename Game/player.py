@@ -3,7 +3,6 @@ from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
 from standard_use import HealthBar
-
 # Class to manage the game Player, including position and rendering
 class Player:
     def __init__(self, level, camera):
@@ -145,6 +144,10 @@ class Player:
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
+
+    def shoot_tongue(self, surface):
+         pg.draw.line(surface, (240, 29, 29),self.rect.center, (self.rect.center[0], self.rect.center[1] + 300) , 5)
+
     
     def find_nearest_grapple_tile(self):
         nearest_tile = None
@@ -532,7 +535,6 @@ class Player:
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (0, 0, 255), shifted_rect)
-
     def render_chameleon_left_wall_down(self, surface):
         if 'left_wall_down' in self.sprites:
             chameleon_img = self.sprites['left_wall_down']
