@@ -305,7 +305,7 @@ LEVEL_7 = [
     "X   XXS  XXXX   XXXX   XXXXX  X      S X",
     "X     S     X   X          X  X        S",
     "X     G S   X   X          X  X        S",
-    "X       S   X   X          X  X        S",
+    "X       X   X   X          X  X        S",
     "X     XXX   X   X          X  X      S X",
     "XG          X   X      XXX X  X      S X",
     "XX          X   X      X X X  X        S",

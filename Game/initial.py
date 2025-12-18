@@ -12,7 +12,7 @@ camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
 # Main game loop function
-def main():
+async def main():
     # Initialization of Pygame and game variables
     pg.init()
     surface = create_main_surface()
