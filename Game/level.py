@@ -120,8 +120,7 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
-LEVEL_1 = [
-
+LEVEL_1 =  [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
     "X                           XE",
@@ -139,17 +138,17 @@ LEVEL_1 = [
     "X                        E  X ",
     "X                     E     XE",
     "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
-    "X  SSSSSSSFF          X  XXXX ",
-    "X N        F          X  XXXX ",
-    "XXXX       SFFFFFFFFFFX  XXXX ",
-    "X          S  FSSSSSF X  XXXX ",
-    "X          S             XXXX ",
-    "X                        XXXX ",
-    "X         XXXXXX    S    XXXX ",
+    "XSSSSSSSSSSSSSSSSSXXXXX  XXXX ",
+    "X N                XXXX  XXXX ",
+    "XXXX               SXXX  XXXX ",
+    "X                  SXXX  XXXX ",
+    "X      S  XXXXXXX        XXXX ",
+    "X      S                 XXXX ",
+    "X      S                 XXXX ",
+    "X         XXXXXXXX  S    XXXX ",
     "X                   S    XXXX ",
     "X                   S    XXXX ",
-    "X                   X    XXXX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "X                   X    XXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
@@ -470,7 +469,7 @@ class Level:
         pixel_y = tile_y * TILE_SIZE
         print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
     
-    find_pixel_loc(10,18)
+    find_pixel_loc(11,23)
 
 
     

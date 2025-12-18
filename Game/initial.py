@@ -107,7 +107,7 @@ async def main():
                         Hints(font, (550, 550), "Let go off G early to swing with momentum"),
                         Hints(font, (100, 100), "Move and Jump with arrow keys"),
                         Hints(font, (120, 850), "Press E to eat the flies"),
-                        Hints(font, (448,1152), "Press left + up to jump off slime walls")
+                        Hints(font, (600,1472), "Press left/right + up to jump off slime walls")
                             ]
              
              pg.display.flip()
