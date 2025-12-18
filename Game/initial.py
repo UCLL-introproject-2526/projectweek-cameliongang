@@ -179,6 +179,9 @@ def main():
                     
                     if event.key in (pg.K_UP, pg.K_w):
                         player.request_jump()
+                    
+                    elif event.key == (pg.K_e):
+                        player.shoot_tongue(surface)
 
                     elif event.key == pg.K_g:  # Grapple key pressed
                         target_tile = player.find_nearest_grapple_tile()

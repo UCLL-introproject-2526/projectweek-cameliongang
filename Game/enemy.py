@@ -15,10 +15,10 @@ class Enemy(pg.sprite.Sprite):
         self.base_y = y
         self.size = (50,50)
         
-        # Load images with fallback
+        
         self.frames = []
         try:
-            # Try loading animation frames if they exist
+            
             enemy_1_1 = pg.image.load('./resources/enemy_1_50x50_1.png').convert_alpha()
             enemy_1_2 = pg.image.load('./resources/enemy_1_50x50_2.png').convert_alpha()
             enemy_1_3 = pg.image.load('./resources/enemy_1_50x50_3.png').convert_alpha()
@@ -26,27 +26,26 @@ class Enemy(pg.sprite.Sprite):
             self.frames = [enemy_1_1, enemy_1_2, enemy_1_3, enemy_1_4]
         except Exception as e:
             print(f"Warning: Enemy assets not found ({e}). Using fallback.")
-            # Fallback to a red square or potato if available
+            
             try:
                 img = pg.image.load('./resources/potato.png').convert_alpha()
                 img = pg.transform.scale(img, self.size)
                 self.frames = [img]
             except:
                 surf = pg.Surface(self.size)
-                surf.fill((255, 0, 0)) # Red square fallback
+                surf.fill((255, 0, 0)) 
                 self.frames = [surf]
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.rect.bottomleft = (x, y) # Start position from arguments
-
+        self.rect.bottomleft = (x, y) 
     def update(self):
-        # Animation
-        self.animation_index += 0.1
+        
+        self.animation_index += 0.01
         if self.animation_index >= len(self.frames):
             self.animation_index = 0
         self.image = self.frames[int(self.animation_index)]
-        
+         
         # Movement
         
         
@@ -57,7 +56,7 @@ class Enemy(pg.sprite.Sprite):
         #nu gaat die niet meer buiten het scherm
         self.rect.x -= self.speed
         if self.rect.right < 0:
-            self.rect.left = LEVEL_WIDTH
+            self.rect.right = LEVEL_WIDTH + 500
             self.base_y = random.randint(1,LEVEL_HEIGHT- self.rect.height)
             self.hover_phase = 0  
             self.rect.y = self.base_y
