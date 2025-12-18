@@ -227,6 +227,89 @@ function setupEvents() {
         output.select();
         document.execCommand('copy');
     });
+
+    // Resize controls
+    document.getElementById('addRowTop').addEventListener('click', () => modifyGrid('row', 'top', 'add'));
+    document.getElementById('addRowBottom').addEventListener('click', () => modifyGrid('row', 'bottom', 'add'));
+    document.getElementById('addColLeft').addEventListener('click', () => modifyGrid('col', 'left', 'add'));
+    document.getElementById('addColRight').addEventListener('click', () => modifyGrid('col', 'right', 'add'));
+
+    document.getElementById('remRowTop').addEventListener('click', () => modifyGrid('row', 'top', 'remove'));
+    document.getElementById('remRowBottom').addEventListener('click', () => modifyGrid('row', 'bottom', 'remove'));
+    document.getElementById('remColLeft').addEventListener('click', () => modifyGrid('col', 'left', 'remove'));
+    document.getElementById('remColRight').addEventListener('click', () => modifyGrid('col', 'right', 'remove'));
+}
+
+function getGridData() {
+    let data = [];
+    for (let y = 0; y < gridHeight; y++) {
+        let row = [];
+        for (let x = 0; x < gridWidth; x++) {
+            const cell = getCell(x, y);
+            row.push(cell.dataset.type || ' ');
+        }
+        data.push(row);
+    }
+    return data;
+}
+
+function renderGridFromData(data) {
+    if (data.length === 0 || data[0].length === 0) return; // Prevent empty grid
+
+    // Update active dimensions
+    const newHeight = data.length;
+    const newWidth = data[0].length;
+    
+    // Update inputs
+    widthInput.value = newWidth;
+    heightInput.value = newHeight;
+    
+    // Create new grid (updates gridWidth/gridHeight globals)
+    createGrid();
+    
+    // Restore data
+    for (let y = 0; y < newHeight; y++) {
+        for (let x = 0; x < newWidth; x++) {
+            const cell = getCell(x, y);
+            if (cell) {
+                setCellType(cell, data[y][x]);
+            }
+        }
+    }
+}
+
+function modifyGrid(type, dir, action) {
+    let data = getGridData();
+    const emptyChar = ' ';
+    
+    if (type === 'row') {
+        if (action === 'add') {
+             const newRow = new Array(data[0].length).fill(emptyChar);
+             if (dir === 'top') data.unshift(newRow);
+             else data.push(newRow);
+        } else {
+             // Remove
+             if (data.length <= 1) return; // Min 1 row
+             if (dir === 'top') data.shift();
+             else data.pop();
+        }
+    } else if (type === 'col') {
+        if (action === 'add') {
+            data.forEach(row => {
+                if (dir === 'left') row.unshift(emptyChar);
+                else row.push(emptyChar);
+            });
+        } else {
+            // Remove
+            if (data[0].length <= 1) return; // Min 1 col
+            data.forEach(row => {
+                if (dir === 'left') row.shift();
+                else row.pop();
+            });
+        }
+    }
+    
+    renderGridFromData(data);
 }
 
 function exportLevel() {
