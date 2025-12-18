@@ -197,23 +197,24 @@ LEVEL_2 = [
 # ]
 
 
-LEVEL_3 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-    "XS                                        SX",
-    "XS  P                                     SX",
-    "XS                                        SX",
-    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
-    "X     GS      S      S      S      S      SX",
-    "N      S      S      S      S      S      SX",
-    "X     XS      S      S      S      S      SX",
-    "G      SSSSSSSS      SSSSSSSS      SSS  SSSX",
-    "X                                          X",
-    "X       G          G          G            X",
-    "X            S            S            S   X",
-    "X            S            S            S   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+LEVEL__3 = [
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX ",
+    "S                          S             SX ",
+    "S  P                       S             SX ",
+    "S                          S             SX ",
+    "S XXXSS      SSSSSSSS      S             SX ",
+    "S    XS      S      S      S             SX ",
+    "S     S      S      S      S             SX ",
+    "S    XX      X      X      X             XX ",
+    "S     SSSSSSSS      SSSSSSSS           SSSX ",
+    "S                          C           S  X ",
+    "S      G          G          G            XE",
+    "S           S            S            S   X ",
+    "X           X           RXL     Y  F  X   X ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD ",
 ]
 #LEVEL 4 | advanced grapling
 LEVEL_4 = [
