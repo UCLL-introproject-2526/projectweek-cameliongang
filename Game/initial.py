@@ -159,6 +159,11 @@ def main():
 
                 if player.rect.colliderect(enemy.rect):
                     if not enemy.has_hit_player:
+                        try:
+                            sound =pg.mixer.Sound('.\\resources\\damage.mp3')
+                            sound.play()
+                        except:
+                            pass
                         health_bar.hp -= enemy.damage
                         enemy.has_hit_player = True
                 else:
@@ -245,6 +250,11 @@ def main():
 
 
             if health_bar.hp <= 0:
+                try:
+                    sound =pg.mixer.Sound('.\\resources\\death.mp3')
+                    sound.play()
+                except:
+                    pass
                 death_counter.count += 1
                 player.reset(health_bar)
 
