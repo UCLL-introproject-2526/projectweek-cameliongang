@@ -308,7 +308,7 @@ class Player:
         
         
         if self.rect.colliderect(rect):
-            HealthBar.hp -= 1
+            
             print('1 dammage')
         
         

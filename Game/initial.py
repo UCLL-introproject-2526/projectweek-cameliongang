@@ -28,7 +28,7 @@ def main():
     spawn_interval= 180  # enkel in factoren van 60 veranderen.
     enemy_spawn_timer = 0
     y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
-    enemy = Enemy(800, y_enemy) 
+    enemy = Enemy(LEVEL_WIDTH, y_enemy) 
     running = True
     running = True
     levels_menu = False

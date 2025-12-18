@@ -27,6 +27,7 @@ class Tile(pygame.sprite.Sprite):
             elif type == 'N':
                 loaded_img=pygame.image.load('./resources/end_gate.png').convert_alpha()
 
+            
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
             
