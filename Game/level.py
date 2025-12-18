@@ -121,6 +121,7 @@ class Tile(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 LEVEL_1 =  [
+    #toturial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
     "X                           XE",
