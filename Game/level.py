@@ -287,7 +287,7 @@ LEVEL_6  = [
 
 
 LEVEL_7 = [
-    "XXXXXX               XX                X",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "X    X  G            X                 X",
     "X  N X        G      X  X      X       X",
     "X SXGX                X  X             X",
