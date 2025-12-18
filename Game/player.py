@@ -2,7 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-import time
+from time import sleep
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -15,9 +15,29 @@ class Player:
         self.height = 23  # Hitbox height (smaller than visual)
         self.base_width = 50
         self.base_height = 23
+        
+
+        #Visual Dimensions
         self.visual_width = 70 # New visual width
         self.visual_height = 50 # New visual height 
         self.visual_y_offset = 24 # Offset for rendering loop tweak neg is omhoog
+        self.wall_visual_width = 70
+        self.wall_visual_height = 80 
+        self.wall_visual_offset_x = -3
+        self.wall_visual_offset_y = 35
+
+        # Ceiling Visual Dimensions
+        self.ceiling_visual_width = 70
+        self.ceiling_visual_height = 50
+        self.ceiling_visual_offset_x = 0
+        self.ceiling_visual_offset_y = 35
+
+        # Left Wall Visual Dimensions
+        self.left_wall_visual_width = 70
+        self.left_wall_visual_height = 80
+        self.left_wall_visual_offset_x = 5
+        self.left_wall_visual_offset_y = 35
+
         self.on_ground = False
         self.on_wall = False
         self.wall_side = 0 # 1 for right, -1 for left
@@ -30,6 +50,7 @@ class Player:
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
         self.level_complete = False
+        self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
         self.tijdelijkright_frame_index = 0
@@ -93,34 +114,55 @@ class Player:
                 for i in range(35)
             ]
             
-            self.sprites['left'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_left.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['ceiling'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_ceiling.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['ceiling_left'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha(),
-                (self.width, self.visual_height)
-            )
-            self.sprites['left_wall'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_left_wall.png').convert_alpha(),
-                (self.visual_height, self.width)  # Swap voor verticale orientatie
-            )
-            self.sprites['right_wall'] = pg.transform.scale(
-                pg.image.load('./resources/chameleon_right_wall.png').convert_alpha(),
-                (self.visual_height, self.width)  # Swap voor verticale orientatie
-            )
-            self.sprites['right_wall_down'] = pg.transform.scale(
-                pg.image.load('./resources/cameleon_rightwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
-            )
-            self.sprites['left_wall_down'] = pg.transform.scale(
-                pg.image.load('./resources/cammelion_leftwall_down.png').convert_alpha(),
-                (self.visual_height, self.width)
-            )
+            self.sprites['left'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingleft/frame_{i}.png').convert_alpha(),
+                    (self.visual_width, self.visual_height)
+                )
+                for i in range(35)
+            ]
+            
+            self.sprites['ceiling'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/ceiling_right/frame_{i}.png').convert_alpha(),
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['ceiling_left'] = [pg.transform.scale(
+                    pg.image.load(f'./resources/ceiling_left/frame_{i}.png').convert_alpha(),
+                    (self.ceiling_visual_width, self.ceiling_visual_height)
+                )
+                for i in range(35)
+            ]    
+            self.sprites['left_wall'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/right up/frame_{i}.png').convert_alpha(),
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['right_wall_up'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywaklingleftup/frame_{i}.png').convert_alpha(),
+                    (self.wall_visual_width, self.wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['right_wall_down'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingleftdown/frame_{i}.png').convert_alpha(),
+                    (self.wall_visual_width, self.wall_visual_height)
+                )
+                for i in range(35)
+            ]
+            self.sprites['left_wall_down'] = [
+                pg.transform.scale(
+                    pg.image.load(f'./resources/camiboywalkingrightdown/frame_{i}.png').convert_alpha(),
+                    (self.left_wall_visual_width, self.left_wall_visual_height)
+                )
+                for i in range(35)
+            ]
         except Exception as e:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
@@ -305,7 +347,7 @@ class Player:
                 point_rect = pg.Rect(check_x, check_y, 2, 2)
 
                 for tile in self.tiles:
-                    if tile.type == 'X' or tile.type == 'S' or tile.type == 'F':  # solid types
+                    if tile.type == 'X' or tile.type == 'S':  # solid types
                         if tile.rect.colliderect(point_rect):
                             return False  # blocked by a wall
 
@@ -336,6 +378,7 @@ class Player:
         dist = math.hypot(dx, dy)
 
         if dist > self.max_grapple_dist:
+            print("Too far to grapple!")
             return
 
         # Facing check using dot product
@@ -344,9 +387,11 @@ class Player:
 
         dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
         if dot <= 0:
+            print("Tile is behind you!")
             return
 
         if not self.can_grapple_to(target_tile):
+            print("Blocked by wall!")
             return
 
         self.grapple_to(target_tile.rect.center)
@@ -430,6 +475,18 @@ class Player:
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
+        
+        
+        if self.rect.colliderect(rect):
+           if not self.al_geraakt:
+               healthbar.hp -= 10
+               self.al_geraakt = True
+        else:
+           # reset zodra ze niet meer botsen
+           self.al_geraakt = False
+
+        
+        
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
@@ -533,6 +590,7 @@ class Player:
                          self.velocity_y = 0
                 if t_type == 'N':
                     self.level_complete = True  
+                    
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
@@ -580,16 +638,7 @@ class Player:
                     
 
             rect = frame.get_rect()
-            # Align image center-bottom with hitbox center-bottom (or slightly adjust)
-            # Hitbox is smaller than image.
-            # Visual height 50, Hitbox height 23.
-            # We want feet at same level? Or image slightly higher?
-            # rect.bottom = self.rect.bottom
-            # rect.centerx = self.rect.centerx
-            
-            # Offset upwards to center image vertically on hitbox or place feet?
-            # If hitbox is just the body/feet area.
-            # Let's align bottoms matches.
+           
             rect.bottom = self.rect.bottom
             rect.centerx = self.rect.centerx
             
@@ -605,87 +654,180 @@ class Player:
             
 
 
-    def render_chameleon_left(self, surface):
+    def render_chameleon_left(self, surface, keys):
         
 
+        try:
+            frame = self.sprites['left'][0] 
+            cleft = 0
+            if keys[pg.K_LEFT]:
+                cleft = 0.5
             if 'left' in self.sprites:
-                chameleon_img = self.sprites['left']
-                rect = chameleon_img.get_rect()
-                rect.centerx = self.rect.centerx
-                rect.top = self.rect.top
-                shifted_rect = self.camera.apply_rect(rect)
-                surface.blit(chameleon_img, shifted_rect)
-            else:
-                shifted_rect = self.camera.apply_rect(self.rect)
-                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+                self.tijdelijkright_frame_index += cleft
+                if self.tijdelijkright_frame_index >=len(self.sprites['left']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
 
-    def render_chameleon_ceiling_left(self, surface):
-        if 'ceiling_left' in self.sprites:
-            chameleon_img = self.sprites['ceiling_left']
-            rect = chameleon_img.get_rect()
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
             rect.centerx = self.rect.centerx
-            rect.top = self.rect.top
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
+            # Optional: Extra manual offset if needed (e.g. -10 y)
+            shifted_rect.y -= (self.visual_height - self.height) // 2 
+            shifted_rect.y += self.visual_y_offset 
+            
+            surface.blit(frame, shifted_rect)
+        except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
-    def render_chameleon_ceiling(self, surface):
-        if 'ceiling' in self.sprites:
-            chameleon_img = self.sprites['ceiling']
-            rect = chameleon_img.get_rect()
+    def render_chameleon_ceiling_left(self, surface, keys):
+            frame = self.sprites['ceiling_left'][0] 
+            cleft = 0
+            if keys[pg.K_LEFT]:
+                cleft = 0.5
+            if 'ceiling_left' in self.sprites:
+                self.tijdelijkright_frame_index += cleft
+                if self.tijdelijkright_frame_index >=len(self.sprites['ceiling_left']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['ceiling_left'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
             rect.centerx = self.rect.centerx
-            rect.top = self.rect.top
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
+            
+            surface.blit(frame, shifted_rect)
+
+    def render_chameleon_ceiling(self, surface, keys):
+            frame = self.sprites['ceiling'][0] 
+            cright = 0
+            if keys[pg.K_RIGHT]:
+                cright = 0.5
+            if 'ceiling' in self.sprites:
+                self.tijdelijkright_frame_index += cright
+                if self.tijdelijkright_frame_index >=len(self.sprites['ceiling']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['ceiling'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
+
+            rect = frame.get_rect()
+           
+            rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
+            shifted_rect = self.camera.apply_rect(rect)
+            shifted_rect.x += self.ceiling_visual_offset_x
+            shifted_rect.y += (self.ceiling_visual_offset_y - (self.ceiling_visual_height - self.height) // 2)
+            
+            surface.blit(frame, shifted_rect)
         
-    def render_chameleon_left_wall(self, surface):
-        if 'left_wall' in self.sprites:
-            chameleon_img = self.sprites['left_wall']
-            rect = chameleon_img.get_rect()
-            rect.left = self.rect.left
+    def render_chameleon_left_wall(self, surface, keys):
+            frame = self.sprites['left_wall'][0] 
+            cup = 0
+            if keys[pg.K_UP]:
+                cup = 0.7
+            if 'left_wall' in self.sprites:
+                self.tijdelijkright_frame_index += cup
+                if self.tijdelijkright_frame_index >=len(self.sprites['left_wall']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left_wall'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
             rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
 
-    def render_chameleon_right_wall(self, surface):
-        if 'right_wall' in self.sprites:
-            chameleon_img = self.sprites['right_wall']
-            rect = chameleon_img.get_rect()
-            rect.right = self.rect.right
+            
+            surface.blit(frame, shifted_rect)
+    def render_chameleon_left_wall_down(self, surface, keys):
+            frame = self.sprites['left_wall_down'][0] 
+            cdown = 0
+            if keys[pg.K_DOWN]:
+                cdown = 0.7
+            if 'left_wall_down' in self.sprites:
+                self.tijdelijkright_frame_index += cdown
+                if self.tijdelijkright_frame_index >=len(self.sprites['left_wall_down']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['left_wall_down'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
             rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (0, 0, 255), shifted_rect)
+            shifted_rect.x += self.left_wall_visual_offset_x
+            shifted_rect.y += (self.left_wall_visual_offset_y - (self.left_wall_visual_height - self.height) // 2)
 
-    def render_chameleon_right_wall_down(self, surface):
-        if 'right_wall_down' in self.sprites:
-            chameleon_img = self.sprites['right_wall_down']
-            rect = chameleon_img.get_rect()
-            rect.right = self.rect.right
+            
+            surface.blit(frame, shifted_rect)
+        
+    def render_chameleon_right_wall(self, surface, keys):
+        
+            frame = self.sprites['right_wall_up'][0] 
+            cup = 0
+            if keys[pg.K_UP]:
+                cup = 0.7
+            if 'right_wall_up' in self.sprites:
+                self.tijdelijkright_frame_index += cup
+                if self.tijdelijkright_frame_index >=len(self.sprites['right_wall_up']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right_wall_up'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
             rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (0, 0, 255), shifted_rect)
-    def render_chameleon_left_wall_down(self, surface):
-        if 'left_wall_down' in self.sprites:
-            chameleon_img = self.sprites['left_wall_down']
-            rect = chameleon_img.get_rect()
-            rect.left = self.rect.left
+            # Use specific wall offsets now
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+        
+
+    def render_chameleon_right_wall_down(self, surface, keys):
+            frame = self.sprites['right_wall_down'][0] 
+            cdown = 0
+            if keys[pg.K_DOWN]:
+                cdown = 0.7
+            if 'right_wall_down' in self.sprites:
+                self.tijdelijkright_frame_index += cdown
+                if self.tijdelijkright_frame_index >=len(self.sprites['right_wall_down']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right_wall_down'][int(self.tijdelijkright_frame_index)]
+                    
+            rect = frame.get_rect()
+           
             rect.bottom = self.rect.bottom
+            rect.centerx = self.rect.centerx
+            
             shifted_rect = self.camera.apply_rect(rect)
-            surface.blit(chameleon_img, shifted_rect)
-        else:
-            shifted_rect = self.camera.apply_rect(self.rect)
-            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            # Use specific wall offsets now
+            shifted_rect.x += self.wall_visual_offset_x
+            shifted_rect.y += (self.wall_visual_offset_y - (self.wall_visual_height - self.height) // 2)
+
+            
+            surface.blit(frame, shifted_rect)
+        

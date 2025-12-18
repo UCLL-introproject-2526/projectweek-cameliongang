@@ -5,10 +5,10 @@ from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
 from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
-from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, DeathCounter, game_background, play_music, create_main_surface
+from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
-
+camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
 # Main game loop function
@@ -37,6 +37,7 @@ def main():
     death_menu = False
     pause_menu = False
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
+    
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
     shoot=False
@@ -94,11 +95,20 @@ def main():
              draw_loading_screen(surface, font, progress, current_level_idx)
              
              if loading_timer >= LOADING_DURATION:
-                 loading_menu = False
-                 # Game starts now - Initialize Player here to cover the load time
+                loading_menu = False
+                  # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
-                 player = Player(lvl, camera)
-                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+                player = Player(lvl, camera)
+                enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+                print(current_level_idx)
+                if current_level_idx == 0:
+                    hints = [
+                        Hints(font, (1440, 550), "Hold G and arrow keys to grapple"),
+                        Hints(font, (550, 550), "Let go off G early to swing with momentum"),
+                        Hints(font, (100, 100), "Move and Jump with arrow keys"),
+                        Hints(font, (120, 850), "Press E to eat the flies"),
+                        Hints(font, (448,1152), "Press left + up to jump off slime walls")
+                            ]
              
              pg.display.flip()
              clock.tick(60)
@@ -279,26 +289,26 @@ def main():
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
-                    player.render_chameleon_ceiling(surface)
+                    player.render_chameleon_ceiling(surface, keys)
 
                 elif player.facing_dir == -1:
-                    player.render_chameleon_ceiling_left(surface)
+                    player.render_chameleon_ceiling_left(surface, keys)
 
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
-                    # Wall is to the RIGHT.
+                    
                     if player.wall_facing_down:
-                        player.render_chameleon_right_wall_down(surface)
+                        player.render_chameleon_right_wall_down(surface, keys)
                     else:
-                        player.render_chameleon_right_wall(surface)
+                        player.render_chameleon_right_wall(surface, keys)
                 
                 else:
                     # Wall is to the LEFT.
                     if player.wall_facing_down:
-                        player.render_chameleon_left_wall_down(surface)
+                        player.render_chameleon_left_wall_down(surface, keys)
                     else:
-                        player.render_chameleon_left_wall(surface)
+                        player.render_chameleon_left_wall(surface, keys)
  
             else:
                 if not player.hanging and player.facing_dir == 1 :
@@ -306,7 +316,7 @@ def main():
             
 
                 elif not player.hanging and player.facing_dir == -1 :
-                    player.render_chameleon_left(surface)
+                    player.render_chameleon_left(surface, keys)
             
             if show_hitboxes:
                 pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
@@ -332,12 +342,17 @@ def main():
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface)
+            # Draw hints
+            if current_level_idx == 0:
+                for hint in hints:
+                    hint.draw(surface, camera)
+                
+            
             # Delta time
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
 
-pg.quit()
-
 if __name__ == "__main__":
     main()
+    pg.quit()

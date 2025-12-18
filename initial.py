@@ -5,7 +5,7 @@ from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
 from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
-from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, DeathCounter, game_background, play_music, create_main_surface
+from Game.standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, DeathCounter, game_background, play_music, create_main_surface, Hints
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 
@@ -24,6 +24,8 @@ def main():
     player = Player(lvl, camera) # Player now takes level and camera
     # Initialize enemies from level
     enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+    
+
     
     # Debug
     show_hitboxes = False
@@ -98,6 +100,14 @@ def main():
                  # Ensure lvl/camera are ready (they should be from timer==5)
                  player = Player(lvl, camera)
                  enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+                 if current_level_idx == 11:
+                    hints = [
+                        Hints(font, (1550, 550), "Hold G to grapple"),
+                        Hints(font, (640, 550), "Let go off G early to swing with momentum"),
+                        Hints(font, (150, 100), "Move and Jump with arrow okeys"),
+                        Hints(font, (100, 100), "Press E to eat the flies"),
+                        Hints(font, (448,1152), "Press left + up to jump off slime walls")
+                    ]
              
              pg.display.flip()
              clock.tick(60)
@@ -312,10 +322,9 @@ def main():
             player.update_tongue()
             player.render_tongue(surface)
            
-                
-
-                
-                
+            # Draw hints
+            for hint in hints:
+                hint.draw(surface, camera)
 
             #healthbar creation
             health_bar.draw(surface)

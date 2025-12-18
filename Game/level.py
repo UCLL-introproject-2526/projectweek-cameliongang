@@ -129,20 +129,20 @@ LEVEL_1 = [
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXX  X ",
-    "X     G       G     G       X ",
+    "XXXXXXXXXXXXGXXXXXXXXXXXXX  X ",
+    "X                   G       X ",
     "X                           X ",
     "X                           X ",
-    "X XXXXFFFFFXXXFFFFXXXXFFFFXXX ",
+    "X XXXXXXXXXFFFFFXXXXXXFFFFXXX ",
     "X XXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                      E    XE",
     "X                        E  X ",
     "X                     E     XE",
     "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
-    "XSSSSSSSSSFF          X  XXXX ",
-    "X          F          X  XXXX ",
-    "X N        SFFFFFFFFFFX  XXXX ",
-    "XXXX       S  FSSSSSF X  XXXX ",
+    "X  SSSSSSSFF          X  XXXX ",
+    "X N        F          X  XXXX ",
+    "XXXX       SFFFFFFFFFFX  XXXX ",
+    "X          S  FSSSSSF X  XXXX ",
     "X          S             XXXX ",
     "X                        XXXX ",
     "X         XXXXXX    S    XXXX ",
@@ -152,8 +152,6 @@ LEVEL_1 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
-
-
 ]
 
 LEVEL_2 = [
@@ -198,22 +196,23 @@ LEVEL_2 = [
 
 
 LEVEL_3 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-    "XS                                        SX",
-    "XS  P                                     SX",
-    "XS                                        SX",
-    "XSSSSSSS      SSSSSSSS      SSSSSSSS      SX",
-    "X     GS      S      S      S      S      SX",
-    "N      S      S      S      S      S      SX",
-    "X     XS      S      S      S      S      SX",
-    "G      SSSSSSSS      SSSSSSSS      SSS  SSSX",
-    "X                                          X",
-    "X       G          G          G            X",
-    "X            S            S            S   X",
-    "X            S            S            S   X",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX ",
+    "S                          S             SX ",
+    "S  P                       S             SX ",
+    "S                          S             SX ",
+    "S XXXSS      SSSSSSSS      S             SX ",
+    "S    XS      S      S      S             SX ",
+    "S     S      S      S      S             SX ",
+    "S    XX      X      X      X             XX ",
+    "S     SSSSSSSS      SSSSSSSS           SSSX ",
+    "S                          C           S  X ",
+    "S      G          G          G            XE",
+    "S           S            S            S   X ",
+    "X           X           RXL     Y  F  X   X ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD ",
 ]
 #LEVEL 4 | advanced grapling
 LEVEL_4 = [
@@ -463,3 +462,14 @@ class Level:
             # DEBUG: Draw Hitboxes
             if show_hitboxes:
                 pygame.draw.rect(surface, (255, 0, 0), camera.apply_rect(tile.rect), 1)
+    
+
+    def find_pixel_loc(tile_x, tile_y):
+        pixel_x = tile_x * TILE_SIZE
+        pixel_y = tile_y * TILE_SIZE
+        print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
+    
+    find_pixel_loc(10,18)
+
+
+    
