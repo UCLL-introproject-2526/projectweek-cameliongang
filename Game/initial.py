@@ -271,6 +271,8 @@ def main():
             # Render alle enemies
             for enemy in enemies:
                 enemy.render(surface, camera)
+                if show_hitboxes:
+                    pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(enemy.rect), 1)
             
             if player.hanging==True:
 
@@ -318,10 +320,12 @@ def main():
             tongue_hitbox= player.get_tongue_hitbox()
 
             if lvl.has_enemy:
-                if tongue_hitbox and tongue_hitbox.colliderect(enemy.rect):
-                    print("tongue HIT")
-                    enemy.kill_enemy()
-                    health_bar.hp += 10
+                if tongue_hitbox:
+                for enemy in enemies:
+                    if tongue_hitbox.colliderect(enemy.rect):
+                            print("tongue HIT")
+                            enemy.kill_enemy()
+                            health_bar.hp += 10
         
             #healthbar creation
             health_bar.draw(surface)
