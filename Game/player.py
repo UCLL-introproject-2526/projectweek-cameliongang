@@ -306,7 +306,7 @@ class Player:
                 point_rect = pg.Rect(check_x, check_y, 2, 2)
 
                 for tile in self.tiles:
-                    if tile.type == 'X' or tile.type == 'S' or tile.type == 'Y':  # solid types
+                    if tile.type == 'X' or tile.type == 'S' or tile.type == 'F':  # solid types
                         if tile.rect.colliderect(point_rect):
                             return False  # blocked by a wall
 
