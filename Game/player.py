@@ -336,7 +336,6 @@ class Player:
         dist = math.hypot(dx, dy)
 
         if dist > self.max_grapple_dist:
-            print("Too far to grapple!")
             return
 
         # Facing check using dot product
@@ -345,11 +344,9 @@ class Player:
 
         dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
         if dot <= 0:
-            print("Tile is behind you!")
             return
 
         if not self.can_grapple_to(target_tile):
-            print("Blocked by wall!")
             return
 
         self.grapple_to(target_tile.rect.center)

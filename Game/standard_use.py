@@ -60,7 +60,6 @@ def game_background(background_img, width=None, height=None, menu=False):
         background = pg.image.load(f".\\resources\\{background_img}").convert_alpha()
         background = pg.transform.scale(background, (int(target_w), int(target_h)))
     except Exception as e:
-        print(f"Error loading background {background_img}: {e}")
         background = pg.Surface((int(target_w), int(target_h)))
         background.fill((100, 100, 255))
     return background
