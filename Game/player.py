@@ -13,6 +13,8 @@ class Player:
         self.jump_cut = -4
         self.width = 50  # Approx player width
         self.height = 23  # Approx player height (reduced for hitbox)
+        self.base_width = 50
+        self.base_height = 23
         self.visual_height = 60 # Full visual height including tail
         self.on_ground = False
         self.on_wall = False
@@ -281,6 +283,15 @@ class Player:
     # Set target and start grappling
         self.grapple_target = pos
         self.grappling = True
+        
+        # Reset any wall/hanging state immediately
+        self.on_wall = False
+        self.hanging = False
+        self.wall_side = 0
+        
+        # Reset hitbox to standard horizontal shape
+        self.width = self.base_width
+        self.height = self.base_height
 
     def try_grapple(self, target_tile):
         dx = target_tile.rect.centerx - self.rect.centerx
@@ -324,14 +335,25 @@ class Player:
         # Validate existing wall stick (Persistent Player)
             if self.on_wall:
                 # Check for pull-off (Moving away from wall)
-                # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall Player for the kick)
                 if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
                     self.on_wall = False
                     self.wall_side = 0
+                    # Revert to horizontal - Expand width
+                    self.width = self.base_width
+                    self.height = self.base_height
+                    # Shift position if pulling off right wall to avoid clipping back into it?
+                    # xcoor is left-aligned. 
+                    # Right (side 1): we were at x. width=23. Right edge = x+23 = tile.left.
+                    # Now width=50. Right edge = x+50 = tile.left + 27. Overlap!
+                    # If pulling Left (dx<0), we need to shift x left by (50-23)=27.
+                    if dx < 0: # Pulling Left
+                         self.xcoor -= (self.base_width - self.base_height)
+
                 else:
                     # Check for physical connection (Sensor)
+                    # use current dimensions (vertical)
                     sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
-                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
+                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) 
                     touching = False
                     for tile in self.tiles:
                         if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
@@ -340,6 +362,17 @@ class Player:
                     if not touching:
                         self.on_wall = False
                         self.wall_side = 0
+                        # Revert dimensions
+                        self.width = self.base_width
+                        self.height = self.base_height
+                        # Falling off right wall? Shift left?
+                        # If we just slide down or fall off, maybe we don't need shift if gravity takes over?
+                        # But if we were right-aligned...
+                        # Let's assume falling off handles itself via physics, but shape change risks re-collision.
+                        # Ideally check wall_side before reset.
+                        # If we were on Right Wall, shift left.
+                        if sensor_x > self.xcoor + 10: # Rough check if we were testing right side
+                             self.xcoor -= (self.base_width - self.base_height)
 
         self.on_ground = False
         # Do not rely on side collision to set on_wall every frame if we want persistence,
@@ -397,6 +430,13 @@ class Player:
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
+                    
+                    # Switch to Vertical Hitbox if not already
+                    if self.width == self.base_width:
+                        self.width = self.base_height
+                        self.height = self.base_width
+                        # Position adjustment handled below by collision correction
+
 
                 if total_dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
@@ -477,6 +517,11 @@ class Player:
                 if t_type == 'N':
                     self.level_complete = True  
                 elif dy > 0: # Falling / Moving Down
+                    # Reset hitbox to horizontal if needed
+                    if self.width != self.base_width:
+                        self.width = self.base_width
+                        self.height = self.base_height
+                    
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
                     self.on_ground = True

@@ -123,12 +123,12 @@ class Tile(pygame.sprite.Sprite):
 # HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
 LEVEL_1 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                  S      E",
-    "X       S          S      E",
-    "X       S          X   S  E",
+    "X        SSSS SS          E",
+    "E                  S      X",
+    "X       S          S      X",
+    "X       S          X   S  X",
     "X       S              S  X",
-    "X        P             X  X",
+    "X        P             X  E",
     "X      XXXXX        S     X",
     "X    X              XN    X",
     "X    XX      XX     XXX   X",
