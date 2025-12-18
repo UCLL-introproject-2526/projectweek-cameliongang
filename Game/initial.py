@@ -285,11 +285,11 @@ def main():
             elif player.on_wall == True:
 
                 if player.wall_side > 0:
-                    # Wall is to the RIGHT.
+                    print(keys)
                     if player.wall_facing_down:
                         player.render_chameleon_right_wall_down(surface)
                     else:
-                        player.render_chameleon_right_wall(surface)
+                        player.render_chameleon_right_wall(surface, keys)
                 
                 else:
                     # Wall is to the LEFT.
@@ -304,7 +304,7 @@ def main():
             
 
                 elif not player.hanging and player.facing_dir == -1 :
-                    player.render_chameleon_left(surface)
+                    player.render_chameleon_left(surface, keys)
             
             if show_hitboxes:
                 pg.draw.rect(surface, (255, 0, 0), camera.apply_rect(player.rect), 1)
