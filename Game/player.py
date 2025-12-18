@@ -86,7 +86,7 @@ class Player:
             # Load and scale all walking frames
             self.sprites['right'] = [
                 pg.transform.scale(
-                    pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha(),
+                    pg.image.load(f'./resource/camiboywalkingright/frame_{i}.png').convert_alpha(),
                     (self.width, self.visual_height)
                 )
                 for i in range(35)
@@ -602,7 +602,8 @@ class Player:
                 shifted_rect = self.camera.apply_rect(self.rect)
                 pg.draw.rect(surface, (255, 0, 0), shifted_rect)
         except:
-            pass
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
             
 
 
