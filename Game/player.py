@@ -2,7 +2,6 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-from standard_use import HealthBar
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -19,7 +18,6 @@ class Player:
         self.wall_side = 0 # 1 for right, -1 for left
         self.wall_side = 0 # 1 for right, -1 for left
         self.hanging = False # New Player for ceiling stick
-        self.is_dead = False # Death state
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
         self.grapple_speed=12
@@ -58,7 +56,7 @@ class Player:
         self.sprites = {}
         self.load_sprites()
 
-    def reset(self):
+    def reset(self, healthbar):
         self.xcoor, self.ycoor = self.level.player_start_pos
         self.velocity_y = 0
         self.momentum_x = 0
@@ -66,12 +64,11 @@ class Player:
         self.on_wall = False
         self.wall_side = 0
         self.hanging = False
-        self.is_dead = False
         self.grappling = False
         self.grapple_target = None
         self.rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
         # Reset health if needed, e.g. HealthBar.hp = 100 but HealthBar is global/static in standard_use usage
-        HealthBar.hp = 100
+        healthbar.hp = 100
 
     def load_sprites(self):
 
@@ -256,7 +253,7 @@ class Player:
 
         self.grapple_to(target_tile.rect.center)
 
-    def update_physics(self, dx, keys, dt, rect):
+    def update_physics(self, dx, keys, dt, rect,healthbar):
         #grapling call
         
         if self.grappling and self.grapple_target:
@@ -266,8 +263,8 @@ class Player:
             for tile in self.tiles:
                 if tile.rect.colliderect(player_rect):
                     t_type = getattr(tile, 'type', 'X')
-                    if t_type == 'D' or t_type == 'Y':
-                        self.is_dead = True
+                    if t_type == 'D' or t_type == 'Y' or t_type == "C"or t_type == "F"or t_type == "L"or t_type == "R":
+                        healthbar.hp = 0
             
         else:
     # normal gravity, collisions, etc.
@@ -321,15 +318,15 @@ class Player:
         
         
         if self.rect.colliderect(rect):
-            HealthBar.hp -= 1
-            print('1 dammage')
+            healthbar.hp -= 10
+            print('10 damage')
         
         
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
-                    self.is_dead = True
+                    healthbar.hp = 0
                 
             
                 if t_type == 'N':
@@ -407,7 +404,7 @@ class Player:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
-                    self.is_dead = True
+                    healthbar.hp = 0
                 if t_type == 'N':
                     self.level_complete = True                                        
                 if dy < 0: # Moving Up
