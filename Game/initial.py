@@ -279,10 +279,10 @@ def main():
             if player.hanging==True:
 
                 if player.facing_dir == 1 :
-                    player.render_chameleon_ceiling(surface)
+                    player.render_chameleon_ceiling(surface, keys)
 
                 elif player.facing_dir == -1:
-                    player.render_chameleon_ceiling_left(surface)
+                    player.render_chameleon_ceiling_left(surface, keys)
 
             elif player.on_wall == True:
 
