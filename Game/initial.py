@@ -43,6 +43,7 @@ def main():
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
+    shoot=False
 
     #music playing
     play_music()
@@ -180,8 +181,8 @@ def main():
                     if event.key in (pg.K_UP, pg.K_w):
                         player.request_jump()
                     
-                    elif event.key == (pg.K_e):
-                        player.shoot_tongue(surface)
+                    if event.key == pg.K_e:
+                        player.shoot_tongue()
 
                     elif event.key == pg.K_g:  # Grapple key pressed
                         target_tile = player.find_nearest_grapple_tile()
@@ -266,6 +267,9 @@ def main():
             # Render Map
             player.render_map(surface, show_hitboxes)
             
+            
+
+
             # Draw Spikes (already handled in render_map)
             # player.level.render_spikes(surface, player.camera) # If this exists? No, it's inside render_map  # Render tiles first
             # Render alle enemies
@@ -308,6 +312,13 @@ def main():
                 player_screen_pos = player.camera.apply_rect(player.rect).center
                 target_screen_pos = player.camera.to_screen(player.grapple_target)
                 pg.draw.line(surface, (240, 29, 29), player_screen_pos, target_screen_pos, 5)
+            
+            #show tongue
+            player.update_tongue()
+            player.render_tongue(surface)
+           
+                
+
                 
                 
 
