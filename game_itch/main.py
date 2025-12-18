@@ -4,7 +4,9 @@ import asyncio
 
 # Add the 'Game' directory to sys.path to allow imports from inside 'Game' to work
 # This makes 'player', 'initial', etc. importable as top-level modules
-sys.path.append(os.path.join(os.path.dirname(__file__), 'Game'))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir) # Fix resource loading
+sys.path.append(os.path.join(script_dir, 'Game'))
 
 from initial import main
 

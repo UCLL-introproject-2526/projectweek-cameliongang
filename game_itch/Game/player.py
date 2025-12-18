@@ -2,6 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
+import os
 from time import sleep
 
 # Class to manage the game Player, including position and rendering
@@ -56,7 +57,13 @@ class Player:
         self.tijdelijkright_frame_index = 0
         self.tijdelijkright_frame_timer = 0.0
         self.tijdelijkright_frame_fps = 12       
+        self.tijdelijkright_frame_fps = 12       
         self.tongue_cooldown = False
+        
+        # Emote State
+        self.emote_active = False
+        self.emote_frame_index = 0.0
+        self.emote_fps = 10
 
 
         # Momentum
@@ -167,6 +174,30 @@ class Player:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
         
+        # Load Emote (New 'hmm' JPGs and Sound)
+        try:
+            self.sprites['emote'] = []
+            for i in range(4):
+                path = f'./resources/emote_frame_{i}.jpg'
+                img = pg.image.load(path).convert() # JPGs don't have alpha usually
+                scaled = pg.transform.scale(img, (self.visual_width, self.visual_height))
+                self.sprites['emote'].append(scaled)
+            
+            # Load Sound
+            try:
+                # Pygame prefers OGG or WAV. AAC is not supported.
+                # Trying OGG first (best for web), then WAV
+                if os.path.exists('./resources/scream.ogg'):
+                    self.emote_sound = pg.mixer.Sound('./resources/scream.ogg')
+                else:
+                    self.emote_sound = pg.mixer.Sound('./resources/scream.wav')
+            except Exception as e:
+                print(f"Error loading emote sound (need .ogg or .wav): {e}")
+                self.emote_sound = None
+                
+        except Exception as e:
+            print(f"Error loading emote frames: {e}")
+        
         # Load bush (static for now, but good to cache if used often)
         try:
              self.bush_img = pg.image.load('./resources/bush.png').convert()
@@ -221,6 +252,20 @@ class Player:
     def update_input_Player(self, keys):
     # Jump held: either UP arrow or W key
         self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+        
+        # Emote Trigger (6 + 7 together) - Supports Numpad too
+        input_6 = keys[pg.K_6] or keys[pg.K_KP6]
+        input_7 = keys[pg.K_7] or keys[pg.K_KP7]
+        
+        if input_6 and input_7 and self.on_ground:
+            if not self.emote_active:
+                if hasattr(self, 'emote_sound') and self.emote_sound:
+                    self.emote_sound.play()
+            self.emote_active = True
+            
+        # Cancel emote on movement
+        if keys[pg.K_LEFT] or keys[pg.K_RIGHT] or keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]:
+            self.emote_active = False
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
@@ -625,6 +670,23 @@ class Player:
 
     def render_chameleon(self, surface, keys):
         try:
+            # Emote Override
+            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+                self.emote_frame_index += 0.1 # Animation speed (slower)
+                if self.emote_frame_index >= len(self.sprites['emote']):
+                    self.emote_frame_index = 0
+                frame = self.sprites['emote'][int(self.emote_frame_index)]
+                
+                # Render using standard rect logic
+                rect = frame.get_rect()
+                rect.bottom = self.rect.bottom
+                rect.centerx = self.rect.centerx
+                shifted_rect = self.camera.apply_rect(rect)
+                shifted_rect.y -= (self.visual_height - self.height) // 2 
+                shifted_rect.y += self.visual_y_offset 
+                surface.blit(frame, shifted_rect)
+                return
+
             frame = self.sprites['right'][0] 
             cright = 0
             if keys[pg.K_RIGHT]:
@@ -657,8 +719,25 @@ class Player:
 
     def render_chameleon_left(self, surface, keys):
         
-
         try:
+            # Emote Override (Mirrored for left?)
+            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+                self.emote_frame_index += 0.1
+                if self.emote_frame_index >= len(self.sprites['emote']):
+                    self.emote_frame_index = 0
+                # Flip for left facing? Or just use same? Meme usually one direction.
+                # Let's flip it for consistency.
+                frame = pg.transform.flip(self.sprites['emote'][int(self.emote_frame_index)], True, False)
+                
+                rect = frame.get_rect()
+                rect.bottom = self.rect.bottom
+                rect.centerx = self.rect.centerx
+                shifted_rect = self.camera.apply_rect(rect)
+                shifted_rect.y -= (self.visual_height - self.height) // 2 
+                shifted_rect.y += self.visual_y_offset 
+                surface.blit(frame, shifted_rect)
+                return
+
             frame = self.sprites['left'][0] 
             cleft = 0
             if keys[pg.K_LEFT]:

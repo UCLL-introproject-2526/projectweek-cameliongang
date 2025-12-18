@@ -12,8 +12,10 @@ from level import LEVEL_WIDTH, LEVEL_HEIGHT
 camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
+import asyncio
+
 # Main game loop function
-def main():
+async def main():
     # Initialization of Pygame and game variables
     pg.init()
     surface = create_main_surface()
@@ -48,7 +50,7 @@ def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     waiting = False
-        pg.time.wait(10) 
+        await asyncio.sleep(0) # IMPORTANT: Yield to browser
                     
 
     # No asyncio.sleep here for synchronous desktop version
@@ -434,6 +436,7 @@ def main():
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
+            await asyncio.sleep(0) # Yield to browser
 
 if __name__ == "__main__":
     main()
