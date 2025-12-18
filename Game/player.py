@@ -585,6 +585,10 @@ class Player:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
                          self.hanging = True
+                         # RESET HITBOX DIMENSIONS TO HORIZONTAL
+                         self.width = self.base_width
+                         self.height = self.base_height
+                         self.on_wall = False # Ensure we don't think we are on a wall
                      else:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
