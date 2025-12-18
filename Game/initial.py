@@ -22,7 +22,7 @@ def main():
     
     # Load Logo
     try:
-        logo_img = pg.image.load('./resources/game_logo.png').convert_alpha()
+        logo_img = pg.transform.scale(pg.image.load('./resources/game_logo.png').convert_alpha(),(500,500))
         logo_rect = logo_img.get_rect(center=(surface.get_width()//2, surface.get_height()//2 - 20)) # Slightly up to fit text below if needed
         surface.blit(logo_img, logo_rect)
     except:
