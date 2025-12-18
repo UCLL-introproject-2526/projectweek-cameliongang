@@ -122,7 +122,7 @@ def main():
                  pause_menu = False
                  levels_menu = True
              if command == 5: # Restart
-                 player.reset()
+                 player.reset(health_bar)
                  pause_menu = False
              
              for event in pg.event.get():
@@ -229,7 +229,7 @@ def main():
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            player.update_physics(dx, keys, dt_factor, enemy.rect)
+            player.update_physics(dx, keys, dt_factor, enemy.rect, health_bar)
                         # Check for level completion
             if player.level_complete:
                 current_level_idx += 1
@@ -244,11 +244,10 @@ def main():
 
 
 
-
-            # Check for death
-            if player.is_dead:
+            if health_bar.hp <= 0:
                 death_counter.count += 1
-                player.reset()
+                player.is_dead = True
+                player.reset(health_bar)
 
             # Update Camera
             player.camera.update(player)
