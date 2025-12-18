@@ -28,7 +28,9 @@ class Player:
         self.al_geraakt = False
         self.tongue_timer = 0   # counts down frames
         self.tongue_end = None
-
+        self.tijdelijkright_frame_index = 0
+        self.tijdelijkright_frame_timer = 0.0
+        self.tijdelijkright_frame_fps = 12
 
         # Momentum
         self.momentum_x = 0
@@ -77,7 +79,8 @@ class Player:
     def load_sprites(self):
 
         try:
-            self.sprites['right'] = pg.image.load('./resources/chameleon.png').convert_alpha()
+            
+            self.sprites['right'] = [pg.image.load(f'./resources/camiboywalkingright/frame_{i}.png').convert_alpha() for i in range(35)]
             self.sprites['left'] = pg.image.load('./resources/chameleon_left.png').convert_alpha()
             self.sprites['ceiling'] = pg.image.load('./resources/chameleon_ceiling.png').convert_alpha()
             self.sprites['ceiling_left'] = pg.image.load('./resources/chameleon_ceiling_left.png').convert_alpha()
@@ -476,19 +479,28 @@ class Player:
 
     
 
-    def render_chameleon(self, surface):
-        
+    def render_chameleon(self, surface, keys):
+        frame = self.sprites['right'][0] 
+        cright = 0
+        if keys[pg.K_RIGHT]:
+            cright = 0.1
+        if 'right' in self.sprites:
+            self.tijdelijkright_frame_index += cright
+            if self.tijdelijkright_frame_index >=len(self.sprites['right']):
+                self.tijdelijkright_frame_index = 0
+            frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
+            print(self.velocity_y)    
+                 
+                
 
-            if 'right' in self.sprites:
-                chameleon_img = self.sprites['right']
-                rect = chameleon_img.get_rect()
-                rect.centerx = self.rect.centerx
-                rect.top = self.rect.top
-                shifted_rect = self.camera.apply_rect(rect)
-                surface.blit(chameleon_img, shifted_rect)
-            else:
-                shifted_rect = self.camera.apply_rect(self.rect)
-                pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            rect = frame.get_rect()
+            rect.centerx = self.rect.centerx
+            rect.top = self.rect.top
+            shifted_rect = self.camera.apply_rect(rect)
+            surface.blit(frame, shifted_rect)
+        else:
+            shifted_rect = self.camera.apply_rect(self.rect)
+            pg.draw.rect(surface, (255, 0, 0), shifted_rect)
 
     def render_chameleon_left(self, surface):
         

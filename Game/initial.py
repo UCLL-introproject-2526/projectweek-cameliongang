@@ -297,7 +297,7 @@ def main():
 
             else:
                 if not player.hanging and player.facing_dir == 1 :
-                    player.render_chameleon(surface)
+                    player.render_chameleon(surface, keys)
             
 
                 elif not player.hanging and player.facing_dir == -1 :
