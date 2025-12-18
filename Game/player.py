@@ -581,18 +581,19 @@ class Player:
     
 
     def render_chameleon(self, surface, keys):
-        frame = self.sprites['right'][0] 
-        cright = 0
-        if keys[pg.K_RIGHT]:
-            cright = 0.1
-        if 'right' in self.sprites:
-            self.tijdelijkright_frame_index += cright
-            if self.tijdelijkright_frame_index >=len(self.sprites['right']):
-                self.tijdelijkright_frame_index = 0
-            frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
-                
-                 
-                
+        try:
+            frame = self.sprites['right'][0] 
+            cright = 0
+            if keys[pg.K_RIGHT]:
+                cright = 0.1
+            if 'right' in self.sprites:
+                self.tijdelijkright_frame_index += cright
+                if self.tijdelijkright_frame_index >=len(self.sprites['right']):
+                    self.tijdelijkright_frame_index = 0
+                frame = self.sprites['right'][int(self.tijdelijkright_frame_index)]
+                    
+                    
+                    
 
             rect = frame.get_rect()
             # Align image center-bottom with hitbox center-bottom (or slightly adjust)
@@ -617,6 +618,8 @@ class Player:
         else:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            
+
 
     def render_chameleon_left(self, surface):
         

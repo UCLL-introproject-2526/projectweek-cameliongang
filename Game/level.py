@@ -120,20 +120,55 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
-# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
 LEVEL_1 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
-    "X       S              S  E",
-    "X        P             X  E",
-    "X      XXXXX        S     X",
-    "X    X              XN    X",
-    "X    XX      XX     XXX   X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "X                 SSSSSS    X ",
+    "X                           XE",
+    "X P        Y   Y   YYYY     X ",
+    "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXX  X ",
+    "X     G       G     G       X ",
+    "X                           X ",
+    "X                           X ",
+    "X XXXXFFFFFXXXFFFFXXXXFFFFXXX ",
+    "X XXXXXXXXXXXXXXXXXXXXXXXXXXX ",
+    "X                      E    XE",
+    "X                        E  X ",
+    "X                     E     XE",
+    "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
+    "X  SSSSSSS            X  XXXX ",
+    "X N                   X  XXXX ",
+    "XXXX       S  FFFFFFF X  XXXX ",
+    "X       S  S  FSSSSSF X  XXXX ",
+    "X       S                XXXX ",
+    "X                        XXXX ",
+    "X         XXXXXX    S    XXXX ",
+    "X                   S    XXXX ",
+    "X                   S    XXXX ",
+    "X                   X    XXXX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+
 ]
+
+# HUIDIG LEVEL (COMMENTEER DIT UIT OM HET NIEUWE LEVEL TE SPELEN)
+# LEVEL_1 = [
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#     "X        SSSS SS          X",
+#     "X                  S      X",
+#     "X       S          S      X",
+#     "X       S          X   S  X",
+#     "X       S              S  E",
+#     "X        P             X  E",
+#     "X      XXXXX        S     X",
+#     "X    X              XN    X",
+#     "X    XX      XX     XXX   X",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
+# ]
 
 
 
@@ -161,7 +196,7 @@ LEVEL_2 = [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
 ]
 
-# LEVEL 4: ONDERSTEBOVEN (PLAFOND PARCOURS)
+
 LEVEL_3 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
