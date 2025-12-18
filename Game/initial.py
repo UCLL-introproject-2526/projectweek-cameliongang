@@ -299,7 +299,7 @@ def main():
                 if player.wall_side > 0:
                     
                     if player.wall_facing_down:
-                        player.render_chameleon_right_wall_down(surface)
+                        player.render_chameleon_right_wall_down(surface,keys)
                     else:
                         player.render_chameleon_right_wall(surface, keys)
                 
