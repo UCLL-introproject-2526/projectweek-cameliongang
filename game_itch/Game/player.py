@@ -2,8 +2,8 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
-import os
 from time import sleep
+import os
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -253,11 +253,7 @@ class Player:
     # Jump held: either UP arrow or W key
         self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
         
-        # Emote Trigger (6 + 7 together) - Supports Numpad too
-        input_6 = keys[pg.K_6] or keys[pg.K_KP6]
-        input_7 = keys[pg.K_7] or keys[pg.K_KP7]
-        
-        if input_6 and input_7 and self.on_ground:
+        if keys[pg.K_6] and keys[pg.K_7] and self.on_ground:
             if not self.emote_active:
                 if hasattr(self, 'emote_sound') and self.emote_sound:
                     self.emote_sound.play()

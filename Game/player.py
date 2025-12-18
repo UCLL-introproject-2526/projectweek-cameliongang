@@ -225,6 +225,19 @@ class Player:
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
 
+        # Cheat Code: P + L + M (Triple Grapple Range)
+        if keys[pg.K_p] and keys[pg.K_l] and keys[pg.K_m]:
+            if not getattr(self, 'cheat_toggle_held', False):
+                self.cheat_toggle_held = True
+                if self.max_grapple_dist == 500:
+                    self.max_grapple_dist = 1500
+                    print("CHEAT ACTIVATED: SUPER GRAPPLE (1500px)")
+                else:
+                    self.max_grapple_dist = 500
+                    print("CHEAT DEACTIVATED: NORMAL GRAPPLE (500px)")
+        else:
+            self.cheat_toggle_held = False
+
     
    
 

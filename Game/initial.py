@@ -102,22 +102,42 @@ def main():
     dt_factor = 1.0
     
     levels_page = 0 # Track current page in level selector
+    
+    # Input Cooldown to prevent button overlap click-through
+    menu_click_cooldown = 0
 
     while running:
+        
+        # Decrement cooldown
+        if menu_click_cooldown > 0:
+            menu_click_cooldown -= 1
+            
         dx = 0
         if main_menu:
              levels_page = 0 # Reset page when returning to main menu
              command = draw_mainmenu(surface, font)
-             if command == 'q':
-                 # Quit the game
-                 running = False
-             if command == 3:
-                 levels_menu = True
-                 main_menu =False
-             if command == 4:
-                main_menu = False
-                loading_menu = True
-                loading_timer = 0
+             
+             if menu_click_cooldown == 0:
+                if command == 'q':
+                    running = False
+                if command == 2: # Credits (not implemented?)
+                    pass
+                if command == 3: # Levels
+                    main_menu = False
+                    levels_menu = True
+                    levels_page = 0
+                    menu_click_cooldown = 15 # Wait 15 frames
+                if command == 4: # Start
+                    main_menu = False
+                    # Start Game (Level 1 / idx 0)
+                    current_level_idx = 0
+                    levels_menu = False 
+                    # Reset game?
+                    player.reset(health_bar)
+                    # Trigger load
+                    loading_menu = True
+                    loading_timer = 0
+                    menu_click_cooldown = 15
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -190,19 +210,25 @@ def main():
 
         elif pause_menu:
              command = draw_pause_menu(surface, font)
-             if command == 1: # Resume
-                 pause_menu = False
-             if command == 2: # Quit
-                 running = False
-             if command == 3: # Main Menu
-                 pause_menu = False
-                 main_menu = True
-             if command == 4: # Level Select
-                 pause_menu = False
-                 levels_menu = True
-             if command == 5: # Restart
-                 player.reset(health_bar)
-                 pause_menu = False
+             
+             if menu_click_cooldown == 0:
+                 if command == 1: # Resume
+                     pause_menu = False
+                     menu_click_cooldown = 15
+                 if command == 2: # Quit
+                     running = False
+                 if command == 3: # Main Menu
+                     pause_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
+                 if command == 4: # Level Select
+                     pause_menu = False
+                     levels_menu = True
+                     menu_click_cooldown = 15 # IMPORTANT: Prevent click-through
+                 if command == 5: # Restart
+                     player.reset(health_bar)
+                     pause_menu = False
+                     menu_click_cooldown = 15
              
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -212,17 +238,27 @@ def main():
              clock.tick(60)
              continue
         elif levels_menu:
-             command = draw_levels_menu(surface, font)
-             if command >= 10: # Level selected
-                 current_level_idx = command - 10
-                 # Start Loading immediately, defer logic to loading_menu loop
-                 levels_menu = False
-                 loading_menu = True
-                 loading_timer = 0
+             command = draw_levels_menu(surface, font, levels_page) # Pass page arg fix
              
-             elif command == 2: # Back
-                 levels_menu = False
-                 main_menu = True
+             if menu_click_cooldown == 0:
+                 if command >= 10: # Level selected
+                     current_level_idx = command - 10
+                     # Start Loading immediately, defer logic to loading_menu loop
+                     levels_menu = False
+                     loading_menu = True
+                     loading_timer = 0
+                     menu_click_cooldown = 15
+                 elif command == 8: # Prev Page
+                    if levels_page > 0:
+                        levels_page -= 1
+                        menu_click_cooldown = 10
+                 elif command == 9: # Next Page
+                    levels_page += 1
+                    menu_click_cooldown = 10
+                 elif command == 2: # Back
+                     levels_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
                  
              for event in pg.event.get():
                 if event.type == pg.QUIT:
