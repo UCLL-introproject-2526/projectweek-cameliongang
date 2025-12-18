@@ -4,8 +4,8 @@ from player import Player
 from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_death_menu, draw_loading_screen
-from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, game_background, play_music, create_main_surface
+from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
+from standard_use import SCREEN_WIDTH, SCREEN_HEIGHT, HealthBar, DeathCounter, game_background, play_music, create_main_surface
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 
@@ -22,14 +22,12 @@ def main():
     lvl = Level(current_level_idx)
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
-    # Initialize enemy at a safe spot, e.g., 800, 400 or somewhere valid
-    enemies = []
-    enemycount = 3 
-    spawn_interval= 180  # enkel in factoren van 60 veranderen.
-    enemy_spawn_timer = 0
-    y_enemy = random.randint(1,LEVEL_HEIGHT - 50)
-    enemy = Enemy(800, y_enemy) 
-    running = True
+    # Initialize enemies from level
+    enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+    
+    # Debug
+    show_hitboxes = False
+
     running = True
     levels_menu = False
     main_menu = True
@@ -37,8 +35,11 @@ def main():
     loading_timer = 0
     LOADING_DURATION = 120 # 2 seconds at 60 FPS
     death_menu = False
+    pause_menu = False
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
     health_bar = HealthBar(20, 20, 300, 40, 100)
+    death_counter = DeathCounter(font)
+    shoot=False
 
     #music playing
     play_music()
@@ -89,36 +90,35 @@ def main():
                  bg = game_background('background_img.jpg', width=level_module.LEVEL_WIDTH, height=level_module.LEVEL_HEIGHT)
                  
              progress = loading_timer / LOADING_DURATION
-             draw_loading_screen(surface, font, progress)
+             draw_loading_screen(surface, font, progress, current_level_idx)
              
              if loading_timer >= LOADING_DURATION:
                  loading_menu = False
                  # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                  player = Player(lvl, camera)
-                 # Reset enemies bij herstart (nieuw: lege lijst)
-                 enemies = []
-                 enemy_spawn_timer = 0  # Reset timer
+                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
              
              pg.display.flip()
              clock.tick(60)
              # Consume events to prevent queue buildup
              pg.event.pump()
              continue
-        elif death_menu:
-             command = draw_death_menu(surface, font)
-             if command == 1: # Restart
-                 death_menu = False
-                 loading_menu = True
-                 loading_timer = 0
+        elif pause_menu:
+             command = draw_pause_menu(surface, font)
+             if command == 1: # Resume
+                 pause_menu = False
              if command == 2: # Quit
                  running = False
              if command == 3: # Main Menu
-                 death_menu = False
+                 pause_menu = False
                  main_menu = True
              if command == 4: # Level Select
-                 death_menu = False
+                 pause_menu = False
                  levels_menu = True
+             if command == 5: # Restart
+                 player.reset(health_bar)
+                 pause_menu = False
              
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -150,25 +150,33 @@ def main():
         else:
             # Handling events
             
-            
-            enemy_spawn_timer += 1
-            if enemy_spawn_timer >= spawn_interval and len(enemies) < enemycount:
-                
-                y_enemy = random.randint(100, 500)
-                enemies.append(Enemy(LEVEL_WIDTH, y_enemy))  
-                enemy_spawn_timer = 0  
-            
+            # Enemy spawning from level (static) - No longer random spawning
+            # if enemy_spawn_timer checks removed
+
             
             for enemy in enemies:
                 enemy.update()
+                # Check collision with player
+                if player.rect.colliderect(enemy.rect):
+                    health_bar.hp -= enemy.damage
+                    print('10 damage')
+
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
 
                 elif event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        pause_menu = not pause_menu
+                    if event.key == pg.K_h:
+                        show_hitboxes = not show_hitboxes
+                    
                     if event.key in (pg.K_UP, pg.K_w):
                         player.request_jump()
+                    
+                    if event.key == pg.K_e:
+                        player.shoot_tongue()
 
                     elif event.key == pg.K_g:  # Grapple key pressed
                         target_tile = player.find_nearest_grapple_tile()
@@ -216,7 +224,9 @@ def main():
 
 
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
-            player.update_physics(dx, keys, dt_factor)
+            # Update Physics (now takes keys for wall behavior and jump-cut gating)
+            # Pass dummy rect for enemy collision (handled in loop above)
+            player.update_physics(dx, keys, dt_factor, pg.Rect(0,0,0,0), health_bar)
                         # Check for level completion
             if player.level_complete:
                 current_level_idx += 1
@@ -231,10 +241,9 @@ def main():
 
 
 
-
-            # Check for death
-            if player.is_dead:
-                death_menu = True
+            if health_bar.hp <= 0:
+                death_counter.count += 1
+                player.reset(health_bar)
 
             # Update Camera
             player.camera.update(player)
@@ -250,8 +259,14 @@ def main():
             surface.blit(bg, player.camera.apply_rect(bg_rect))
             
             
-            # Render
-            player.render_map(surface)  # Render tiles first
+            # Render Map
+            player.render_map(surface, show_hitboxes)
+            
+            
+
+
+            # Draw Spikes (already handled in render_map)
+            # player.level.render_spikes(surface, player.camera) # If this exists? No, it's inside render_map  # Render tiles first
             # Render alle enemies
             for enemy in enemies:
                 enemy.render(surface, camera)
@@ -292,11 +307,19 @@ def main():
                 player_screen_pos = player.camera.apply_rect(player.rect).center
                 target_screen_pos = player.camera.to_screen(player.grapple_target)
                 pg.draw.line(surface, (240, 29, 29), player_screen_pos, target_screen_pos, 5)
+            
+            #show tongue
+            player.update_tongue()
+            player.render_tongue(surface)
+           
+                
+
                 
                 
 
             #healthbar creation
             health_bar.draw(surface)
+            death_counter.draw(surface)
             # Delta time
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60

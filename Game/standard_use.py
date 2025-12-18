@@ -16,9 +16,15 @@ class HealthBar:
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
 
-    
+class DeathCounter:
+    def __init__(self, font):
+        self.font = font
+        self.count = 0
 
-
+    def draw(self, surface):
+        text = self.font.render(f"Deaths: {self.count}", True, (255, 255, 255))
+        rect = text.get_rect(topright=(1260, 20)) 
+        surface.blit(text, rect)
 
 # Function to create and return the main game surface (window)
 SCREEN_WIDTH = 1280
@@ -36,7 +42,6 @@ def play_music():
     except:
         pass
 
-#background
 #background
 def game_background(background_img, width=None, height=None, menu=False):
     # Determine target size
