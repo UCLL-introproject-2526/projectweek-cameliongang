@@ -2,6 +2,7 @@ import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
+from time import sleep
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -12,6 +13,8 @@ class Player:
         self.jump_cut = -4
         self.width = 50  # Approx player width
         self.height = 23  # Approx player height (reduced for hitbox)
+        self.base_width = 50
+        self.base_height = 23
         self.visual_height = 60 # Full visual height including tail
         self.on_ground = False
         self.on_wall = False
@@ -30,7 +33,9 @@ class Player:
         self.tongue_end = None
         self.tijdelijkright_frame_index = 0
         self.tijdelijkright_frame_timer = 0.0
-        self.tijdelijkright_frame_fps = 12
+        self.tijdelijkright_frame_fps = 12       
+        self.tongue_cooldown = False
+
 
         # Momentum
         self.momentum_x = 0
@@ -154,21 +159,45 @@ class Player:
    
 
     def shoot_tongue(self):
-        dx = 200 * self.facing_dir
-        self.tongue_end = (self.rect.center[0] + dx, self.rect.center[1])
-        self.tongue_timer = 15   # tongue stays visible for 15 frames
+        if not self.grappling and not self.tongue_cooldown and not self.on_wall:
+            self.tongue_timer = 15   # tongue stays visible for 15 frames
+            self.tongue_length = 150 # distance in front of player
 
     def update_tongue(self):
         if self.tongue_timer > 0:
             self.tongue_timer -= 1
 
     def render_tongue(self, surface):
-        if self.tongue_timer > 0 and self.tongue_end:
-            # Convert world positions to screen positions
+        if self.tongue_timer > 0:
+            # Player’s current screen position
             start_pos = self.camera.apply_rect(self.rect).center
-            end_pos = self.camera.to_screen(self.tongue_end)
+
+            # Offset start so it comes from the mouth
+            if self.facing_dir == 1:
+                start_pos = (start_pos[0] + 18, start_pos[1])
+                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+            else:
+                start_pos = (start_pos[0] - 18, start_pos[1])
+                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
 
             pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
+
+    def get_tongue_hitbox(self):
+        if self.tongue_timer > 0:
+            start_x, start_y = self.rect.center
+            if self.facing_dir == 1:
+                start_x += 18
+                end_x = start_x + self.tongue_length
+            else:
+                start_x -= 18
+                end_x = start_x - self.tongue_length
+
+            width = abs(end_x - start_x)
+            height = 5  # same as line thickness
+            return pg.Rect(min(start_x, end_x), start_y - height//2, width, height)
+        return None
+            
+            
         
 
 
@@ -256,8 +285,22 @@ class Player:
     
     def grapple_to(self, pos):
     # Set target and start grappling
+        try:
+            sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
+            sound.play()
+        except:
+            pass
         self.grapple_target = pos
         self.grappling = True
+        
+        # Reset any wall/hanging state immediately
+        self.on_wall = False
+        self.hanging = False
+        self.wall_side = 0
+        
+        # Reset hitbox to standard horizontal shape
+        self.width = self.base_width
+        self.height = self.base_height
 
     def try_grapple(self, target_tile):
         dx = target_tile.rect.centerx - self.rect.centerx
@@ -301,14 +344,25 @@ class Player:
         # Validate existing wall stick (Persistent Player)
             if self.on_wall:
                 # Check for pull-off (Moving away from wall)
-                # Only pull off if we ARE NOT trying to jump (buffered jump preserves wall Player for the kick)
                 if ((dx < 0 and self.wall_side == 1) or (dx > 0 and self.wall_side == -1)) and self.jump_buffer == 0:
                     self.on_wall = False
                     self.wall_side = 0
+                    # Revert to horizontal - Expand width
+                    self.width = self.base_width
+                    self.height = self.base_height
+                    # Shift position if pulling off right wall to avoid clipping back into it?
+                    # xcoor is left-aligned. 
+                    # Right (side 1): we were at x. width=23. Right edge = x+23 = tile.left.
+                    # Now width=50. Right edge = x+50 = tile.left + 27. Overlap!
+                    # If pulling Left (dx<0), we need to shift x left by (50-23)=27.
+                    if dx < 0: # Pulling Left
+                         self.xcoor -= (self.base_width - self.base_height)
+
                 else:
                     # Check for physical connection (Sensor)
+                    # use current dimensions (vertical)
                     sensor_x = self.xcoor + self.width if self.wall_side == 1 else self.xcoor - 2
-                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) # slightly smaller to avoid corner issues
+                    sensor = pg.Rect(sensor_x, self.ycoor + 5, 2, self.height - 10) 
                     touching = False
                     for tile in self.tiles:
                         if getattr(tile, 'type', 'X') == 'S' and tile.rect.colliderect(sensor):
@@ -317,6 +371,17 @@ class Player:
                     if not touching:
                         self.on_wall = False
                         self.wall_side = 0
+                        # Revert dimensions
+                        self.width = self.base_width
+                        self.height = self.base_height
+                        # Falling off right wall? Shift left?
+                        # If we just slide down or fall off, maybe we don't need shift if gravity takes over?
+                        # But if we were right-aligned...
+                        # Let's assume falling off handles itself via physics, but shape change risks re-collision.
+                        # Ideally check wall_side before reset.
+                        # If we were on Right Wall, shift left.
+                        if sensor_x > self.xcoor + 10: # Rough check if we were testing right side
+                             self.xcoor -= (self.base_width - self.base_height)
 
         self.on_ground = False
         # Do not rely on side collision to set on_wall every frame if we want persistence,
@@ -374,6 +439,13 @@ class Player:
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
+                    
+                    # Switch to Vertical Hitbox if not already
+                    if self.width == self.base_width:
+                        self.width = self.base_height
+                        self.height = self.base_width
+                        # Position adjustment handled below by collision correction
+
 
                 if total_dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
@@ -454,6 +526,11 @@ class Player:
                 if t_type == 'N':
                     self.level_complete = True  
                 elif dy > 0: # Falling / Moving Down
+                    # Reset hitbox to horizontal if needed
+                    if self.width != self.base_width:
+                        self.width = self.base_width
+                        self.height = self.base_height
+                    
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
                     self.on_ground = True

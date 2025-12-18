@@ -38,6 +38,7 @@ def create_main_surface():
 def play_music():
     try:
         pg.mixer.music.load('.\\resources\\themesong.mp3')
+        pg.mixer.music.set_volume(0.3)
         pg.mixer.music.play(-1)
     except:
         pass
