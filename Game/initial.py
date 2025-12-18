@@ -337,7 +337,6 @@ def main():
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
 
-pg.quit()
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()
+    pg.quit()
