@@ -82,8 +82,9 @@
                 </summary>
                 <div class="p-6 pt-0 border-t border-gray-700 mt-2">
                     <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                        <li><strong>Nieuwe Collision Logic:</strong> Het dood-check systeem checkt nu op een lijst van gevaren: `['D', 'Y', 'F', 'C', 'L', 'R']`.</li>
-                        <li><strong>Reset Functionaliteit:</strong> `reset()` methode zet de speler terug zonder laadtijd.</li>
+                        <li><strong>Anti-Clip Fix:</strong> Wanneer de speler van de muur loskomt, checken we `wall_side`. Als je op een rechtermuur zat, schuiven we je pixel-perfect naar links om te voorkomen dat je <em>in</em> de muur "groeit".</li>
+                        <li><strong>Robuste Animatie Detectie:</strong> De sprite-keuze (links/rechts kijken) kijkt nu naar de relatieve positie (`centerx`) t.o.v. de muurblokken, in plaats van snelheid. Dit voorkomt visuele glitches bij stilstand.</li>
+                        <li><strong>Ceiling Hitbox Reset:</strong> Fix voor het "plakken" aan het plafond met een verkeerde hitbox-vorm.</li>
                     </ul>
                 </div>
             </details>
@@ -96,16 +97,9 @@
                 </summary>
                 <div class="p-6 pt-0 border-t border-gray-700 mt-2">
                     <ul class="list-disc pl-5 space-y-2 text-gray-300">
-                        <li><strong>Hitbox Visualisatie:</strong> Als `show_hitboxes` aan staat, tekent deze file een rode rechthoek om `tile.rect`.</li>
-                        <li><strong>Nieuwe Spike Types:</strong>
-                            <ul class="pl-4 list-[circle] text-gray-400 text-sm mt-1">
-                                <li><strong>F (Full):</strong> Volledig blok stekels.</li>
-                                <li><strong>C (Ceiling):</strong> Stekels aan het plafond (top 1/4 hitbox).</li>
-                                <li><strong>L (Left):</strong> Stekels links op de muur.</li>
-                                <li><strong>R (Right):</strong> Stekels rechts op de muur.</li>
-                            </ul>
-                        </li>
-                        <li><strong>Fallback Rendering:</strong> Als de plaatjes (`spike_full.png` etc.) ontbreken, tekent het gekleurde vlakken.</li>
+                        <li><strong>Global Optimization (`IMAGE_CACHE`):</strong> Plaatjes worden nu maar 1x ingeladen en opgeslagen in memory. Dit maakt het spel veel sneller, vooral met veel spikes.</li>
+                        <li><strong>Fair Play (`SPIKE_PADDING`):</strong> Een globale variabele bovenin het bestand (nu op 10-15px) maakt hitboxes kleiner dan de plaatjes. Dit zorgt ervoor dat het spel "eerlijk" voelt en voorkomt frustrerende doden.</li>
+                        <li><strong>Visuele Correctie:</strong> De `render()` functie is losgekoppeld van de hitbox. De spikes tekenen altijd in het midden, zelfs als de hitbox verschoven is.</li>
                     </ul>
                 </div>
             </details>
@@ -129,8 +123,12 @@
                     <span class="text-xs text-gray-400">Speler resetten na dood.</span>
                 </div>
                  <div class="p-3 bg-gray-800 border-l-4 border-yellow-500">
-                    <span class="block font-bold">Level Builder</span>
-                    <span class="text-xs text-gray-400">HTML tool om levels te genereren.</span>
+                    <span class="block font-bold">Pygbag (Web)</span>
+                    <span class="text-xs text-gray-400">Tool om Python/Pygame naar HTML5/WASM te converteren.</span>
+                </div>
+                <div class="p-3 bg-gray-800 border-l-4 border-purple-500">
+                    <span class="block font-bold">Async/Await</span>
+                    <span class="text-xs text-gray-400">Nodig voor de web-loop om de browser niet te crashen.</span>
                 </div>
             </div>
         </section>
