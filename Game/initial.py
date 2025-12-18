@@ -320,12 +320,13 @@ def main():
             tongue_hitbox= player.get_tongue_hitbox()
 
             if lvl.has_enemy:
+                print("faka enemy")
                 if tongue_hitbox:
-                for enemy in enemies:
-                    if tongue_hitbox.colliderect(enemy.rect):
-                            print("tongue HIT")
-                            enemy.kill_enemy()
-                            health_bar.hp += 10
+                    for enemy in enemies:
+                        if tongue_hitbox.colliderect(enemy.rect):
+                                print("tongue HIT")
+                                enemy.kill_enemy()
+                                health_bar.hp += 10
         
             #healthbar creation
             health_bar.draw(surface)
