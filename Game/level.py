@@ -28,13 +28,13 @@ class Tile(pygame.sprite.Sprite):
                 loaded_img=pygame.image.load('./resources/end_gate.png').convert_alpha()
 
             elif type == 'F':
-                loaded_img = pygame.image.load('./resources/spike_full.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spikes_full.png').convert_alpha()
             elif type == 'C':
-                loaded_img = pygame.image.load('./resources/spike_ceiling.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spikes_ceiling.png').convert_alpha()
             elif type == 'L':
-                loaded_img = pygame.image.load('./resources/spike_left.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spikes_left.png').convert_alpha()
             elif type == 'R':
-                loaded_img = pygame.image.load('./resources/spike_right.png').convert_alpha()
+                loaded_img = pygame.image.load('./resources/spikes_right.png').convert_alpha()
 
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
