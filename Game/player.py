@@ -11,8 +11,8 @@ class Player:
         self.gravity = 0.675
         self.jump_strength = -15
         self.jump_cut = -4
-        self.width = 50  # Approx player width
-        self.height = 23  # Approx player height (reduced for hitbox)
+        self.width = 55  # Approx player width
+        self.height = 40  # Approx player height (reduced for hitbox)
         self.base_width = 50
         self.base_height = 23
         self.visual_height = 50 
