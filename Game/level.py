@@ -398,7 +398,7 @@ LEVEL_8 =  [
     "X           XX     X     X",
     "XX          XX     X     X",
     "X X    YGY  XX     X     X",
-    "X  X   Y    XX     X     X",
+    "X  X   C    XX     X     X",
     "X   X       XX     X     X",
     "X    XXX    SX     X     X",
     "X           XX     X     X",
