@@ -315,15 +315,21 @@ class Player:
         if self.tongue_timer > 0:
             # Player’s current screen position
             start_pos = self.camera.apply_rect(self.rect).center
-
-            # Offset start so it comes from the mouth
-            if self.facing_dir == 1:
-                start_pos = (start_pos[0] + 18, start_pos[1])
-                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+            if self.hanging == False:
+                # Offset start so it comes from the mouth
+                if self.facing_dir == 1:
+                    start_pos = (start_pos[0] + 28, start_pos[1]-9)
+                    end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+                else:
+                    start_pos = (start_pos[0] - 28, start_pos[1]-9)
+                    end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
             else:
-                start_pos = (start_pos[0] - 18, start_pos[1])
-                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
-
+                if self.facing_dir == 1:
+                    start_pos = (start_pos[0] + 34, start_pos[1]+10)
+                    end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+                else:
+                    start_pos = (start_pos[0] - 30, start_pos[1]+10)
+                    end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
             pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
 
     def get_tongue_hitbox(self):
