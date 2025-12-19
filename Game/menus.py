@@ -2,16 +2,62 @@ import pygame as pg
 from standard_use import game_background
 
 class Button:
+    # Static assets (loaded once)
+    img_normal = None
+    img_pressed = None
+    
     def __init__(self, txt , pos):
         self.text = txt
         self.pos = pos
-        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50))
+        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50)) # Hitbox
+    
+    def ensure_assets(self):
+         # Only try loading if display is initialized (needed for convert_alpha)
+         if not pg.display.get_init() or not pg.display.get_surface():
+             return
+
+         if Button.img_normal is None:
+            try:
+                # Load and Scale
+                # Use absolute path relative to CWD if needed, but './resources' usually fine
+                raw_norm = pg.image.load('./resources/button_normal.png').convert_alpha()
+                raw_press = pg.image.load('./resources/button_pressed.png').convert_alpha()
+                Button.img_normal = pg.transform.scale(raw_norm, (260, 50))
+                Button.img_pressed = pg.transform.scale(raw_press, (260, 50))
+            except Exception as e:
+                # If loading fails (e.g. file missing), set a flag to stop retrying every frame?
+                # Or just pass. Printing every frame causes lag.
+                pass
 
     def draw(self, surface, font):
-        pg.draw.rect(surface, 'light gray', self.button, 0, 5)
-        pg.draw.rect(surface, 'dark gray', self.button, 5, 5)
+        self.ensure_assets()
+        
+        # Determine state
+        is_hovered = self.button.collidepoint(pg.mouse.get_pos())
+        is_pressed = is_hovered and pg.mouse.get_pressed()[0]
+        
+        if Button.img_normal and Button.img_pressed:
+            if is_pressed:
+                surface.blit(Button.img_pressed, self.button)
+                # Offset text when pressed for juicy feel
+                text_offset_y = 10 
+            else:
+                surface.blit(Button.img_normal, self.button)
+                text_offset_y = 7
+        else:
+            # Fallback
+            color = 'dark gray' if is_pressed else 'light gray'
+            pg.draw.rect(surface, color, self.button, 0, 5)
+            pg.draw.rect(surface, 'black', self.button, 3, 5)
+            text_offset_y = 7
+
         text = font.render(self.text, True, 'black')
-        surface.blit(text, (self.pos[0] + 15, self.pos[1] + 7))
+        # Center text?
+        text_rect = text.get_rect(center=self.button.center)
+        # Apply slight y offset for visual alignment
+        text_rect.y += 2 if is_pressed else 0
+        
+        surface.blit(text, text_rect)
     
     def check_clicked(self):
         if self.button.collidepoint(pg.mouse.get_pos()) and pg.mouse.get_pressed()[0]:
@@ -73,8 +119,7 @@ def draw_levels_menu(surface, font, page=0):
     command = 0
     
     # Draw title
-    title = font.render(f'Select Level - Page {page+1}', True, 'black')
-    surface.blit(title, (500, 100))
+    
 
     # Pagination Logic
     ITEMS_PER_PAGE = 8
@@ -168,23 +213,86 @@ def draw_pause_menu(surface, font):
     return command
 
 def draw_loading_screen(surface, font, progress, level_idx=0):
-    # Reuse main menu background or black
+    # Background
     surface.fill((0, 0, 0))
+    try:
+        # Use mainmenu background or special loading background
+        bg = game_background('mainmenu_background.png', menu=True)
+        surface.blit(bg, (0,0))
+    except:
+        pass
+    
+    # Overlay for text readability?
+    overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
+    overlay.fill((0, 0, 0, 150))
+    surface.blit(overlay, (0,0))
     
     # Text
     text = font.render(f"Loading Level {level_idx + 1}...", True, (255, 255, 255))
     text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
     surface.blit(text, text_rect)
     
-    # Bar Container
-    bar_width = 400
-    bar_height = 30
-    bar_x = (surface.get_width() - bar_width) // 2
-    bar_y = surface.get_height() // 2 + 20
-    
-    # Draw container
-    pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
-    
-    # Draw progress
-    fill_width = int(bar_width * progress)
-    pg.draw.rect(surface, 'green', (bar_x, bar_y, fill_width, bar_height))
+    # Load Loading Assets (Cached locally to func or global? Func is fine for now but slow if init every frame)
+    # Better to cache, but for quick implementation:
+    if not hasattr(draw_loading_screen, "assets_loaded"):
+        draw_loading_screen.assets_loaded = False
+        draw_loading_screen.bg = None
+        draw_loading_screen.fill = None
+        draw_loading_screen.failed = False
+
+    if not draw_loading_screen.assets_loaded and not draw_loading_screen.failed:
+        try:
+             # Check display init first just in case
+             if pg.display.get_init():
+                 draw_loading_screen.bg = pg.image.load('./resources/loading_frame.png').convert_alpha()
+                 draw_loading_screen.fill = pg.image.load('./resources/loading_fill.png').convert_alpha()
+                 
+                 # Scale frame to 400x40. 
+                 # Generated asset might be any size.
+                 draw_loading_screen.bg = pg.transform.scale(draw_loading_screen.bg, (400, 40))
+                 draw_loading_screen.assets_loaded = True
+        except Exception as e:
+            draw_loading_screen.failed = True
+            # print(f"Loading assets failed: {e}") 
+
+    if draw_loading_screen.assets_loaded and draw_loading_screen.bg and draw_loading_screen.fill:
+        # Bar Geometry
+        bar_width = 400
+        bar_height = 30 # Inner height? Frame is 40.
+        bar_x = (surface.get_width() - bar_width) // 2
+        bar_y = surface.get_height() // 2 + 20
+        
+        # 0. Draw Trough (Background of the bar - Dark Gray/Black) -> Behind everything
+        # Frame is 400x40. Bar is inside.
+        # Let's assume frame is centered at bar_y + 15.
+        # Draw explicit black box behind
+        pg.draw.rect(surface, (20, 20, 20), (bar_x, bar_y + 5, bar_width, 20)) # Inner trough
+        
+        # 1. Draw Progress (Clipped fill)
+        # Fill width logic
+        fill_max_width = bar_width - 10 # Padding
+        fill_width = int(fill_max_width * progress)
+        
+        if fill_width > 0:
+            # Scale fill texture to current width
+            current_fill = pg.transform.scale(draw_loading_screen.fill, (fill_width, 20))
+            surface.blit(current_fill, (bar_x + 5, bar_y + 5))
+            
+        # 2. Draw Frame ON TOP
+        frame_rect = draw_loading_screen.bg.get_rect(center=(surface.get_width()//2, bar_y + 15))
+        surface.blit(draw_loading_screen.bg, frame_rect)
+        
+    else:
+        # Fallback (Geometric)
+        bar_width = 400
+        bar_height = 30
+        bar_x = (surface.get_width() - bar_width) // 2
+        bar_y = surface.get_height() // 2 + 20
+        
+        # Draw Trough
+        pg.draw.rect(surface, (30, 30, 30), (bar_x, bar_y, bar_width, bar_height))
+        # Draw Progress
+        fill_width = int(bar_width * progress)
+        pg.draw.rect(surface, 'green', (bar_x, bar_y, fill_width, bar_height))
+        # Draw Border
+        pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
