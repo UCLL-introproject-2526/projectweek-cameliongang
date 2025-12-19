@@ -3,6 +3,7 @@ from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
 from time import sleep
+import os
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -45,7 +46,7 @@ class Player:
         self.hanging = False # New Player for ceiling stick
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
-        self.grapple_speed=12.5
+        self.grapple_speed=12
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
@@ -56,7 +57,13 @@ class Player:
         self.tijdelijkright_frame_index = 0
         self.tijdelijkright_frame_timer = 0.0
         self.tijdelijkright_frame_fps = 12       
+        self.tijdelijkright_frame_fps = 12       
         self.tongue_cooldown = False
+        
+        # Emote State
+        self.emote_active = False
+        self.emote_frame_index = 0.0
+        self.emote_fps = 10
 
 
         # Momentum
@@ -167,6 +174,30 @@ class Player:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
         
+        # Load Emote (New 'hmm' JPGs and Sound)
+        try:
+            self.sprites['emote'] = []
+            for i in range(4):
+                path = f'./resources/emote_frame_{i}.jpg'
+                img = pg.image.load(path).convert() # JPGs don't have alpha usually
+                scaled = pg.transform.scale(img, (self.visual_width, self.visual_height))
+                self.sprites['emote'].append(scaled)
+            
+            # Load Sound
+            try:
+                # Pygame prefers OGG or WAV. AAC is not supported.
+                # Trying OGG first (best for web), then WAV
+                if os.path.exists('./resources/scream.ogg'):
+                    self.emote_sound = pg.mixer.Sound('./resources/scream.ogg')
+                else:
+                    self.emote_sound = pg.mixer.Sound('./resources/scream.wav')
+            except Exception as e:
+                print(f"Error loading emote sound (need .ogg or .wav): {e}")
+                self.emote_sound = None
+                
+        except Exception as e:
+            print(f"Error loading emote frames: {e}")
+        
         # Load bush (static for now, but good to cache if used often)
         try:
              self.bush_img = pg.image.load('./resources/bush.png').convert()
@@ -220,23 +251,20 @@ class Player:
     # Track held key Player per frame
     def update_input_Player(self, keys):
     # Jump held: either UP arrow or W key
-        self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+        
+        if keys[pg.K_6] and keys[pg.K_7] and self.on_ground:
+            if not self.emote_active:
+                if hasattr(self, 'emote_sound') and self.emote_sound:
+                    self.emote_sound.play()
+            self.emote_active = True
+            
+        # Cancel emote on movement
+        if keys[pg.K_LEFT] or keys[pg.K_RIGHT] or keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]:
+            self.emote_active = False
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
-
-        # Cheat Code: P + L + M (Triple Grapple Range)
-        if keys[pg.K_p] and keys[pg.K_l] and keys[pg.K_m]:
-            if not getattr(self, 'cheat_toggle_held', False):
-                self.cheat_toggle_held = True
-                if self.max_grapple_dist == 500:
-                    self.max_grapple_dist = 1500
-                    print("CHEAT ACTIVATED: SUPER GRAPPLE (1500px)")
-                else:
-                    self.max_grapple_dist = 500
-                    print("CHEAT DEACTIVATED: NORMAL GRAPPLE (500px)")
-        else:
-            self.cheat_toggle_held = False
 
     
    
@@ -320,10 +348,10 @@ class Player:
                 nearest_tile = tile
 
         return nearest_tile
-    def grappling_hook(self, dt):               # Move player toward grapple target
-        if self.grappling and self.grapple_target:          
-            dx = self.grapple_target[0] - self.rect.centerx     # Vector to target
-            dy = self.grapple_target[1] - self.rect.centery     # Vector to target
+    def grappling_hook(self, dt):
+        if self.grappling and self.grapple_target:
+            dx = self.grapple_target[0] - self.rect.centerx
+            dy = self.grapple_target[1] - self.rect.centery
             dist = math.hypot(dx, dy)
 
             step = self.grapple_speed * dt
@@ -369,8 +397,9 @@ class Player:
     def grapple_to(self, pos):
     # Set target and start grappling
         try:
-            sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
-            sound.play()
+            # sound =pg.mixer.Sound('./resources/yoshi_sound.mp3')
+            # sound.play()
+            pass
         except:
             pass
         self.grapple_target = pos
@@ -513,24 +542,13 @@ class Player:
                     
                 if t_type == 'S':
                     self.on_wall = True
-                    # Robust wall side detection: Compare player center to tile center
-                    # If player is to the LEFT of tile, wall is on RIGHT (side 1).
-                    if self.rect.centerx < tile.rect.centerx:
-                        self.wall_side = 1
-                    else:
-                        self.wall_side = -1
-                        
+                    self.wall_side = 1 if total_dx > 0 else -1
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
                     
                     # Switch to Vertical Hitbox if not already
                     if self.width == self.base_width:
-                        # Grow upwards to avoid clipping into floor
-                        # Old Bottom = y + old_h. New Bottom = new_y + new_h.
-                        # we want Old Bottom == New Bottom => new_y = y + old_h - new_h
-                        self.ycoor += (self.height - self.base_width)
-                        
                         self.width = self.base_height
                         self.height = self.base_width
                         # Position adjustment handled below by collision correction
@@ -609,10 +627,6 @@ class Player:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
                          self.hanging = True
-                         # RESET HITBOX DIMENSIONS TO HORIZONTAL
-                         self.width = self.base_width
-                         self.height = self.base_height
-                         self.on_wall = False # Ensure we don't think we are on a wall
                      else:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
@@ -622,14 +636,8 @@ class Player:
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
-                        # If we were on the RIGHT WALL (side 1), expanding width (left-to-right) will clip us into the wall.
-                        # We must shift X to the left to maintain our relative position.
-                        if self.wall_side == 1:
-                            self.xcoor -= (self.base_width - self.base_height)
-                        
                         self.width = self.base_width
                         self.height = self.base_height
-                        self.wall_side = 0 # Clear wall side so we don't double shift or act weird
                     
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
@@ -658,6 +666,23 @@ class Player:
 
     def render_chameleon(self, surface, keys):
         try:
+            # Emote Override
+            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+                self.emote_frame_index += 0.1 # Animation speed (slower)
+                if self.emote_frame_index >= len(self.sprites['emote']):
+                    self.emote_frame_index = 0
+                frame = self.sprites['emote'][int(self.emote_frame_index)]
+                
+                # Render using standard rect logic
+                rect = frame.get_rect()
+                rect.bottom = self.rect.bottom
+                rect.centerx = self.rect.centerx
+                shifted_rect = self.camera.apply_rect(rect)
+                shifted_rect.y -= (self.visual_height - self.height) // 2 
+                shifted_rect.y += self.visual_y_offset 
+                surface.blit(frame, shifted_rect)
+                return
+
             frame = self.sprites['right'][0] 
             cright = 0
             if keys[pg.K_RIGHT]:
@@ -685,11 +710,30 @@ class Player:
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            
+
 
     def render_chameleon_left(self, surface, keys):
         
-
         try:
+            # Emote Override (Mirrored for left?)
+            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+                self.emote_frame_index += 0.1
+                if self.emote_frame_index >= len(self.sprites['emote']):
+                    self.emote_frame_index = 0
+                # Flip for left facing? Or just use same? Meme usually one direction.
+                # Let's flip it for consistency.
+                frame = pg.transform.flip(self.sprites['emote'][int(self.emote_frame_index)], True, False)
+                
+                rect = frame.get_rect()
+                rect.bottom = self.rect.bottom
+                rect.centerx = self.rect.centerx
+                shifted_rect = self.camera.apply_rect(rect)
+                shifted_rect.y -= (self.visual_height - self.height) // 2 
+                shifted_rect.y += self.visual_y_offset 
+                surface.blit(frame, shifted_rect)
+                return
+
             frame = self.sprites['left'][0] 
             cleft = 0
             if keys[pg.K_LEFT]:
@@ -790,7 +834,6 @@ class Player:
 
             
             surface.blit(frame, shifted_rect)
-
     def render_chameleon_left_wall_down(self, surface, keys):
             frame = self.sprites['left_wall_down'][0] 
             cdown = 0
@@ -839,6 +882,7 @@ class Player:
             
             surface.blit(frame, shifted_rect)
         
+
     def render_chameleon_right_wall_down(self, surface, keys):
             frame = self.sprites['right_wall_down'][0] 
             cdown = 0
