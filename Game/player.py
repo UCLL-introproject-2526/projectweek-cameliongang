@@ -292,7 +292,7 @@ class Player:
                 self.emote_active = False
 
     # Jump held: either UP arrow or W key
-        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE] or keys[pg.K_z]
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
@@ -633,10 +633,10 @@ class Player:
         
         if self.on_wall:
             # Wall Climb
-            if keys[pg.K_UP] or keys[pg.K_w]:
+            if keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_z]:
                 dy = -5 * dt
                 self.wall_facing_down = False
-            elif keys[pg.K_DOWN] or keys[pg.K_s]:
+            elif keys[pg.K_DOWN] or keys[pg.K_s] or keys[pg.K_s]:
                 dy = 5 * dt
                 self.wall_facing_down = True
         elif self.hanging:
