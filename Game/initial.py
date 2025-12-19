@@ -318,7 +318,7 @@ def main():
                         print(f"Player Pos: {player.rect.topleft}, Level: {current_level_idx}")
                         player.print_current_loc()
                     
-                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE):
+                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE, pg.K_z):
                         player.request_jump()
                     
                     if event.key == pg.K_e:
@@ -359,7 +359,7 @@ def main():
             player.update_input_Player(keys)
 
             # Horizontal input and facing
-            if keys[pg.K_LEFT] or keys[pg.K_a]:
+            if keys[pg.K_LEFT] or keys[pg.K_a] or keys[pg.K_q]:
                 dx = -5
                 player.facing_dir = -1    # <-- keep Player's facing up to date
             elif keys[pg.K_RIGHT] or keys[pg.K_d]:
