@@ -189,19 +189,24 @@ def main():
 
         elif levels_menu:
             command = draw_levels_menu(surface, font, levels_page)
-            if command == 2:
-                levels_menu = False
-                main_menu = True
-            elif command == 8: # Prev Page
-                if levels_page > 0:
-                    levels_page -= 1
-            elif command == 9: # Next Page
-                levels_page += 1
-            elif command > 10:
-                current_level_idx = command - 10
-                levels_menu = False
-                loading_menu = True # Go to loading!
-                loading_timer = 0
+            if menu_click_cooldown == 0:
+                if command == 2:
+                    levels_menu = False
+                    main_menu = True
+                    menu_click_cooldown = 15
+                elif command == 8: # Prev Page
+                    if levels_page > 0:
+                        levels_page -= 1
+                        menu_click_cooldown = 10
+                elif command == 9: # Next Page
+                    levels_page += 1
+                    menu_click_cooldown = 10
+                elif command > 10:
+                    current_level_idx = command - 10
+                    levels_menu = False
+                    loading_menu = True # Go to loading!
+                    loading_timer = 0
+                    menu_click_cooldown = 15
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
