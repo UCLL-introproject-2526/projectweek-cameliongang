@@ -4,20 +4,59 @@ lvl=Level
 
 #health bar creation
 class HealthBar:
+    img_frame = None
+    img_heart = None
+    
     def __init__(self, x, y ,w, h, max_hp):
         self.x = x
+        # Shift bar slightly to make room for heart on left?
+        # Or assumes x,y is topleft of bar.
         self.y = y
         self.w = w
         self.h = h
         self.hp = max_hp
         self.max_hp = max_hp
+        
+        # Load Assets lazy
+        if HealthBar.img_frame is None:
+            try:
+               # Try load
+               raw_frame = pg.image.load('./resources/health_bar_frame.png').convert_alpha()
+               # Frame should probably stretch to w + padding.
+               # Let's say frame adds 10px padding all around.
+               # Scale frame to (w + 20, h + 20)
+               HealthBar.img_frame = pg.transform.scale(raw_frame, (w + 20, h + 20))
+               
+               raw_heart = pg.image.load('./resources/heart_icon.png').convert_alpha()
+               # Scale heart to match height (h*2?)
+               HealthBar.img_heart = pg.transform.scale(raw_heart, (h * 2, h * 2))
+            except Exception:
+               pass
 
 
     def draw(self, surface):
         if self.hp > self.max_hp:
             self.hp = self.max_hp
-        ratio = self.hp / self.max_hp
+        
+        # Ensure HP doesn't drop below 0 for visual
+        draw_hp = max(0, self.hp)
+            
+        ratio = draw_hp / self.max_hp
+        
+        # Draw Heart (Left of bar) - Draw first or last? Top is nice.
+        if HealthBar.img_heart:
+            surface.blit(HealthBar.img_heart, (self.x - 50, self.y - 10))
+            
+        # Draw Frame First (Background)
+        if HealthBar.img_frame:
+            # Centered over rect. rect is at x,y. size w,h.
+            # Frame is w+20, h+20.
+            # So frame at x-10, y-10.
+            surface.blit(HealthBar.img_frame, (self.x - 10, self.y - 10))
+            
+        # Draw Back Red (On top of frame)
         pg.draw.rect(surface, "red", (self.x, self.y, self.w, self.h))
+        # Draw Front Green (On top of red)
         pg.draw.rect(surface, "green", (self.x, self.y, self.w * ratio, self.h))
 
 class DeathCounter:
