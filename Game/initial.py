@@ -1,6 +1,4 @@
-import pygame as pg
-import random
-import time
+q
 from player import Player
 from camera import Camera
 import level as level_module
