@@ -115,3 +115,26 @@ if __name__ == "__main__":
             sample = max(-32767, min(32767, sample))
             data.append(sample)
         f.writeframes(struct.pack('h'*len(data), *data))
+
+    # Emote Sound: Scream/Hmm (Sawtooth/Noise mix)
+    duration = 0.5
+    n_samples = int(44100 * duration)
+    with wave.open("resources/scream.wav", 'w') as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(44100)
+        data = []
+        for i in range(n_samples):
+            t = i / 44100
+            # Sawtooth usually sounds like a harsh buzz/scream
+            freq = 400 - (100 * t) # Drop pitch
+            val = (2 * (t * freq - math.floor(t * freq + 0.5))) 
+            
+            # Mix with noise
+            val = val * 0.7 + random.uniform(-0.3, 0.3)
+            
+            envelope = 1.0 - t
+            sample = int(val * 0.4 * 32767 * envelope)
+            sample = max(-32767, min(32767, sample))
+            data.append(sample)
+        f.writeframes(struct.pack('h'*len(data), *data))
