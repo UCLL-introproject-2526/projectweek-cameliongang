@@ -2,16 +2,89 @@ import pygame as pg
 from standard_use import game_background
 
 class Button:
+    # Static assets (loaded once)
+    img_normal = None
+    img_pressed = None
+    
     def __init__(self, txt , pos):
         self.text = txt
         self.pos = pos
-        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50))
+        self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50)) # Hitbox
+    
+    clicked_state = False # Track previous frame state
+
+    def ensure_assets(self):
+         # Only try loading if display is initialized (needed for convert_alpha)
+         if not pg.display.get_init() or not pg.display.get_surface():
+             return
+
+         if Button.img_normal is None:
+            try:
+                # Load and Scale
+                # Use absolute path relative to CWD if needed, but './resources' usually fine
+                raw_norm = pg.image.load('./resources/button_normal.png').convert_alpha()
+                raw_press = pg.image.load('./resources/button_pressed.png').convert_alpha()
+                Button.img_normal = pg.transform.scale(raw_norm, (260, 50))
+                Button.img_pressed = pg.transform.scale(raw_press, (260, 50))
+            except Exception as e:
+                # If loading fails (e.g. file missing), set a flag to stop retrying every frame?
+                # Or just pass. Printing every frame causes lag.
+                pass
+         
+         # Load Sound
+         if not hasattr(Button, "snd_click"):
+             try:
+                 Button.snd_click = pg.mixer.Sound('./resources/button_click.wav')
+                 Button.snd_click.set_volume(0.4)
+             except:
+                 Button.snd_click = None
 
     def draw(self, surface, font):
-        pg.draw.rect(surface, 'light gray', self.button, 0, 5)
-        pg.draw.rect(surface, 'dark gray', self.button, 5, 5)
+        self.ensure_assets()
+        
+        # Determine state
+        is_hovered = self.button.collidepoint(pg.mouse.get_pos())
+        is_pressed = is_hovered and pg.mouse.get_pressed()[0]
+        
+        # Sound Logic (Rising Edge)
+        if is_pressed and not self.clicked_state:
+            # Just pressed
+            print(f"DEBUG: Button '{self.text}' clicked.")
+            if hasattr(Button, "snd_click") and Button.snd_click:
+                Button.snd_click.play()
+            else:
+                print("DEBUG: Button sound missing or not loaded.")
+            self.clicked_state = True
+        elif not is_pressed:
+            self.clicked_state = False
+        
+        if Button.img_normal and Button.img_pressed:
+            if is_pressed:
+                surface.blit(Button.img_pressed, self.button)
+                # Offset text when pressed for juicy feel
+                text_offset_y = 10 
+            else:
+                surface.blit(Button.img_normal, self.button)
+                text_offset_y = 7
+        else:
+            # Fallback
+            color = 'dark gray' if is_pressed else 'light gray'
+            pg.draw.rect(surface, color, self.button, 0, 5)
+            pg.draw.rect(surface, 'black', self.button, 3, 5)
+            text_offset_y = 7
+
         text = font.render(self.text, True, 'black')
-        surface.blit(text, (self.pos[0] + 15, self.pos[1] + 7))
+        # Center text?
+        text_rect = text.get_rect(center=self.button.center)
+        # Apply slight y offset for visual alignment
+        # User requested to move ALL text up.
+        # Default center might be too low.
+        # Let's shift up by 3 pixels from previous.
+        text_rect.y -= 5
+        
+        text_rect.y += 2 if is_pressed else 0
+        
+        surface.blit(text, text_rect)
     
     def check_clicked(self):
         if self.button.collidepoint(pg.mouse.get_pos()) and pg.mouse.get_pressed()[0]:
@@ -23,6 +96,7 @@ class Button:
 #Maken van het menu
 start_button = Button('Start Game', (500, 400))
 levels_button = Button('Choose Level', (500, 500))
+settings_button = Button('Settings', (800, 400)) # New Button
 credits_button = Button('Credits', (200, 500))
 exit_button = Button('Quit Game', (800, 500))
 def draw_mainmenu(surface, font):
@@ -32,6 +106,7 @@ def draw_mainmenu(surface, font):
     command = 0
     start_button.draw(surface, font)
     levels_button.draw(surface, font)
+    settings_button.draw(surface, font)
     credits_button.draw(surface, font)
     exit_button.draw(surface, font)
     if exit_button.check_clicked():
@@ -42,6 +117,8 @@ def draw_mainmenu(surface, font):
         command = 3
     if start_button.check_clicked():
         command = 4
+    if settings_button.check_clicked():
+        command = 5 # Settings
     return command
 
 
@@ -73,8 +150,7 @@ def draw_levels_menu(surface, font, page=0):
     command = 0
     
     # Draw title
-    title = font.render(f'Select Level - Page {page+1}', True, 'black')
-    surface.blit(title, (500, 100))
+    
 
     # Pagination Logic
     ITEMS_PER_PAGE = 8
@@ -134,7 +210,40 @@ main_menu_pause_button = Button('Main Menu', (250, 600))
 level_select_pause_button = Button('Choose Level', (550, 600))
 quit_pause_button = Button('Quit Game', (850, 600))
 
-def draw_pause_menu(surface, font):
+
+
+back_settings_button = Button('Back', (500, 600))
+
+def draw_settings_menu(surface, font, mute_button):
+    surface.fill((0, 0, 0))
+    # Reuse background
+    try:
+        bg = game_background('mainmenu_background.png', menu=True)
+        surface.blit(bg, (0, 0))
+    except:
+        pass
+        
+    # Draw Mute Button - Center it?
+    original_rect = mute_button.rect.copy()
+    mute_button.rect.topleft = (620, 300) # Center-ish
+    mute_button.draw(surface)
+    
+    # Add label
+    lbl = font.render("Mute Music", True, "white")
+    surface.blit(lbl, (620 - 20, 260))
+
+    back_settings_button.draw(surface, font)
+    
+    command = 0
+    if back_settings_button.check_clicked():
+        command = 2 # Back
+        
+    # Restore rect
+    mute_button.rect = original_rect
+    
+    return command
+
+def draw_pause_menu(surface, font, mute_button):
     surface.fill((0, 0, 0))
     # Reuse gameover background or change if desired, keeping as requested
     background = game_background('gameover_background.png', menu=True)
@@ -144,8 +253,6 @@ def draw_pause_menu(surface, font):
     overlay.fill((0, 0, 0, 100))
     surface.blit(overlay, (0,0))
     
-    # Title "PAUSED" could be added here if font available, but buttons suffice
-    
     command = 0
     
     resume_button.draw(surface, font)
@@ -153,6 +260,9 @@ def draw_pause_menu(surface, font):
     level_select_pause_button.draw(surface, font)
     main_menu_pause_button.draw(surface, font)
     quit_pause_button.draw(surface, font)
+    
+    # Draw Mute Button
+    mute_button.draw(surface)
     
     if resume_button.check_clicked():
         command = 1 # Resume
@@ -168,23 +278,41 @@ def draw_pause_menu(surface, font):
     return command
 
 def draw_loading_screen(surface, font, progress, level_idx=0):
-    # Reuse main menu background or black
+    # Background
     surface.fill((0, 0, 0))
+    try:
+        # Use NEW dedicated loading background
+        bg = game_background('loading_background.png', menu=True)
+        surface.blit(bg, (0,0))
+    except:
+        # Fallback to main menu if missing
+        try:
+             bg = game_background('mainmenu_background.png', menu=True)
+             surface.blit(bg, (0,0))
+        except:
+             pass
+    
+    # Overlay for text readability - Slightly darker
+    overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
+    overlay.fill((0, 0, 0, 100))
+    surface.blit(overlay, (0,0))
     
     # Text
     text = font.render(f"Loading Level {level_idx + 1}...", True, (255, 255, 255))
-    text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
+    text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 55)) # Shifted up 5px (50 -> 55)
     surface.blit(text, text_rect)
     
-    # Bar Container
+    # Bar Geometry
     bar_width = 400
     bar_height = 30
     bar_x = (surface.get_width() - bar_width) // 2
     bar_y = surface.get_height() // 2 + 20
     
-    # Draw container
-    pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
-    
-    # Draw progress
+    # Draw Geometric Bar (Reverted per user request)
+    # Trough (Background)
+    pg.draw.rect(surface, (30, 30, 30), (bar_x, bar_y, bar_width, bar_height))
+    # Fill
     fill_width = int(bar_width * progress)
-    pg.draw.rect(surface, 'green', (bar_x, bar_y, fill_width, bar_height))
+    pg.draw.rect(surface, (0, 200, 0), (bar_x, bar_y, fill_width, bar_height))
+    # Border
+    pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)

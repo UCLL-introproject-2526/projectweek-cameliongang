@@ -115,7 +115,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_height = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], TILE_SIZE, spike_height)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], TILE_SIZE, spike_height)
                  
             elif type == 'L':
                  # Left Spike: Yellow left strip
@@ -125,7 +125,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_width = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], spike_width, TILE_SIZE)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], spike_width, TILE_SIZE)
 
             elif type == 'R':
                  # Right Spike: Purple right strip
@@ -135,30 +135,49 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_width = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1], spike_width, TILE_SIZE)
+                 self.rect = pygame.Rect(self.pos[0] + (TILE_SIZE - spike_width), self.pos[1], spike_width, TILE_SIZE)
 
             else:
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
+# LEVEL_0 = [
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "X              S              ",
+#     "X              S         G    ",
+#     "X              S              ",
+#     "X              S         XXXX ",
+#     "X              S         CCCC ",
+#     "X          Y   XL  F          ",
+#     "XXXXXXX  XXXXXXXXXXXXXXXX     ",
+#     "                              ",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+# ]
+
 LEVEL_1 =  [
-    #toturial-level
+    #tutorial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
-    "X                           XE",
+    "X                           X",
     "X P        Y   Y   YYYY     X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXX   SXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXSSXXGXXXXXXXXXXXXX  X ",
+    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXXXXXXXXGXXXXXXXXXXXXX  X ",
     "X                   G       X ",
     "X                           X ",
     "X                           X ",
     "X XXXXXXXXXFFFFFXXXXXXFFFFXXX ",
     "X XXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "X                      E    XE",
-    "X                        E  X ",
-    "X                     E     XE",
+    "X                        E  XE",
+    "X                         E  X ",
+    "X                           XE",
     "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
     "XSSSSSSSSSSSSSSSSSXXXXX  XXXX ",
     "X N                XXXX  XXXX ",
@@ -175,19 +194,6 @@ LEVEL_1 =  [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_2 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "X        SSSS SS          X",
-    "X                  S      X",
-    "X       S          S      X",
-    "X       S          X   S  X",
-    "X       S              S  E",
-    "X        P             X  E",
-    "X      XXXXX        S     X",
-    "X    X              XN    X",
-    "X    XX      XX     XXX   X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDD"
-]
 
 
 
@@ -216,73 +222,111 @@ LEVEL_2 = [
 # ]
 
 
-LEVEL_3 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX ",
-    "S                          S             SX ",
-    "S  P                       S             SX ",
-    "S                          S             SX ",
-    "S XXXSS      SSSSSSSS      S             SX ",
-    "S    XS      S      S      S             SX ",
-    "S     S      S      S      S             SX ",
-    "S    XX      X      X      X             XX ",
-    "S     SSSSSSSS      SSSSSSSS           SSSX ",
-    "S                          C           S  N ",
-    "S      G          G          G            XE",
-    "S           S            S            S   X ",
-    "X           X           RXL     Y  F  X   X ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD ",
+LEVEL_2 = [
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX     G  XNNNNNNNNNN",
+    "NNNNNNNNNNX  N     SNNNNNNNNNN",
+    "NNNNNNNNNNX XXXX   XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        SNNNNNNNNNN",
+    "NNNNNNNNNNX P      FNNNNNNNNNN",
+    "NNNNNNNNNNXXXXXXXXXXNNNNNNNNNN",
+    "NNNNNNNNNNDDDDDDDDDDNNNNNNNNNN",
 ]
-#LEVEL 4 | advanced grapling
-LEVEL_4 = [
 
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXGXXXXXXXXXX",
-    "X           G          G              G    X",
+
+LEVEL_3 = [
+   
+    "                                         SX ",
+    "    N               G     G              SX ",
+    "   XXX                                   SX ",
+    "        XXX                      YY  YY  SX ",
+    "             X                   XXXXXX  SX ",
+    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
+    "X            SSSS SS                     SX ",
+    "X       G              S              S   X ",
+    "X           S          S    XX  XXXX  S   X ",
+    "S           S          S              S   X ",
+    "S  XXX      S                             X ",
+    "S                    G         YY        YX ",
+    "S          XXXXX        S   S XXXX Y  Y XXXE",
+    "X  P     X              S   S      XXXX   XE",
+    "X XXX    XX   XXXXX   X S                 X ",
+    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
+]
+
+#  "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXXXXXXXXXX       ",
+#     "X                CXXX                     XE   E  ",
+#     "X                 CXX                     X E     ",
+#     "X P                CS                     X      E",
+#     "XXXX  Y  YYY    YY  S       XXXXXXXXXXX   X       ",
+#     "XXXXYYXXXXXXYYYXXX  S       XXXXXGXXXXX   X       ",
+#     "XXXXXXXGXXXXXXXX    S       XS            X       ",
+#     "S                   S    YYYXS            X       ",
+#     "S                   SY  XXXXXS         XXXX       ",
+#     "S   XXY             SX     XXS            X       ",
+#     "S   CCFY         F  SXXL  YXX             X       ",
+#     "S     CFYY      FFFYXXC   XXX  XXX        X       ",
+#     "S Y    CXXXXXXXXXXXXXC  YXXXX             X       ",
+#     "SYFY                    XXXXX             X    E  ",
+#     "SFFF                  YXXXXXX             X   E   ",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
+# ]
+
+
+#LEVEL 4 | advanced grapling
+LEVEL_4 =  [
+   
+    "XXXXXXXXGXXXXGXXXXGXXXXGXXXXGXXXXGXXXXXXXXXX",
+    "X                                     G    X",
     "X P                                        X",
     "X                                          X",
-    "XXXXXXS     XXXXXS     XXXXXX              X",
-    "X     S     X    S     X    X              X",
-    "X     S     X    S     X    X         XXX  X",
-    "X     S     X    S     X    XYYYYYYYYYX X  X",
-    "X     S     X    S     X    XXXXXXXXXXX X  X",
-    "X     S     X    S     X                X  X",
-    "X     S     X    S     X                X  X",
+    "XXXXX       XXXX       XX                  X",
+    "X  XXYYYYYYYX  XYYYYYYYXX                  X",
+    "X  XXXXXXXXXX  XXXXXXXXXX             XXX  X",
+    "X                      XXYYYYYYYYYYYYYX X  X",
+    "X                      XXXXXXXXXXXXXXXX X  X",
+    "X                      X                X  X",
+    "X                      X                X  X",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X",
     "X   G       G       G      G      G        X",
     "X                                          X",
     "X                                          X",
     "X N                                        X",
-    "XXXXX    XX     XXX      XX     XXX     XXXX",
-    "XXXXXDDDDXXDDDDDXXXDDDDDDXXDDDDDXXXDDDDDXXXX",
+    "XXXXX                                   XXXX",
+    "XXXXXDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDXXXX",
 ]
+
 
 
 
 
 LEVEL_5 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    "XSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX",
-    "XS                                        SX",
-    "XS           GGGGGGGG    YYY              SX",
-    "XS   SSSS        SSSSSS     SSSSSS        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S        S    S     S    S        SX",
-    "XS   S  S  P     S    S     S    S        SX",
-    "XS   S  XXXXXXXXXS    xxxxxxx    S        SX",
-    "XS   S           S     Y         S        SX",
-    "XS   S           S               S        SX",
-    "XS   SSSSSSSSSSSSS               SSSSSS   SX",
-    "XS                                        SX",
-    "XS        SSSSSS           SSSSSS         SX",
-    "XS             S           S              SX",
-    "XSSSSSSSS      S           S      SSSSSSSSGX",
-    "X       S      S           S      S    G   X",
-    "X       S      S           S             N X",
-    "X       XXXXXXXX           XXXXXXXX        X",
-    "X                                          X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+    "XXSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSXXXXXX",
+    "XX                             E E EE XEEXXX",
+    "XX           YYYYYYYYYYYYYYY    E  E EXEXEXX",
+    "XXXXXXXXX    XXXXXXXXXXXXXXXXXXXXX    XXXXXX",
+    "XX      S    XXXXXXXXXXXG             XXXXXX",
+    "XS   G  S    XXXXXXG                XXXXXXXX",
+    "XS      X  P XXG               XXXXXXXX   XX",
+    "XS      XXXXXXX       x xxxxx XX          XX",
+    "XS      SSSSSSS        YYYYYYXX           XX",
+    "XS                   YYXXXXXXX    XXXXX   XX",
+    "XS  YYY  YYYYY  YYYYYXXXXXG      XXC      XX",
+    "XS  XXXXXXXXXXXXXXXXXXXX        XXG      YXX",
+    "XS  XXXXXXXX      G   G     XXXXXC      YXXX",
+    "XS  CCCCCCCC             YYXXC        YYXXXX",
+    "XS            X          XXXC     XXXXXXXXGX",
+    "XX   Y  Y  Y XX         XXXX   XXXX    G   X",
+    "XXXXXXXXXXXXXXX        XXXXXY            N X",
+    "XXXXXXXXXXXXXXX        XXXXXXY             X",
+    "XXXXXXXXXXXXXXX        XXXXXXXXXXXXX       X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
 
@@ -292,13 +336,13 @@ LEVEL_6  = [
     "X     XXXXXYYXXXYYYYYYYX     X",
     "X                            X",
     "XXXX                    G    X",
-    "XXXX       YY                X",
+    "XXXS       YY                X",
     "XXXS  XXXXXXXXXXYYYYYYYXXXX  X",
     "XXXX  SXXXXXXXXXXXXXXXXXXXX  X",
     "XXXX  SXXXYYGYYYYYYYYGYYYYY  X",
     "XXXS  XXXX                   X",
     "XXXS  XXXX                   X",
-    "XXXX  XXXX   YYYYYY  YYYYY   X",
+    "XXXX  SXXX   YYYYYY  YYYYY   X",
     "XXXX  SXXX XXXXXXXXXXXXXXXXXXX",
     "XP    XXXX                  NX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -334,7 +378,7 @@ LEVEL_7 = [
     "X           X   X      X      X      S X",
     "X      G    XXXXX      XXXXXXXX      S X",
     "X                      G     G     G   S",
-    "XP                                     S",
+    "XP                                     X",
     "XXXX             YYYYYYYXYYYYYXYYYYYXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
@@ -388,7 +432,7 @@ LEVEL_8 =  [
     "X           XX     X     X",
     "XX          XX     X     X",
     "X X    YGY  XX     X     X",
-    "X  X   Y    XX     X     X",
+    "X  X   C    XX     X     X",
     "X   X       XX     X     X",
     "X    XXX    SX     X     X",
     "X           XX     X     X",
@@ -411,20 +455,28 @@ LEVEL_8 =  [
     "DDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_9 = [
-    "X         ",
-    "X         ",
-    "X     G   ",
-    "X  N     S",
-    "X XXXX   X",
-    "X        X",
-    "X        X",
-    "X        S",
-    "X P      F",
-    "XXXXXXXXXX",
-    "DDDDDDDDDD",
-]
 
+LEVEL_9 = [
+    
+
+    "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXGXXXXGXXX       ",
+    "X                CXXX                     XE   E  ",
+    "X                 CXX                     X E     ",
+    "X P                CS                     X      E",
+    "XXXX  Y  YYY    YY  S          YYYY       X       ",
+    "XXXXYYXXXXXXYYYXXX  S       YXXXXXXXXXX   X       ",
+    "XXXXXXXGXXXXXXXXC   S       XXXXXGXXXXX   X       ",
+    "S                   S    YYYXXXC          X       ",
+    "S                   SY  XXXXXXC           X       ",
+    "S   XXY             SX     XXC         XXXX       ",
+    "S    CFY         F  SXXL  YXX             X       ",
+    "S     CFYY      FFFYXXC   XXX   N         X       ",
+    "S Y    CXXXXXXXXXXXXXC  YXXXXYYXXXYYYYYYYYX       ",
+    "SYFY                    XXXXXXXXXXXXXXXXXXX    E  ",
+    "SFFF                  YXXXXXXXXXXXXXXXXXXXX   E   ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
+]
 LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8, LEVEL_9]
 
 # Default width/height based on first level (or dynamic per level load)
@@ -504,7 +556,9 @@ class Level:
         pixel_y = tile_y * TILE_SIZE
         print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
     
-    find_pixel_loc(11,23)
+    find_pixel_loc(2,1)
+
+    
 
 
     

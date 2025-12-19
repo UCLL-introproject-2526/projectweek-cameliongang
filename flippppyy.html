@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk File Renamer & Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .drop-active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        /* Custom scrollbar for the table */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 shadow-sm p-4 z-10">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg">
+                    <i class="fa-solid fa-file-signature text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Bulk Renamer & Editor</h1>
+                    <p class="text-xs text-gray-500">Remove leading zeros, Rotate & Mirror</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="clearAll()" class="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded transition">
+                    <i class="fa-solid fa-trash mr-1"></i> Clear
+                </button>
+                <label for="fileInput" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition flex items-center gap-2 text-sm font-medium">
+                    <i class="fa-solid fa-folder-open"></i> Select Files
+                </label>
+                <input type="file" id="fileInput" multiple class="hidden" onchange="handleFiles(this.files)">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-hidden flex flex-col md:flex-row max-w-6xl mx-auto w-full p-4 gap-4">
+        
+        <!-- Sidebar / Controls -->
+        <aside class="w-full md:w-80 flex flex-col gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200 h-fit md:h-full overflow-y-auto">
+            
+            <!-- Pattern Settings -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Renaming Logic</h3>
+                
+                <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="mode" value="removeZeros" checked onchange="updatePreviews()" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-blue-900">Remove Leading Zeros</span>
+                    </label>
+                    <p class="text-xs text-blue-600 mt-1 ml-5">
+                        <span class="font-mono bg-blue-100 px-1 rounded">FRAME_001</span> &rarr; <span class="font-mono bg-blue-100 px-1 rounded">FRAME_1</span>
+                    </p>
+                </div>
+
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="mode" value="custom" onchange="updatePreviews()" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Custom Replace</span>
+                    </label>
+                    <div class="mt-2 ml-5 space-y-2">
+                        <input type="text" id="findInput" placeholder="Find (Regex supported)" class="w-full text-xs p-2 border rounded font-mono" oninput="document.querySelector('input[value=custom]').checked=true; updatePreviews()">
+                        <input type="text" id="replaceInput" placeholder="Replace with..." class="w-full text-xs p-2 border rounded font-mono" oninput="document.querySelector('input[value=custom]').checked=true; updatePreviews()">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- Image Transforms -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                    Image Tools 
+                    <span class="text-[10px] font-normal normal-case text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100" title="These changes only apply to the Zip download, not the script">Zip Only</span>
+                </h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="rotateSelect" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                        <option value="0">No Rotate</option>
+                        <option value="90">90° CW</option>
+                        <option value="180">180°</option>
+                        <option value="270">90° CCW</option>
+                    </select>
+                    <div class="flex items-center pl-3 border border-gray-200 rounded-lg bg-gray-50">
+                        <input id="mirrorCheck" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="mirrorCheck" class="w-full py-2 ml-2 text-xs font-medium text-gray-700">Mirror H</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <!-- Actions -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Export</h3>
+
+                <button onclick="downloadScript('bat')" class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition flex items-center justify-between group">
+                    <div>
+                        <div class="text-sm font-bold text-gray-800">Windows Script (.bat)</div>
+                        <div class="text-xs text-gray-500">Renames files only</div>
+                    </div>
+                    <i class="fa-brands fa-windows text-gray-400 group-hover:text-blue-500 text-lg"></i>
+                </button>
+
+                <button onclick="downloadScript('sh')" class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition flex items-center justify-between group">
+                    <div>
+                        <div class="text-sm font-bold text-gray-800">Mac/Linux Script (.sh)</div>
+                        <div class="text-xs text-gray-500">Renames files only</div>
+                    </div>
+                    <i class="fa-brands fa-apple text-gray-400 group-hover:text-gray-800 text-lg"></i>
+                </button>
+                
+                <button onclick="downloadZip()" id="zipButton" class="w-full text-left px-4 py-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition flex items-center justify-between group mt-2">
+                    <div>
+                        <div class="text-sm font-bold text-indigo-900">Download Zip</div>
+                        <div class="text-xs text-indigo-600">Renames + Rotates + Mirrors</div>
+                    </div>
+                    <i class="fa-solid fa-file-zipper text-indigo-400 group-hover:text-indigo-600 text-lg"></i>
+                </button>
+                <div id="zipProgress" class="hidden w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div class="bg-indigo-600 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                    <div id="zipStatusText" class="text-[10px] text-center text-gray-400 mt-1">Processing...</div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="mt-auto pt-4 text-xs text-gray-400 text-center">
+                <span id="fileCount">0</span> files loaded
+            </div>
+        </aside>
+
+        <!-- Main Preview Area -->
+        <section class="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden relative">
+            
+            <!-- Table Header -->
+            <div class="grid grid-cols-2 gap-4 p-3 bg-gray-50 border-b border-gray-200 font-semibold text-xs text-gray-500 uppercase tracking-wider">
+                <div>Original Name</div>
+                <div>New Name Preview</div>
+            </div>
+
+            <!-- Empty State / Dropzone -->
+            <div id="dropzone" class="absolute inset-0 top-10 flex flex-col items-center justify-center bg-white z-10 transition-colors">
+                <div class="p-6 rounded-full bg-blue-50 text-blue-500 mb-4">
+                    <i class="fa-solid fa-cloud-arrow-up text-4xl"></i>
+                </div>
+                <h2 class="text-lg font-bold text-gray-700">Drag & Drop Files Here</h2>
+                <p class="text-gray-400 text-sm mt-2">or click "Select Files" above</p>
+            </div>
+
+            <!-- File List -->
+            <div id="fileListContainer" class="overflow-y-auto flex-1 custom-scrollbar hidden">
+                <ul id="fileList" class="divide-y divide-gray-100">
+                    <!-- Items injected by JS -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- JS Logic -->
+    <script>
+        let files = [];
+        let renamedFiles = []; // Stores objects { original: File, newName: string }
+
+        const dropzone = document.getElementById('dropzone');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+
+        // --- Drag and Drop Events ---
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('drop-active'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.remove('drop-active'), false);
+        });
+
+        dropzone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const newFiles = dt.files;
+            handleFiles(newFiles);
+        }
+
+        function handleFiles(fileListInput) {
+            if (fileListInput.length > 0) {
+                dropzone.classList.add('hidden');
+                fileListContainer.classList.remove('hidden');
+            }
+            
+            // Add to main array
+            files = [...files, ...Array.from(fileListInput)];
+            updatePreviews();
+        }
+
+        function clearAll() {
+            files = [];
+            renamedFiles = [];
+            fileList.innerHTML = '';
+            dropzone.classList.remove('hidden');
+            fileListContainer.classList.add('hidden');
+            fileCount.textContent = '0';
+            document.getElementById('fileInput').value = ''; // Reset input
+        }
+
+        // --- Core Renaming Logic ---
+        function updatePreviews() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            renamedFiles = [];
+            fileList.innerHTML = '';
+
+            files.forEach((file, index) => {
+                const originalName = file.name;
+                let newName = originalName;
+
+                if (mode === 'removeZeros') {
+                    // Logic: Find patterns like _001 or .001 or just 001 if start of string
+                    newName = originalName.replace(/(\D|^)0+(\d)/g, '$1$2');
+                } else if (mode === 'custom') {
+                    const findStr = document.getElementById('findInput').value;
+                    const replaceStr = document.getElementById('replaceInput').value;
+                    if (findStr) {
+                        try {
+                            const regex = new RegExp(findStr, 'g');
+                            newName = originalName.replace(regex, replaceStr);
+                        } catch (e) {
+                            // Invalid regex, ignore
+                        }
+                    }
+                }
+
+                renamedFiles.push({ original: file, newName: newName });
+
+                // Render Item
+                const li = document.createElement('li');
+                li.className = "grid grid-cols-2 gap-4 p-3 text-sm hover:bg-gray-50 transition-colors items-center";
+                
+                // Highlight changes
+                const isChanged = originalName !== newName;
+                const newNameClass = isChanged ? "text-blue-600 font-semibold" : "text-gray-500";
+                
+                li.innerHTML = `
+                    <div class="truncate text-gray-600" title="${originalName}">${originalName}</div>
+                    <div class="truncate ${newNameClass} flex items-center" title="${newName}">
+                        ${newName}
+                    </div>
+                `;
+                fileList.appendChild(li);
+            });
+
+            fileCount.textContent = files.length;
+        }
+
+        // --- Image Processing Helper ---
+        function processImage(file, rotate, mirror) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(file);
+                
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Determine new dimensions
+                    // If rotated 90 or 270, width and height swap
+                    if (rotate === 90 || rotate === 270) {
+                        canvas.width = img.height;
+                        canvas.height = img.width;
+                    } else {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                    }
+
+                    // Move context to center for rotation
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    
+                    // Rotate
+                    ctx.rotate(rotate * Math.PI / 180);
+                    
+                    // Mirror (Scale) - If mirroring, flip horizontally
+                    // Note: Mirroring usually happens before rotation in many tools, 
+                    // but here we do it in local space. If we want standard "Flip Horizontal",
+                    // we scale X by -1.
+                    if (mirror) {
+                        ctx.scale(-1, 1);
+                    }
+
+                    // Draw image centered at origin
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2);
+                    
+                    canvas.toBlob((blob) => {
+                        URL.revokeObjectURL(url);
+                        resolve(blob);
+                    }, file.type);
+                };
+                
+                img.onerror = (e) => {
+                    URL.revokeObjectURL(url);
+                    // Fallback: return original file if image fails to load
+                    resolve(file); 
+                };
+                
+                img.src = url;
+            });
+        }
+
+        // --- Export Functions ---
+
+        function downloadScript(type) {
+            if (renamedFiles.length === 0) return alert("No files selected.");
+            
+            // Check if rotation/mirror is active and warn user
+            const rotateDeg = parseInt(document.getElementById('rotateSelect').value);
+            const doMirror = document.getElementById('mirrorCheck').checked;
+            
+            if (rotateDeg !== 0 || doMirror) {
+                if(!confirm("Warning: Script files can ONLY rename files. They cannot rotate or mirror images. To apply rotation/mirroring, you must use the 'Download Zip' option.\n\nDo you want to download the script for renaming anyway?")) {
+                    return;
+                }
+            }
+
+            let content = "";
+            let mimeType = "text/plain";
+            let fileName = "rename_files";
+
+            if (type === 'bat') {
+                content = "@echo off\r\n";
+                content += "echo Renaming files...\r\n";
+                renamedFiles.forEach(f => {
+                    if (f.original.name !== f.newName) {
+                        content += `ren "${f.original.name}" "${f.newName}"\r\n`;
+                    }
+                });
+                content += "echo Done.\r\npause";
+                fileName += ".bat";
+            } else {
+                content = "#!/bin/bash\n";
+                renamedFiles.forEach(f => {
+                    if (f.original.name !== f.newName) {
+                        content += `mv "${f.original.name}" "${f.newName}"\n`;
+                    }
+                });
+                fileName += ".sh";
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            saveAs(blob, fileName);
+        }
+
+        async function downloadZip() {
+            if (renamedFiles.length === 0) return alert("No files selected.");
+            
+            const zipButton = document.getElementById('zipButton');
+            const progress = document.getElementById('zipProgress');
+            const progressBar = progress.querySelector('div');
+            const statusText = document.getElementById('zipStatusText');
+            
+            // Get Transform settings
+            const rotateDeg = parseInt(document.getElementById('rotateSelect').value);
+            const doMirror = document.getElementById('mirrorCheck').checked;
+            const needsTransform = (rotateDeg !== 0 || doMirror);
+
+            zipButton.disabled = true;
+            zipButton.classList.add('opacity-75');
+            progress.classList.remove('hidden');
+            
+            try {
+                const zip = new JSZip();
+                
+                // Process files
+                for (let i = 0; i < renamedFiles.length; i++) {
+                    const f = renamedFiles[i];
+                    
+                    // Update Status text
+                    statusText.textContent = `Processing ${i + 1} of ${renamedFiles.length}...`;
+                    progressBar.style.width = `${(i / renamedFiles.length) * 50}%`; // First 50% is processing
+                    
+                    // Allow UI to update
+                    await new Promise(r => setTimeout(r, 0));
+
+                    if (needsTransform && f.original.type.startsWith('image/')) {
+                        try {
+                            const transformedBlob = await processImage(f.original, rotateDeg, doMirror);
+                            zip.file(f.newName, transformedBlob);
+                        } catch (e) {
+                            console.error("Failed to process image", f.original.name, e);
+                            zip.file(f.newName, f.original); // Fallback to original
+                        }
+                    } else {
+                        // Just Text or no transform needed
+                        zip.file(f.newName, f.original);
+                    }
+                }
+
+                statusText.textContent = "Compressing...";
+                
+                // Generate Zip
+                const content = await zip.generateAsync({ type: "blob" }, (metadata) => {
+                    // Last 50% is compressing
+                    progressBar.style.width = `${50 + (metadata.percent / 2)}%`;
+                });
+
+                saveAs(content, "processed_files.zip");
+
+            } catch (err) {
+                console.error(err);
+                alert("Error processing files. Please check console.");
+            } finally {
+                zipButton.disabled = false;
+                zipButton.classList.remove('opacity-75');
+                setTimeout(() => {
+                    progress.classList.add('hidden');
+                    progressBar.style.width = "0%";
+                    statusText.textContent = "Processing...";
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

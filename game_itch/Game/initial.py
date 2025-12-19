@@ -1,18 +1,17 @@
 import pygame as pg
 import random
 import time
+import asyncio
 from player import Player
 from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
-from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface
+from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_settings_menu
+from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface, MuteButton
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
-
-import asyncio
 
 # Main game loop function
 async def main():
@@ -50,7 +49,7 @@ async def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     waiting = False
-        await asyncio.sleep(0) # IMPORTANT: Yield to browser
+        await asyncio.sleep(0) 
                     
 
     # No asyncio.sleep here for synchronous desktop version
@@ -69,6 +68,7 @@ async def main():
 
     running = True
     levels_menu = False
+    settings_menu = False
     main_menu = True
     loading_menu = False
     loading_timer = 0
@@ -79,14 +79,18 @@ async def main():
     
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
+    mute_button = MuteButton(1230, 60)
     shoot=False
     
     # Initialize hints
     hints = [
-        Hints(font, (200, 300), "Press 'D' to move Right"),
-        Hints(font, (400, 300), "Press 'Space' or 'W' to Jump"),
-        Hints(font, (700, 200), "Press 'E' to Shoot Tongue"),
-    ]
+        Hints(font, (128, 128), "Use arrow keys or A/D to move left and right"),
+        Hints(font, (128, 160), "Press 'Space' or 'W' to Jump"),
+        Hints(font, (604, 1408), "While on wall, press jump and move left or right to jump off"),
+        Hints(font, (1344, 576), "Press 'G' or 'Left Mouse' to grapple"),
+        Hints(font, (783, 576), "Let go of grapple early to swing furhter!"),
+        Hints(font, (132, 843), "Click right mouse to shoot tongue"),
+                ]
     
 
     #music playing
@@ -104,22 +108,44 @@ async def main():
     dt_factor = 1.0
     
     levels_page = 0 # Track current page in level selector
+    
+    # Input Cooldown to prevent button overlap click-through
+    menu_click_cooldown = 0
 
     while running:
+        await asyncio.sleep(0)
+
+        
+        # Decrement cooldown
+        if menu_click_cooldown > 0:
+            menu_click_cooldown -= 1
+            
         dx = 0
         if main_menu:
              levels_page = 0 # Reset page when returning to main menu
              command = draw_mainmenu(surface, font)
-             if command == 'q':
-                 # Quit the game
-                 running = False
-             if command == 3:
-                 levels_menu = True
-                 main_menu =False
-             if command == 4:
-                main_menu = False
-                loading_menu = True
-                loading_timer = 0
+             
+             if menu_click_cooldown == 0:
+                if command == 'q':
+                    running = False
+                if command == 2: # Credits (not implemented?)
+                    pass
+                if command == 3: # Levels
+                    main_menu = False
+                    levels_menu = True
+                    levels_page = 0
+                    menu_click_cooldown = 15 # Wait 15 frames
+                if command == 4: # Start
+                    main_menu = False
+                    # Start Game (Level 1 / idx 0)
+                    current_level_idx = 0
+                    levels_menu = False 
+                    # Reset game?
+                    player.reset(health_bar)
+                    # Trigger load
+                    loading_menu = True
+                    loading_timer = 0
+                    menu_click_cooldown = 15
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -154,9 +180,6 @@ async def main():
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                 player = Player(lvl, camera)
-                enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
-                print(current_level_idx)
-             
              # Handle events for loading screen (quit)
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -168,19 +191,24 @@ async def main():
 
         elif levels_menu:
             command = draw_levels_menu(surface, font, levels_page)
-            if command == 2:
-                levels_menu = False
-                main_menu = True
-            elif command == 8: # Prev Page
-                if levels_page > 0:
-                    levels_page -= 1
-            elif command == 9: # Next Page
-                levels_page += 1
-            elif command > 10:
-                current_level_idx = command - 10
-                levels_menu = False
-                loading_menu = True # Go to loading!
-                loading_timer = 0
+            if menu_click_cooldown == 0:
+                if command == 2:
+                    levels_menu = False
+                    main_menu = True
+                    menu_click_cooldown = 15
+                elif command == 8: # Prev Page
+                    if levels_page > 0:
+                        levels_page -= 1
+                        menu_click_cooldown = 10
+                elif command == 9: # Next Page
+                    levels_page += 1
+                    menu_click_cooldown = 10
+                elif command > 10:
+                    current_level_idx = command - 10
+                    levels_menu = False
+                    loading_menu = True # Go to loading!
+                    loading_timer = 0
+                    menu_click_cooldown = 15
             
             for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -190,21 +218,48 @@ async def main():
             clock.tick(60)
             continue
 
+
+
+        elif settings_menu:
+            command = draw_settings_menu(surface, font, mute_button)
+
+            # Handle Mute Button Event explicitly here since it's clickable in this menu
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                mute_button.handle_event(event)
+
+            if menu_click_cooldown == 0:
+                if command == 2: # Back
+                    settings_menu = False
+                    main_menu = True
+                    menu_click_cooldown = 15
+
+            pg.display.flip()
+            clock.tick(60)
+            continue
+
         elif pause_menu:
-             command = draw_pause_menu(surface, font)
-             if command == 1: # Resume
-                 pause_menu = False
-             if command == 2: # Quit
-                 running = False
-             if command == 3: # Main Menu
-                 pause_menu = False
-                 main_menu = True
-             if command == 4: # Level Select
-                 pause_menu = False
-                 levels_menu = True
-             if command == 5: # Restart
-                 player.reset(health_bar)
-                 pause_menu = False
+             command = draw_pause_menu(surface, font, mute_button)
+             
+             if menu_click_cooldown == 0:
+                 if command == 1: # Resume
+                     pause_menu = False
+                     menu_click_cooldown = 15
+                 if command == 2: # Quit
+                     running = False
+                 if command == 3: # Main Menu
+                     pause_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
+                 if command == 4: # Level Select
+                     pause_menu = False
+                     levels_menu = True
+                     menu_click_cooldown = 15 # IMPORTANT: Prevent click-through
+                 if command == 5: # Restart
+                     player.reset(health_bar)
+                     pause_menu = False
+                     menu_click_cooldown = 15
              
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -214,17 +269,27 @@ async def main():
              clock.tick(60)
              continue
         elif levels_menu:
-             command = draw_levels_menu(surface, font)
-             if command >= 10: # Level selected
-                 current_level_idx = command - 10
-                 # Start Loading immediately, defer logic to loading_menu loop
-                 levels_menu = False
-                 loading_menu = True
-                 loading_timer = 0
+             command = draw_levels_menu(surface, font, levels_page) # Pass page arg fix
              
-             elif command == 2: # Back
-                 levels_menu = False
-                 main_menu = True
+             if menu_click_cooldown == 0:
+                 if command >= 10: # Level selected
+                     current_level_idx = command - 10
+                     # Start Loading immediately, defer logic to loading_menu loop
+                     levels_menu = False
+                     loading_menu = True
+                     loading_timer = 0
+                     menu_click_cooldown = 15
+                 elif command == 8: # Prev Page
+                    if levels_page > 0:
+                        levels_page -= 1
+                        menu_click_cooldown = 10
+                 elif command == 9: # Next Page
+                    levels_page += 1
+                    menu_click_cooldown = 10
+                 elif command == 2: # Back
+                     levels_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
                  
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -245,7 +310,16 @@ async def main():
                 if player.rect.colliderect(enemy.rect):
                     if not enemy.has_hit_player:
                         health_bar.hp -= enemy.damage
+                        if hasattr(player, 'sounds') and 'damage' in player.sounds:
+                            player.sounds['damage'].play()
                         enemy.has_hit_player = True
+                        if enemy.hit_cooldown == 0:
+
+
+                            player.velocity_y -= 30
+                            player.momentum_x -= 30
+                            enemy.hit_cooldown = 120
+
                 else:
                     # reset zodra ze niet meer botsen
                     enemy.has_hit_player = False
@@ -254,6 +328,10 @@ async def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+
+                # Handle mute button click (REMOVED from HUD events, only kept M key)
+                # mute_button.handle_event(event) 
+
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 3:
                         player.shoot_tongue()
 
@@ -267,8 +345,18 @@ async def main():
                         pause_menu = not pause_menu
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
+
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
+
+                    if event.key == pg.K_p:
+                        print(f"Player Pos: {player.rect.topleft}, Level: {current_level_idx}")
+                        player.print_current_loc()
                     
-                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE):
+                    if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE, pg.K_z):
                         player.request_jump()
                     
                     if event.key == pg.K_e:
@@ -309,7 +397,7 @@ async def main():
             player.update_input_Player(keys)
 
             # Horizontal input and facing
-            if keys[pg.K_LEFT] or keys[pg.K_a]:
+            if keys[pg.K_LEFT] or keys[pg.K_a] or keys[pg.K_q]:
                 dx = -5
                 player.facing_dir = -1    # <-- keep Player's facing up to date
             elif keys[pg.K_RIGHT] or keys[pg.K_d]:
@@ -426,6 +514,7 @@ async def main():
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface, current_level_idx + 1)
+            # mute_button.draw(surface) # REMOVED from HUD
             # Draw hints
             if current_level_idx == 0:
                 for hint in hints:
@@ -436,7 +525,7 @@ async def main():
             dt_ms = clock.tick(60)
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
-            await asyncio.sleep(0) # Yield to browser
+            await asyncio.sleep(0)
 
 if __name__ == "__main__":
     main()

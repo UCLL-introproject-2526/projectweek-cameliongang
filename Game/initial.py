@@ -5,8 +5,8 @@ from player import Player
 from camera import Camera
 import level as level_module
 from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen
-from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface
+from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_settings_menu
+from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface, MuteButton
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
@@ -67,6 +67,7 @@ def main():
 
     running = True
     levels_menu = False
+    settings_menu = False
     main_menu = True
     loading_menu = False
     loading_timer = 0
@@ -77,6 +78,7 @@ def main():
     
     health_bar = HealthBar(20, 20, 300, 40, 100)
     death_counter = DeathCounter(font)
+    mute_button = MuteButton(1230, 60)
     shoot=False
     
     # Initialize hints
@@ -213,8 +215,28 @@ def main():
             clock.tick(60)
             continue
 
+            
+        elif settings_menu:
+            command = draw_settings_menu(surface, font, mute_button)
+            
+            # Handle Mute Button Event explicitly here since it's clickable in this menu
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    running = False
+                mute_button.handle_event(event)
+
+            if menu_click_cooldown == 0:
+                if command == 2: # Back
+                    settings_menu = False
+                    main_menu = True
+                    menu_click_cooldown = 15
+            
+            pg.display.flip()
+            clock.tick(60)
+            continue 
+
         elif pause_menu:
-             command = draw_pause_menu(surface, font)
+             command = draw_pause_menu(surface, font, mute_button)
              
              if menu_click_cooldown == 0:
                  if command == 1: # Resume
@@ -302,6 +324,10 @@ def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                
+                # Handle mute button click
+                mute_button.handle_event(event)
+                
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 3:
                         player.shoot_tongue()
 
@@ -315,6 +341,12 @@ def main():
                         pause_menu = not pause_menu
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
+                    
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                        
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
                         
                     if event.key == pg.K_p:
                         print(f"Player Pos: {player.rect.topleft}, Level: {current_level_idx}")
@@ -478,6 +510,7 @@ def main():
             #healthbar creation
             health_bar.draw(surface)
             death_counter.draw(surface, current_level_idx + 1)
+            # mute_button.draw(surface) # REMOVED from HUD
             # Draw hints
             if current_level_idx == 0:
                 for hint in hints:

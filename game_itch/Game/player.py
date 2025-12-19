@@ -1,9 +1,9 @@
 import pygame as pg
+
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
 from time import sleep
-import os
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -57,13 +57,12 @@ class Player:
         self.tijdelijkright_frame_index = 0
         self.tijdelijkright_frame_timer = 0.0
         self.tijdelijkright_frame_fps = 12       
-        self.tijdelijkright_frame_fps = 12       
         self.tongue_cooldown = False
         
         # Emote State
         self.emote_active = False
-        self.emote_frame_index = 0.0
-        self.emote_fps = 10
+        self.emote_timer = 0
+
 
 
         # Momentum
@@ -174,36 +173,66 @@ class Player:
             print(f"Error loading sprites: {e}")
             # Sprites will be missing, render methods should handle key errors or check existence
         
-        # Load Emote (New 'hmm' JPGs and Sound)
-        try:
-            self.sprites['emote'] = []
-            for i in range(4):
-                path = f'./resources/emote_frame_{i}.jpg'
-                img = pg.image.load(path).convert() # JPGs don't have alpha usually
-                scaled = pg.transform.scale(img, (self.visual_width, self.visual_height))
-                self.sprites['emote'].append(scaled)
-            
-            # Load Sound
-            try:
-                # Pygame prefers OGG or WAV. AAC is not supported.
-                # Trying OGG first (best for web), then WAV
-                if os.path.exists('./resources/scream.ogg'):
-                    self.emote_sound = pg.mixer.Sound('./resources/scream.ogg')
-                else:
-                    self.emote_sound = pg.mixer.Sound('./resources/scream.wav')
-            except Exception as e:
-                print(f"Error loading emote sound (need .ogg or .wav): {e}")
-                self.emote_sound = None
-                
-        except Exception as e:
-            print(f"Error loading emote frames: {e}")
-        
         # Load bush (static for now, but good to cache if used often)
         try:
              self.bush_img = pg.image.load('./resources/bush.png').convert()
              self.bush_img.set_colorkey((0, 0, 0))
         except:
              self.bush_img = None
+        
+        # Load Sounds
+        self.sounds = {}
+        try:
+            self.sounds['walk'] = pg.mixer.Sound('./resources/walk.wav')
+            self.sounds['walk'].set_volume(0.3)
+            # Switched to generated WAV to ensure playback
+            self.sounds['damage'] = pg.mixer.Sound('./resources/damage.wav')
+            self.sounds['damage'].set_volume(0.6)
+            self.sounds['death'] = pg.mixer.Sound('./resources/death.mp3')
+            self.sounds['death'].set_volume(0.6)
+            self.sounds['level_complete'] = pg.mixer.Sound('./resources/level_complete.wav')
+            self.sounds['level_complete'].set_volume(0.6)
+            self.sounds['jump'] = pg.mixer.Sound('./resources/jump.wav')
+            self.sounds['jump'].set_volume(0.4)
+            # Emote
+            try:
+                # User requested absolute path
+                self.sounds['scream'] = pg.mixer.Sound(r'C:\Users\seppi\Desktop\pygame week\projectweek-cameliongang\resources\hmm\scream.wav')
+            except Exception as e:
+                print(f"Custom WAV load failed: {e}")
+                self.sounds['scream'] = pg.mixer.Sound('./resources/scream.wav')
+            self.sounds['scream'].set_volume(0.6)
+            
+            # Yoshi Tongue Sound
+            try:
+                self.sounds['yoshi'] = pg.mixer.Sound('./resources/yoshi_sound.mp3')
+                self.sounds['yoshi'].set_volume(0.5)
+            except Exception as e:
+                print(f"Yoshi sound load error: {e}")
+            
+            # Load Emote Images (Animated)
+            self.sprites['emote'] = []
+            try:
+                for i in range(4):
+                    self.sprites['emote'].append(
+                        pg.transform.scale(
+                            pg.image.load(f'./resources/hmm/frame_{i}.jpg').convert(), # jpg has no alpha
+                            (self.visual_width, self.visual_height)
+                        )
+                    )
+            except Exception as e:
+                print(f"Error frame {e}, fallback")
+                self.sprites['emote'].append(
+                    pg.transform.scale(
+                        pg.image.load('./resources/emote_meme.png').convert_alpha(),
+                        (self.visual_width, self.visual_height)
+                    )
+                )
+
+        except Exception as e:
+            print(f"Error loading sounds/sprites: {e}")
+            
+        self.walk_timer = 0
 
 
     # Coyote reduction
@@ -239,6 +268,8 @@ class Player:
                     return # Do not consume jump if direction is wrong (allow climbing/holding)
 
             # Execute Jump
+            if 'jump' in self.sounds:
+                self.sounds['jump'].play()
             self.velocity_y = self.jump_strength
             self.on_ground = False
             self.on_wall = False
@@ -248,20 +279,20 @@ class Player:
             self.jump_buffer = 0
             self.started_rise = False  # reset gating for a new jump
 
-    # Track held key Player per frame
     def update_input_Player(self, keys):
-    # Jump held: either UP arrow or W key
-        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
+        # Emote Input
+        if keys[pg.K_6] and keys[pg.K_7] and not self.emote_active:
+             self.emote_active = True
+             if 'scream' in self.sounds:
+                 self.sounds['scream'].play()
         
-        if keys[pg.K_6] and keys[pg.K_7] and self.on_ground:
-            if not self.emote_active:
-                if hasattr(self, 'emote_sound') and self.emote_sound:
-                    self.emote_sound.play()
-            self.emote_active = True
-            
-        # Cancel emote on movement
-        if keys[pg.K_LEFT] or keys[pg.K_RIGHT] or keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]:
-            self.emote_active = False
+        # Cancel emote on movement keys
+        if self.emote_active:
+            if keys[pg.K_LEFT] or keys[pg.K_RIGHT] or keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE] or keys[pg.K_a] or keys[pg.K_d]:
+                self.emote_active = False
+
+    # Jump held: either UP arrow or W key
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE] or keys[pg.K_z]
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
@@ -273,6 +304,8 @@ class Player:
         if not self.grappling and not self.tongue_cooldown and not self.on_wall:
             self.tongue_timer = 15   # tongue stays visible for 15 frames
             self.tongue_length = 150 # distance in front of player
+            if 'yoshi' in self.sounds:
+                self.sounds['yoshi'].play()
 
     def update_tongue(self):
         if self.tongue_timer > 0:
@@ -282,15 +315,21 @@ class Player:
         if self.tongue_timer > 0:
             # Player’s current screen position
             start_pos = self.camera.apply_rect(self.rect).center
-
-            # Offset start so it comes from the mouth
-            if self.facing_dir == 1:
-                start_pos = (start_pos[0] + 18, start_pos[1])
-                end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+            if self.hanging == False:
+                # Offset start so it comes from the mouth
+                if self.facing_dir == 1:
+                    start_pos = (start_pos[0] + 28, start_pos[1]-9)
+                    end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+                else:
+                    start_pos = (start_pos[0] - 28, start_pos[1]-9)
+                    end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
             else:
-                start_pos = (start_pos[0] - 18, start_pos[1])
-                end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
-
+                if self.facing_dir == 1:
+                    start_pos = (start_pos[0] + 34, start_pos[1]+10)
+                    end_pos = (start_pos[0] + self.tongue_length, start_pos[1])
+                else:
+                    start_pos = (start_pos[0] - 30, start_pos[1]+10)
+                    end_pos = (start_pos[0] - self.tongue_length, start_pos[1])
             pg.draw.line(surface, (240, 29, 29), start_pos, end_pos, 5)
 
     def get_tongue_hitbox(self):
@@ -397,9 +436,8 @@ class Player:
     def grapple_to(self, pos):
     # Set target and start grappling
         try:
-            # sound =pg.mixer.Sound('./resources/yoshi_sound.mp3')
-            # sound.play()
-            pass
+            sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
+            sound.play()
         except:
             pass
         self.grapple_target = pos
@@ -514,6 +552,17 @@ class Player:
 
         # Horizontal Movement
         self.xcoor += total_dx
+        
+        # Walking Sound Logic
+        if self.on_ground and abs(dx) > 0:
+            self.walk_timer -= 1
+            if self.walk_timer <= 0:
+                if 'walk' in self.sounds:
+                    self.sounds['walk'].play()
+                self.walk_timer = 20 # Loop every 20 frames (~3 times/sec)
+        else:
+            self.walk_timer = 0 # specific reset or immediate start on land? 0 = immediate.
+
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
@@ -521,7 +570,12 @@ class Player:
         
         if self.rect.colliderect(rect):
            if not self.al_geraakt:
+               print("DEBUG: Player took damage! Playing sound.")
                healthbar.hp -= 10
+               if 'damage' in self.sounds:
+                   self.sounds['damage'].play()
+               else:
+                   print("DEBUG: Damage sound not found in self.sounds")
                self.al_geraakt = True
         else:
            # reset zodra ze niet meer botsen
@@ -534,10 +588,15 @@ class Player:
                 t_type = getattr(tile, 'type', 'X')
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
                     healthbar.hp = 0
+                    if 'death' in self.sounds:
+                        self.sounds['death'].play()
                 
             
                 if t_type == 'N':
-                    self.level_complete = True                                        
+                    if not self.level_complete: # Only play once
+                        if 'level_complete' in self.sounds:
+                            self.sounds['level_complete'].play()
+                        self.level_complete = True                                        
                     
                     
                 if t_type == 'S':
@@ -580,10 +639,10 @@ class Player:
         
         if self.on_wall:
             # Wall Climb
-            if keys[pg.K_UP] or keys[pg.K_w]:
+            if keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_z]:
                 dy = -5 * dt
                 self.wall_facing_down = False
-            elif keys[pg.K_DOWN] or keys[pg.K_s]:
+            elif keys[pg.K_DOWN] or keys[pg.K_s] or keys[pg.K_s]:
                 dy = 5 * dt
                 self.wall_facing_down = True
         elif self.hanging:
@@ -665,27 +724,26 @@ class Player:
     
 
     def render_chameleon(self, surface, keys):
+        # Emote Override
+        if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+             # Animate
+             self.emote_timer += 0.2
+             if self.emote_timer >= len(self.sprites['emote']):
+                 self.emote_timer = 0
+             
+             frame = self.sprites['emote'][int(self.emote_timer)]
+             rect = frame.get_rect()
+             rect.bottom = self.rect.bottom
+             rect.centerx = self.rect.centerx
+             shifted_rect = self.camera.apply_rect(rect)
+             shifted_rect.y -= (self.visual_height - self.height) // 2 
+             shifted_rect.y += self.visual_y_offset
+             surface.blit(frame, shifted_rect)
+             return
         try:
-            # Emote Override
-            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
-                self.emote_frame_index += 0.1 # Animation speed (slower)
-                if self.emote_frame_index >= len(self.sprites['emote']):
-                    self.emote_frame_index = 0
-                frame = self.sprites['emote'][int(self.emote_frame_index)]
-                
-                # Render using standard rect logic
-                rect = frame.get_rect()
-                rect.bottom = self.rect.bottom
-                rect.centerx = self.rect.centerx
-                shifted_rect = self.camera.apply_rect(rect)
-                shifted_rect.y -= (self.visual_height - self.height) // 2 
-                shifted_rect.y += self.visual_y_offset 
-                surface.blit(frame, shifted_rect)
-                return
-
             frame = self.sprites['right'][0] 
             cright = 0
-            if keys[pg.K_RIGHT]:
+            if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 cright = 0.5
             if 'right' in self.sprites:
                 self.tijdelijkright_frame_index += cright
@@ -714,29 +772,28 @@ class Player:
 
 
     def render_chameleon_left(self, surface, keys):
+        # Emote Override
+        if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
+             # Animate
+             self.emote_timer += 0.2
+             if self.emote_timer >= len(self.sprites['emote']):
+                 self.emote_timer = 0
+             
+             frame = pg.transform.flip(self.sprites['emote'][int(self.emote_timer)], True, False)
+             rect = frame.get_rect()
+             rect.bottom = self.rect.bottom
+             rect.centerx = self.rect.centerx
+             shifted_rect = self.camera.apply_rect(rect)
+             shifted_rect.y -= (self.visual_height - self.height) // 2 
+             shifted_rect.y += self.visual_y_offset
+             surface.blit(frame, shifted_rect)
+             return
         
-        try:
-            # Emote Override (Mirrored for left?)
-            if self.emote_active and 'emote' in self.sprites and self.sprites['emote']:
-                self.emote_frame_index += 0.1
-                if self.emote_frame_index >= len(self.sprites['emote']):
-                    self.emote_frame_index = 0
-                # Flip for left facing? Or just use same? Meme usually one direction.
-                # Let's flip it for consistency.
-                frame = pg.transform.flip(self.sprites['emote'][int(self.emote_frame_index)], True, False)
-                
-                rect = frame.get_rect()
-                rect.bottom = self.rect.bottom
-                rect.centerx = self.rect.centerx
-                shifted_rect = self.camera.apply_rect(rect)
-                shifted_rect.y -= (self.visual_height - self.height) // 2 
-                shifted_rect.y += self.visual_y_offset 
-                surface.blit(frame, shifted_rect)
-                return
 
+        try:
             frame = self.sprites['left'][0] 
             cleft = 0
-            if keys[pg.K_LEFT]:
+            if keys[pg.K_LEFT] or keys[pg.K_q]:
                 cleft = 0.5
             if 'left' in self.sprites:
                 self.tijdelijkright_frame_index += cleft
@@ -765,7 +822,7 @@ class Player:
     def render_chameleon_ceiling_left(self, surface, keys):
             frame = self.sprites['ceiling_left'][0] 
             cleft = 0
-            if keys[pg.K_LEFT]:
+            if keys[pg.K_LEFT] or keys[pg.K_q]:
                 cleft = 0.5
             if 'ceiling_left' in self.sprites:
                 self.tijdelijkright_frame_index += cleft
@@ -790,7 +847,7 @@ class Player:
     def render_chameleon_ceiling(self, surface, keys):
             frame = self.sprites['ceiling'][0] 
             cright = 0
-            if keys[pg.K_RIGHT]:
+            if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 cright = 0.5
             if 'ceiling' in self.sprites:
                 self.tijdelijkright_frame_index += cright
@@ -815,7 +872,7 @@ class Player:
     def render_chameleon_left_wall(self, surface, keys):
             frame = self.sprites['left_wall'][0] 
             cup = 0
-            if keys[pg.K_UP]:
+            if keys[pg.K_UP] or keys[pg.K_z]:
                 cup = 0.7
             if 'left_wall' in self.sprites:
                 self.tijdelijkright_frame_index += cup
@@ -837,7 +894,7 @@ class Player:
     def render_chameleon_left_wall_down(self, surface, keys):
             frame = self.sprites['left_wall_down'][0] 
             cdown = 0
-            if keys[pg.K_DOWN]:
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
                 cdown = 0.7
             if 'left_wall_down' in self.sprites:
                 self.tijdelijkright_frame_index += cdown
@@ -861,7 +918,7 @@ class Player:
         
             frame = self.sprites['right_wall_up'][0] 
             cup = 0
-            if keys[pg.K_UP]:
+            if keys[pg.K_UP] or keys[pg.K_z]:
                 cup = 0.7
             if 'right_wall_up' in self.sprites:
                 self.tijdelijkright_frame_index += cup
@@ -886,7 +943,7 @@ class Player:
     def render_chameleon_right_wall_down(self, surface, keys):
             frame = self.sprites['right_wall_down'][0] 
             cdown = 0
-            if keys[pg.K_DOWN]:
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
                 cdown = 0.7
             if 'right_wall_down' in self.sprites:
                 self.tijdelijkright_frame_index += cdown
@@ -906,4 +963,7 @@ class Player:
 
             
             surface.blit(frame, shifted_rect)
+
+    def print_current_loc(self):
+        print(self.xcoor, self.ycoor)
         

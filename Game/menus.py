@@ -96,6 +96,7 @@ class Button:
 #Maken van het menu
 start_button = Button('Start Game', (500, 400))
 levels_button = Button('Choose Level', (500, 500))
+settings_button = Button('Settings', (800, 400)) # New Button
 credits_button = Button('Credits', (200, 500))
 exit_button = Button('Quit Game', (800, 500))
 def draw_mainmenu(surface, font):
@@ -105,6 +106,7 @@ def draw_mainmenu(surface, font):
     command = 0
     start_button.draw(surface, font)
     levels_button.draw(surface, font)
+    settings_button.draw(surface, font) # Draw checks
     credits_button.draw(surface, font)
     exit_button.draw(surface, font)
     if exit_button.check_clicked():
@@ -115,6 +117,8 @@ def draw_mainmenu(surface, font):
         command = 3
     if start_button.check_clicked():
         command = 4
+    if settings_button.check_clicked():
+        command = 5 # Settings
     return command
 
 
@@ -206,7 +210,68 @@ main_menu_pause_button = Button('Main Menu', (250, 600))
 level_select_pause_button = Button('Choose Level', (550, 600))
 quit_pause_button = Button('Quit Game', (850, 600))
 
-def draw_pause_menu(surface, font):
+
+
+back_settings_button = Button('Back', (500, 600))
+
+def draw_settings_menu(surface, font, mute_button):
+    surface.fill((0, 0, 0))
+    # Reuse background
+    try:
+        bg = game_background('mainmenu_background.png', menu=True)
+        surface.blit(bg, (0, 0))
+    except:
+        pass
+        
+    # Draw Mute Button - Center it?
+    # Mute button uses absolute position from init (1230, 60).
+    # User calls for it "in a new menu called settings".
+    # Should we move it to center for this menu?
+    # Or just let it stay at top right?
+    # "mute button ONLY in the main menu in a new menu called settings"
+    # This implies it should be the main feature of this menu.
+    # Let's override its position temporarily or draw a new one?
+    # Better: Update the mute_button.rect before drawing?
+    # No, that affects global state if we switch quickly.
+    # But since we are IN the menu, global state IS this menu.
+    
+    # Let's rely on the passed mute_button but maybe we move it?
+    # Or we construct a dedicated one?
+    # But `initial.py` owns the instance.
+    # Let's just draw it where it is, OR move it to center.
+    # User said: "mute button only in the main menu in a new menu... and in the pause menu".
+    # This implies it should NOT be on the HUD during gameplay?
+    # I'll handle that in `initial.py` (stop drawing it in HUD).
+    # For now, let's just make sure it draws here.
+    
+    # We'll center it for the settings menu
+    original_rect = mute_button.rect.copy()
+    mute_button.rect.topleft = (620, 300) # Center-ish
+    mute_button.draw(surface)
+    
+    # Reset for next frame/other menus? 
+    # This is tricky in a loop.
+    # Actually, if we only draw it here and pause menu, we can just keep it at one spot or move it.
+    # Let's move it back after drawing to be safe?
+    # Or just accept it jumps around if we use the same instance.
+    
+    # Add label
+    lbl = font.render("Mute Music", True, "white")
+    surface.blit(lbl, (620 - 20, 260))
+
+    back_settings_button.draw(surface, font)
+    
+    command = 0
+    if back_settings_button.check_clicked():
+        command = 2 # Back
+        
+    # We must restore rect if we want it to be elsewhere in Pause menu?
+    # Pause menu probably wants it elsewhere (e.g. top right or listed).
+    mute_button.rect = original_rect
+    
+    return command
+
+def draw_pause_menu(surface, font, mute_button):
     surface.fill((0, 0, 0))
     # Reuse gameover background or change if desired, keeping as requested
     background = game_background('gameover_background.png', menu=True)
@@ -225,6 +290,12 @@ def draw_pause_menu(surface, font):
     level_select_pause_button.draw(surface, font)
     main_menu_pause_button.draw(surface, font)
     quit_pause_button.draw(surface, font)
+    
+    # Draw Mute Button in Pause Menu
+    # Let's put it top right (standard) or near buttons?
+    # User asked for it in pause menu.
+    # standard pos (1230, 60) is fine for pause menu (HUD-like).
+    mute_button.draw(surface)
     
     if resume_button.check_clicked():
         command = 1 # Resume

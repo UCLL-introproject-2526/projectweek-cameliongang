@@ -1,0 +1,1 @@
+python -m PyInstaller --noconfirm --onefile --windowed --name "CamelionGang" --add-data "resources;resources" --paths "Game" --hidden-import Game.initial --hidden-import menus --hidden-import standard_use --hidden-import level --hidden-import camera --hidden-import player --hidden-import enemy --hidden-import pygame main.py

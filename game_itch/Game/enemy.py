@@ -18,7 +18,7 @@ class Enemy(pg.sprite.Sprite):
         self.base_y = y
         self.size = (50,50)
         self.has_hit_player = False
-        
+        self.hit_cooldown = 0
         
         
         self.frames = []
@@ -26,15 +26,31 @@ class Enemy(pg.sprite.Sprite):
             self.frames = ENEMY_CACHE['enemy_frames']
         else:
             try:
+                # Load Animated Fly Spritesheet (2x2 Grid)
+                fly_sheet = pg.image.load('./resources/animated_fly.png').convert_alpha()
                 
-                enemy_1_1 = pg.image.load('./resources/enemy_1_50x50_1.png').convert_alpha()
-                enemy_1_2 = pg.image.load('./resources/enemy_1_50x50_2.png').convert_alpha()
-                enemy_1_3 = pg.image.load('./resources/enemy_1_50x50_3.png').convert_alpha()
-                enemy_1_4 = pg.image.load('./resources/enemy_1_50x50_4.png').convert_alpha()
-                self.frames = [enemy_1_1, enemy_1_2, enemy_1_3, enemy_1_4]
+                sheet_w = fly_sheet.get_width()
+                sheet_h = fly_sheet.get_height()
+                
+                cols = 2
+                rows = 2
+                frame_w = sheet_w // cols
+                frame_h = sheet_h // rows
+                
+                self.frames = []
+                for r in range(rows):
+                    for c in range(cols):
+                        # Extract frame
+                        frame_surf = pg.Surface((frame_w, frame_h), pg.SRCALPHA)
+                        frame_surf.blit(fly_sheet, (0, 0), (c * frame_w, r * frame_h, frame_w, frame_h))
+                        
+                        # Scale to enemy size
+                        scaled_frame = pg.transform.scale(frame_surf, self.size)
+                        self.frames.append(scaled_frame)
+                        
                 ENEMY_CACHE['enemy_frames'] = self.frames
             except Exception as e:
-                print(f"Warning: Enemy assets not found ({e}). Using fallback.")
+                print(f"Warning: Animated Fly assets not found ({e}). Using fallback.")
                 
                 # Check for cached fallback
                 if 'fallback_frame' in ENEMY_CACHE:
@@ -56,13 +72,15 @@ class Enemy(pg.sprite.Sprite):
         self.rect.bottomleft = (x, y) 
     def update(self):
         
-        self.animation_index += 0.01
+        self.animation_index += 0.5 # Hyper fast animation (30 FPS visual)
         if self.animation_index >= len(self.frames):
             self.animation_index = 0
         self.image = self.frames[int(self.animation_index)]
          
         # Movement
-        
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1 
+
         
         self.hover_phase += self.hover_speed
         self.rect.y = self.base_y + int(math.sin(self.hover_phase) * self.hoveramplitude)
@@ -71,7 +89,7 @@ class Enemy(pg.sprite.Sprite):
         #nu gaat die niet meer buiten het scherm
         self.rect.x -= self.speed
         if self.rect.right < 0:
-            self.rect.right = LEVEL_WIDTH + 500
+            self.rect.right = LEVEL_WIDTH + 1200
             self.hover_phase = 0  
             self.rect.y = self.base_y
 
@@ -80,4 +98,4 @@ class Enemy(pg.sprite.Sprite):
         surface.blit(self.image, shifted_rect)
 
     def kill_enemy(self):
-        self.rect.right = LEVEL_WIDTH + 750 
+        self.rect.right = LEVEL_WIDTH + 1200 

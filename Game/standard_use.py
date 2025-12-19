@@ -107,7 +107,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 def create_main_surface():
     screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pg.display.set_caption('chameleon Run!')
+    pg.display.set_caption('Chameleon Quest')
     return screen_size
 
 #standard music
@@ -137,3 +137,41 @@ def game_background(background_img, width=None, height=None, menu=False):
         background.fill((100, 100, 255))
     return background
         
+    return background
+
+class MuteButton:
+    def __init__(self, x, y):
+        self.rect = pg.Rect(x, y, 40, 40)
+        self.muted = False
+        self.font = pg.font.SysFont('Arial', 12, bold=True)
+
+    def draw(self, surface):
+        # Draw button background
+        color = (200, 50, 50) if self.muted else (50, 200, 50)
+        pg.draw.rect(surface, color, self.rect, border_radius=5)
+        pg.draw.rect(surface, (255, 255, 255), self.rect, 2, border_radius=5)
+
+        # Draw icon/text
+        text_surf = self.font.render("OFF" if self.muted else "ON", True, (255, 255, 255))
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        surface.blit(text_surf, text_rect)
+
+    def toggle(self):
+        self.muted = not self.muted
+        if self.muted:
+            pg.mixer.music.set_volume(0)  # Mute music
+            # Mute global effects if possible, or we just handle music for now
+            # pg.mixer.stop() # Only stops active, doesn't prevent new. 
+            # Ideally we set a global volume
+            pg.mixer.music.pause()
+        else:
+            pg.mixer.music.unpause()
+            pg.mixer.music.set_volume(0.3)
+        return self.muted
+
+    def handle_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            if self.rect.collidepoint(event.pos):
+                self.toggle()
+                return True
+        return False
