@@ -282,6 +282,8 @@ def main():
                 if player.rect.colliderect(enemy.rect):
                     if not enemy.has_hit_player:
                         health_bar.hp -= enemy.damage
+                        if hasattr(player, 'sounds') and 'damage' in player.sounds:
+                            player.sounds['damage'].play()
                         enemy.has_hit_player = True
                         if enemy.hit_cooldown == 0:
 
