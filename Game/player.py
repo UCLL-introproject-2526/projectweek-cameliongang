@@ -669,7 +669,7 @@ class Player:
         try:
             frame = self.sprites['right'][0] 
             cright = 0
-            if keys[pg.K_RIGHT]:
+            if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 cright = 0.5
             if 'right' in self.sprites:
                 self.tijdelijkright_frame_index += cright
@@ -703,7 +703,7 @@ class Player:
         try:
             frame = self.sprites['left'][0] 
             cleft = 0
-            if keys[pg.K_LEFT]:
+            if keys[pg.K_LEFT] or keys[pg.K_q]:
                 cleft = 0.5
             if 'left' in self.sprites:
                 self.tijdelijkright_frame_index += cleft
@@ -732,7 +732,7 @@ class Player:
     def render_chameleon_ceiling_left(self, surface, keys):
             frame = self.sprites['ceiling_left'][0] 
             cleft = 0
-            if keys[pg.K_LEFT]:
+            if keys[pg.K_LEFT] or keys[pg.K_q]:
                 cleft = 0.5
             if 'ceiling_left' in self.sprites:
                 self.tijdelijkright_frame_index += cleft
@@ -757,7 +757,7 @@ class Player:
     def render_chameleon_ceiling(self, surface, keys):
             frame = self.sprites['ceiling'][0] 
             cright = 0
-            if keys[pg.K_RIGHT]:
+            if keys[pg.K_RIGHT] or keys[pg.K_d]:
                 cright = 0.5
             if 'ceiling' in self.sprites:
                 self.tijdelijkright_frame_index += cright
@@ -782,7 +782,7 @@ class Player:
     def render_chameleon_left_wall(self, surface, keys):
             frame = self.sprites['left_wall'][0] 
             cup = 0
-            if keys[pg.K_UP]:
+            if keys[pg.K_UP] or keys[pg.K_z]:
                 cup = 0.7
             if 'left_wall' in self.sprites:
                 self.tijdelijkright_frame_index += cup
@@ -804,7 +804,7 @@ class Player:
     def render_chameleon_left_wall_down(self, surface, keys):
             frame = self.sprites['left_wall_down'][0] 
             cdown = 0
-            if keys[pg.K_DOWN]:
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
                 cdown = 0.7
             if 'left_wall_down' in self.sprites:
                 self.tijdelijkright_frame_index += cdown
@@ -828,7 +828,7 @@ class Player:
         
             frame = self.sprites['right_wall_up'][0] 
             cup = 0
-            if keys[pg.K_UP]:
+            if keys[pg.K_UP] or keys[pg.K_z]:
                 cup = 0.7
             if 'right_wall_up' in self.sprites:
                 self.tijdelijkright_frame_index += cup
@@ -853,7 +853,7 @@ class Player:
     def render_chameleon_right_wall_down(self, surface, keys):
             frame = self.sprites['right_wall_down'][0] 
             cdown = 0
-            if keys[pg.K_DOWN]:
+            if keys[pg.K_DOWN] or keys[pg.K_s]:
                 cdown = 0.7
             if 'right_wall_down' in self.sprites:
                 self.tijdelijkright_frame_index += cdown

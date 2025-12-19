@@ -89,7 +89,7 @@ class Enemy(pg.sprite.Sprite):
         #nu gaat die niet meer buiten het scherm
         self.rect.x -= self.speed
         if self.rect.right < 0:
-            self.rect.right = LEVEL_WIDTH + 500
+            self.rect.right = LEVEL_WIDTH + 1200
             self.hover_phase = 0  
             self.rect.y = self.base_y
 
@@ -98,4 +98,4 @@ class Enemy(pg.sprite.Sprite):
         surface.blit(self.image, shifted_rect)
 
     def kill_enemy(self):
-        self.rect.right = LEVEL_WIDTH + 750 
+        self.rect.right = LEVEL_WIDTH + 1200 
