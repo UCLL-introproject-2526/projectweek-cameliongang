@@ -18,7 +18,7 @@ class Enemy(pg.sprite.Sprite):
         self.base_y = y
         self.size = (50,50)
         self.has_hit_player = False
-        
+        self.hit_cooldown = 0
         
         
         self.frames = []
@@ -78,7 +78,9 @@ class Enemy(pg.sprite.Sprite):
         self.image = self.frames[int(self.animation_index)]
          
         # Movement
-        
+        if self.hit_cooldown > 0:
+            self.hit_cooldown -= 1 
+
         
         self.hover_phase += self.hover_speed
         self.rect.y = self.base_y + int(math.sin(self.hover_phase) * self.hoveramplitude)
