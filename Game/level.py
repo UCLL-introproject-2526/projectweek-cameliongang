@@ -135,7 +135,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_width = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0] + (TILE_SIZE - spike_width), pos[1], spike_width, TILE_SIZE)
+                 self.rect = pygame.Rect(self.pos[0] + (TILE_SIZE - spike_width), self.pos[1], spike_width, TILE_SIZE)
 
             else:
                 self.image.fill((139, 69, 19)) # Brown
@@ -223,26 +223,46 @@ LEVEL_2 = [
 
 
 LEVEL_3 = [
-
     
-    "XXXXXXXXXXXXXXGXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
-    "X                CXXX G    G    G         XE   E  ",
+
+    "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXGXXXXGXXX       ",
+    "X                CXXX                     XE   E  ",
     "X                 CXX                     X E     ",
     "X P                CS                     X      E",
-    "XXXX  Y  YYY    YY  S           XX        X       ",
-    "XXXXYYXXXXXXYYYXXX  S                     X       ",
-    "XXXXXXXGXXXXXXXXX   S                     X       ",
-    "S                   S    YY               X       ",
-    "S                   SY  XXX               X       ",
-    "S   XXY          Y  SX                    X       ",
-    "S   CCFY        YFY S X   Y               X       ",
-    "S     CFYY      FFFYX     X               X       ",
-    "S Y    CXXXXXXXXXXXXX   YX                X       ",
-    "SYFY                   XX                 X    E  ",
-    "SFFF                                      X   E   ",
+    "XXXX  Y  YYY    YY  S          YYYY       X       ",
+    "XXXXYYXXXXXXYYYXXX  S       YXXXXXXXXXX   X       ",
+    "XXXXXXXGXXXXXXXXC   S       XXXXXGXXXXX   X       ",
+    "S                   S    YYYXXXC          X       ",
+    "S                   SY  XXXXXXC           X       ",
+    "S   XXY             SX     XXC         XXXX       ",
+    "S    CFY         F  SXXL  YXX             X       ",
+    "S     CFYY      FFFYXXC   XXX   N         X       ",
+    "S Y    CXXXXXXXXXXXXXC  YXXXXYYXXXYYYYYYYYX       ",
+    "SYFY                    XXXXXXXXXXXXXXXXXXX    E  ",
+    "SFFF                  YXXXXXXXXXXXXXXXXXXXX   E   ",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
 ]
+
+#  "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXXXXXXXXXX       ",
+#     "X                CXXX                     XE   E  ",
+#     "X                 CXX                     X E     ",
+#     "X P                CS                     X      E",
+#     "XXXX  Y  YYY    YY  S       XXXXXXXXXXX   X       ",
+#     "XXXXYYXXXXXXYYYXXX  S       XXXXXGXXXXX   X       ",
+#     "XXXXXXXGXXXXXXXX    S       XS            X       ",
+#     "S                   S    YYYXS            X       ",
+#     "S                   SY  XXXXXS         XXXX       ",
+#     "S   XXY             SX     XXS            X       ",
+#     "S   CCFY         F  SXXL  YXX             X       ",
+#     "S     CFYY      FFFYXXC   XXX  XXX        X       ",
+#     "S Y    CXXXXXXXXXXXXXC  YXXXX             X       ",
+#     "SYFY                    XXXXX             X    E  ",
+#     "SFFF                  YXXXXXX             X   E   ",
+#     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
+# ]
+
 
 #LEVEL 4 | advanced grapling
 LEVEL_4 =  [
