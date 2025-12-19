@@ -46,7 +46,7 @@ class Player:
         self.hanging = False # New Player for ceiling stick
         self.wall_facing_down = False # Facing state for wall
         self.grapple_target=None
-        self.grapple_speed=12.5
+        self.grapple_speed=12
         self.grappling=False
         self.facing_dir = 1  # 1 = right, -1 = left
         self.max_grapple_dist = 500
@@ -221,23 +221,10 @@ class Player:
     # Track held key Player per frame
     def update_input_Player(self, keys):
     # Jump held: either UP arrow or W key
-        self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE]
+        self.jump_held = keys[pg.K_UP] or keys[pg.K_w]
 
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
-
-        # Cheat Code: P + L + M (Triple Grapple Range)
-        if keys[pg.K_p] and keys[pg.K_l] and keys[pg.K_m]:
-            if not getattr(self, 'cheat_toggle_held', False):
-                self.cheat_toggle_held = True
-                if self.max_grapple_dist == 500:
-                    self.max_grapple_dist = 1500
-                    print("CHEAT ACTIVATED: SUPER GRAPPLE (1500px)")
-                else:
-                    self.max_grapple_dist = 500
-                    print("CHEAT DEACTIVATED: NORMAL GRAPPLE (500px)")
-        else:
-            self.cheat_toggle_held = False
 
     
    
@@ -321,10 +308,10 @@ class Player:
                 nearest_tile = tile
 
         return nearest_tile
-    def grappling_hook(self, dt):               # Move player toward grapple target
-        if self.grappling and self.grapple_target:          
-            dx = self.grapple_target[0] - self.rect.centerx     # Vector to target
-            dy = self.grapple_target[1] - self.rect.centery     # Vector to target
+    def grappling_hook(self, dt):
+        if self.grappling and self.grapple_target:
+            dx = self.grapple_target[0] - self.rect.centerx
+            dy = self.grapple_target[1] - self.rect.centery
             dist = math.hypot(dx, dy)
 
             step = self.grapple_speed * dt
@@ -514,24 +501,13 @@ class Player:
                     
                 if t_type == 'S':
                     self.on_wall = True
-                    # Robust wall side detection: Compare player center to tile center
-                    # If player is to the LEFT of tile, wall is on RIGHT (side 1).
-                    if self.rect.centerx < tile.rect.centerx:
-                        self.wall_side = 1
-                    else:
-                        self.wall_side = -1
-                        
+                    self.wall_side = 1 if total_dx > 0 else -1
                     self.velocity_y = 0  # Stick to wall
                     self.hanging = False # Wall/Side overrides hanging?
                     self.momentum_x = 0 # Stop momentum on hit
                     
                     # Switch to Vertical Hitbox if not already
                     if self.width == self.base_width:
-                        # Grow upwards to avoid clipping into floor
-                        # Old Bottom = y + old_h. New Bottom = new_y + new_h.
-                        # we want Old Bottom == New Bottom => new_y = y + old_h - new_h
-                        self.ycoor += (self.height - self.base_width)
-                        
                         self.width = self.base_height
                         self.height = self.base_width
                         # Position adjustment handled below by collision correction
@@ -610,10 +586,6 @@ class Player:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
                          self.hanging = True
-                         # RESET HITBOX DIMENSIONS TO HORIZONTAL
-                         self.width = self.base_width
-                         self.height = self.base_height
-                         self.on_wall = False # Ensure we don't think we are on a wall
                      else:
                          self.ycoor = tile.rect.bottom
                          self.velocity_y = 0
@@ -623,14 +595,8 @@ class Player:
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
-                        # If we were on the RIGHT WALL (side 1), expanding width (left-to-right) will clip us into the wall.
-                        # We must shift X to the left to maintain our relative position.
-                        if self.wall_side == 1:
-                            self.xcoor -= (self.base_width - self.base_height)
-                        
                         self.width = self.base_width
                         self.height = self.base_height
-                        self.wall_side = 0 # Clear wall side so we don't double shift or act weird
                     
                     self.ycoor = tile.rect.top - self.height
                     self.velocity_y = 0
@@ -686,6 +652,8 @@ class Player:
         except:
             shifted_rect = self.camera.apply_rect(self.rect)
             pg.draw.rect(surface, (255, 0, 0), shifted_rect)
+            
+
 
     def render_chameleon_left(self, surface, keys):
         
@@ -791,7 +759,6 @@ class Player:
 
             
             surface.blit(frame, shifted_rect)
-
     def render_chameleon_left_wall_down(self, surface, keys):
             frame = self.sprites['left_wall_down'][0] 
             cdown = 0
@@ -840,6 +807,7 @@ class Player:
             
             surface.blit(frame, shifted_rect)
         
+
     def render_chameleon_right_wall_down(self, surface, keys):
             frame = self.sprites['right_wall_down'][0] 
             cdown = 0

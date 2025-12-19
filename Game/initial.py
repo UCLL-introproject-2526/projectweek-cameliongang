@@ -283,6 +283,13 @@ def main():
                     if not enemy.has_hit_player:
                         health_bar.hp -= enemy.damage
                         enemy.has_hit_player = True
+                        if enemy.hit_cooldown == 0:
+
+
+                            player.velocity_y -= 30
+                            player.momentum_x -= 30
+                            enemy.hit_cooldown = 120
+
                 else:
                     # reset zodra ze niet meer botsen
                     enemy.has_hit_player = False
