@@ -115,7 +115,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_height = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], TILE_SIZE, spike_height)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], TILE_SIZE, spike_height)
                  
             elif type == 'L':
                  # Left Spike: Yellow left strip
@@ -125,7 +125,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_width = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], spike_width, TILE_SIZE)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], spike_width, TILE_SIZE)
 
             elif type == 'R':
                  # Right Spike: Purple right strip
@@ -142,23 +142,23 @@ class Tile(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 LEVEL_1 =  [
-    #toturial-level
+    #tutorial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
-    "X                           XE",
+    "X                           X",
     "X P        Y   Y   YYYY     X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXX   SXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXSSXXGXXXXXXXXXXXXX  X ",
+    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXXXXXXXXGXXXXXXXXXXXXX  X ",
     "X                   G       X ",
     "X                           X ",
     "X                           X ",
     "X XXXXXXXXXFFFFFXXXXXXFFFFXXX ",
     "X XXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "X                      E    XE",
-    "X                        E  X ",
-    "X                     E     XE",
+    "X                        E  XE",
+    "X                         E  X ",
+    "X                           XE",
     "XXXXXXXXXXXXXXXXXXXXXXX  XXXX ",
     "XSSSSSSSSSSSSSSSSSXXXXX  XXXX ",
     "X N                XXXX  XXXX ",
@@ -223,24 +223,27 @@ LEVEL_2 = [
 
 
 LEVEL_3 = [
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSX ",
-    "S                          S             SX ",
-    "S  P                       S             SX ",
-    "S                          S             SX ",
-    "S XXXSS      SSSSSSSS      S             SX ",
-    "S    XS      S      S      S             SX ",
-    "S     S      S      S      S             SX ",
-    "S    XX      X      X      X             XX ",
-    "S     SSSSSSSS      SSSSSSSS           SSSX ",
-    "S                          C           S  N ",
-    "S      G          G          G            XE",
-    "S           S            S            S   X ",
-    "X           X           RXL     Y  F  X   X ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD ",
+
+    
+    "XXXXXXXXXXXXXXGXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+    "X                CXXX G    G    G         XE   E  ",
+    "X                 CXX                     X E     ",
+    "X P                CS                     X      E",
+    "XXXX  Y  YYY    YY  S           XX        X       ",
+    "XXXXYYXXXXXXYYYXXX  S                     X       ",
+    "XXXXXXXGXXXXXXXXX   S                     X       ",
+    "S                   S    YY               X       ",
+    "S                   SY  XXX               X       ",
+    "S   XXY          Y  SX                    X       ",
+    "S   CCFY        YFY S X   Y               X       ",
+    "S     CFYY      FFFYX     X               X       ",
+    "S Y    CXXXXXXXXXXXXX   YX                X       ",
+    "SYFY                   XX                 X    E  ",
+    "SFFF                                      X   E   ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
 ]
+
 #LEVEL 4 | advanced grapling
 LEVEL_4 =  [
    
@@ -511,7 +514,9 @@ class Level:
         pixel_y = tile_y * TILE_SIZE
         print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
     
-    find_pixel_loc(11,23)
+    find_pixel_loc(2,1)
+
+    
 
 
     
