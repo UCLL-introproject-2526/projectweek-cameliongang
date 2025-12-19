@@ -194,26 +194,7 @@ LEVEL_1 =  [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_2 = [
-   
-    "                                         SX ",
-    "    N               G     G              SX ",
-    "   XXX                                   SX ",
-    "        XXX                      YY  YY  SX ",
-    "             X                   XXXXXX  SX ",
-    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
-    "X            SSSS SS                     SX ",
-    "X       G              S              S   X ",
-    "X           S          S    XX  XXXX  S   X ",
-    "S           S          S              S   X ",
-    "S  XXX      S                             X ",
-    "S                    G         YY        YX ",
-    "S          XXXXX        S   S XXXX Y  Y XXXE",
-    "X  P     X              S   S      XXXX   XE",
-    "X XXX    XX   XXXXX   X S                 X ",
-    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
-]
+
 
 
 # LEVEL_2 = [
@@ -241,7 +222,7 @@ LEVEL_2 = [
 # ]
 
 
-LEVEL_3 = [
+LEVEL_2 = [
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX     G  XNNNNNNNNNN",
@@ -255,6 +236,27 @@ LEVEL_3 = [
     "NNNNNNNNNNDDDDDDDDDDNNNNNNNNNN",
 ]
 
+
+LEVEL_3 = [
+   
+    "                                         SX ",
+    "    N               G     G              SX ",
+    "   XXX                                   SX ",
+    "        XXX                      YY  YY  SX ",
+    "             X                   XXXXXX  SX ",
+    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
+    "X            SSSS SS                     SX ",
+    "X       G              S              S   X ",
+    "X           S          S    XX  XXXX  S   X ",
+    "S           S          S              S   X ",
+    "S  XXX      S                             X ",
+    "S                    G         YY        YX ",
+    "S          XXXXX        S   S XXXX Y  Y XXXE",
+    "X  P     X              S   S      XXXX   XE",
+    "X XXX    XX   XXXXX   X S                 X ",
+    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
+]
 
 #  "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXXXXXXXXXX       ",
 #     "X                CXXX                     XE   E  ",
@@ -308,17 +310,17 @@ LEVEL_5 = [
     "XXSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSXXXXXX",
     "XX                             E E EE XEEXXX",
     "XX           YYYYYYYYYYYYYYY    E  E EXEXEXX",
-    "XFFFFFFFF    XXXXXXXXXXXXXXXXXXXXX    XXXXXX",
+    "XXXXXXXXX    XXXXXXXXXXXXXXXXXXXXX    XXXXXX",
     "XX      S    XXXXXXXXXXXG             XXXXXX",
     "XS   G  S    XXXXXXG                XXXXXXXX",
     "XS      X  P XXG               XXXXXXXX   XX",
     "XS      XXXXXXX       x xxxxx XX          XX",
-    "XS      SSSSSSS        YYYYYYXX           SX",
-    "XS                   YYXXXXXXX    XXXXX   SX",
-    "XS  YYY  YYYYY  YYYYYXXXXXG      XXC      SX",
+    "XS      SSSSSSS        YYYYYYXX           XX",
+    "XS                   YYXXXXXXX    XXXXX   XX",
+    "XS  YYY  YYYYY  YYYYYXXXXXG      XXC      XX",
     "XS  XXXXXXXXXXXXXXXXXXXX        XXG      YXX",
     "XS  XXXXXXXX      G   G     XXXXXC      YXXX",
-    "XS  CCCCCCCC             YYXXC         YXXXX",
+    "XS  CCCCCCCC             YYXXC        YYXXXX",
     "XS            X          XXXC     XXXXXXXXGX",
     "XX   Y  Y  Y XX         XXXX   XXXX    G   X",
     "XXXXXXXXXXXXXXX        XXXXXY            N X",

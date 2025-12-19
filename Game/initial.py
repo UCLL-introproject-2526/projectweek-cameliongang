@@ -175,9 +175,6 @@ def main():
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                 player = Player(lvl, camera)
-                enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
-                print(current_level_idx)
-             
              # Handle events for loading screen (quit)
              for event in pg.event.get():
                 if event.type == pg.QUIT:
