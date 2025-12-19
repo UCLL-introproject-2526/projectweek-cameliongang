@@ -308,7 +308,7 @@ LEVEL_5 = [
     "XXSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSXXXXXX",
     "XX                             E E EE XEEXXX",
     "XX           YYYYYYYYYYYYYYY    E  E EXEXEXX",
-    "XXXXXXXXX    XXXXXXXXXXXXXXXXXXXXX    XXXXXX",
+    "XFFFFFFFF    XXXXXXXXXXXXXXXXXXXXX    XXXXXX",
     "XX      S    XXXXXXXXXXXG             XXXXXX",
     "XS   G  S    XXXXXXG                XXXXXXXX",
     "XS      X  P XXG               XXXXXXXX   XX",
