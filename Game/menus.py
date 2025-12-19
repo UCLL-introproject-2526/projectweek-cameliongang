@@ -55,6 +55,11 @@ class Button:
         # Center text?
         text_rect = text.get_rect(center=self.button.center)
         # Apply slight y offset for visual alignment
+        # User requested to move ALL text up.
+        # Default center might be too low.
+        # Let's shift up by 3 pixels from previous.
+        text_rect.y -= 5
+        
         text_rect.y += 2 if is_pressed else 0
         
         surface.blit(text, text_rect)
@@ -216,83 +221,38 @@ def draw_loading_screen(surface, font, progress, level_idx=0):
     # Background
     surface.fill((0, 0, 0))
     try:
-        # Use mainmenu background or special loading background
-        bg = game_background('mainmenu_background.png', menu=True)
+        # Use NEW dedicated loading background
+        bg = game_background('loading_background.png', menu=True)
         surface.blit(bg, (0,0))
     except:
-        pass
+        # Fallback to main menu if missing
+        try:
+             bg = game_background('mainmenu_background.png', menu=True)
+             surface.blit(bg, (0,0))
+        except:
+             pass
     
-    # Overlay for text readability?
+    # Overlay for text readability - Slightly darker
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
-    overlay.fill((0, 0, 0, 150))
+    overlay.fill((0, 0, 0, 100))
     surface.blit(overlay, (0,0))
     
     # Text
     text = font.render(f"Loading Level {level_idx + 1}...", True, (255, 255, 255))
-    text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 50))
+    text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 55)) # Shifted up 5px (50 -> 55)
     surface.blit(text, text_rect)
     
-    # Load Loading Assets (Cached locally to func or global? Func is fine for now but slow if init every frame)
-    # Better to cache, but for quick implementation:
-    if not hasattr(draw_loading_screen, "assets_loaded"):
-        draw_loading_screen.assets_loaded = False
-        draw_loading_screen.bg = None
-        draw_loading_screen.fill = None
-        draw_loading_screen.failed = False
-
-    if not draw_loading_screen.assets_loaded and not draw_loading_screen.failed:
-        try:
-             # Check display init first just in case
-             if pg.display.get_init():
-                 draw_loading_screen.bg = pg.image.load('./resources/loading_frame.png').convert_alpha()
-                 draw_loading_screen.fill = pg.image.load('./resources/loading_fill.png').convert_alpha()
-                 
-                 # Scale frame to 400x40. 
-                 # Generated asset might be any size.
-                 draw_loading_screen.bg = pg.transform.scale(draw_loading_screen.bg, (400, 40))
-                 draw_loading_screen.assets_loaded = True
-        except Exception as e:
-            draw_loading_screen.failed = True
-            # print(f"Loading assets failed: {e}") 
-
-    if draw_loading_screen.assets_loaded and draw_loading_screen.bg and draw_loading_screen.fill:
-        # Bar Geometry
-        bar_width = 400
-        bar_height = 30 # Inner height? Frame is 40.
-        bar_x = (surface.get_width() - bar_width) // 2
-        bar_y = surface.get_height() // 2 + 20
-        
-        # 0. Draw Trough (Background of the bar - Dark Gray/Black) -> Behind everything
-        # Frame is 400x40. Bar is inside.
-        # Let's assume frame is centered at bar_y + 15.
-        # Draw explicit black box behind
-        pg.draw.rect(surface, (20, 20, 20), (bar_x, bar_y + 5, bar_width, 20)) # Inner trough
-        
-        # 1. Draw Progress (Clipped fill)
-        # Fill width logic
-        fill_max_width = bar_width - 10 # Padding
-        fill_width = int(fill_max_width * progress)
-        
-        if fill_width > 0:
-            # Scale fill texture to current width
-            current_fill = pg.transform.scale(draw_loading_screen.fill, (fill_width, 20))
-            surface.blit(current_fill, (bar_x + 5, bar_y + 5))
-            
-        # 2. Draw Frame ON TOP
-        frame_rect = draw_loading_screen.bg.get_rect(center=(surface.get_width()//2, bar_y + 15))
-        surface.blit(draw_loading_screen.bg, frame_rect)
-        
-    else:
-        # Fallback (Geometric)
-        bar_width = 400
-        bar_height = 30
-        bar_x = (surface.get_width() - bar_width) // 2
-        bar_y = surface.get_height() // 2 + 20
-        
-        # Draw Trough
-        pg.draw.rect(surface, (30, 30, 30), (bar_x, bar_y, bar_width, bar_height))
-        # Draw Progress
-        fill_width = int(bar_width * progress)
-        pg.draw.rect(surface, 'green', (bar_x, bar_y, fill_width, bar_height))
-        # Draw Border
-        pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
+    # Bar Geometry
+    bar_width = 400
+    bar_height = 30
+    bar_x = (surface.get_width() - bar_width) // 2
+    bar_y = surface.get_height() // 2 + 20
+    
+    # Draw Geometric Bar (Reverted per user request)
+    # Trough (Background)
+    pg.draw.rect(surface, (30, 30, 30), (bar_x, bar_y, bar_width, bar_height))
+    # Fill
+    fill_width = int(bar_width * progress)
+    pg.draw.rect(surface, (0, 200, 0), (bar_x, bar_y, fill_width, bar_height))
+    # Border
+    pg.draw.rect(surface, 'white', (bar_x, bar_y, bar_width, bar_height), 2)
