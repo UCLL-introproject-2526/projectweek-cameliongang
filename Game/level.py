@@ -141,6 +141,25 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
+# LEVEL_0 = [
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "                              ",
+#     "X              S              ",
+#     "X              S         G    ",
+#     "X              S              ",
+#     "X              S         XXXX ",
+#     "X              S         CCCC ",
+#     "X          Y   XL  F          ",
+#     "XXXXXXX  XXXXXXXXXXXXXXXX     ",
+#     "                              ",
+#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+# ]
+
 LEVEL_1 =  [
     #tutorial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
@@ -223,26 +242,19 @@ LEVEL_2 = [
 
 
 LEVEL_3 = [
-    
-
-    "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXGXXXXGXXX       ",
-    "X                CXXX                     XE   E  ",
-    "X                 CXX                     X E     ",
-    "X P                CS                     X      E",
-    "XXXX  Y  YYY    YY  S          YYYY       X       ",
-    "XXXXYYXXXXXXYYYXXX  S       YXXXXXXXXXX   X       ",
-    "XXXXXXXGXXXXXXXXC   S       XXXXXGXXXXX   X       ",
-    "S                   S    YYYXXXC          X       ",
-    "S                   SY  XXXXXXC           X       ",
-    "S   XXY             SX     XXC         XXXX       ",
-    "S    CFY         F  SXXL  YXX             X       ",
-    "S     CFYY      FFFYXXC   XXX   N         X       ",
-    "S Y    CXXXXXXXXXXXXXC  YXXXXYYXXXYYYYYYYYX       ",
-    "SYFY                    XXXXXXXXXXXXXXXXXXX    E  ",
-    "SFFF                  YXXXXXXXXXXXXXXXXXXXX   E   ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX     G  XNNNNNNNNNN",
+    "NNNNNNNNNNX  N     SNNNNNNNNNN",
+    "NNNNNNNNNNX XXXX   XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX        SNNNNNNNNNN",
+    "NNNNNNNNNNX P      FNNNNNNNNNN",
+    "NNNNNNNNNNXXXXXXXXXXNNNNNNNNNN",
+    "NNNNNNNNNNDDDDDDDDDDNNNNNNNNNN",
 ]
+
 
 #  "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXXXXXXXXXX       ",
 #     "X                CXXX                     XE   E  ",
@@ -441,20 +453,28 @@ LEVEL_8 =  [
     "DDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_9 = [
-    "NNNNNNNNNNX        XNNNNNNNNNN",
-    "NNNNNNNNNNX        XNNNNNNNNNN",
-    "NNNNNNNNNNX     G  XNNNNNNNNNN",
-    "NNNNNNNNNNX  N     SNNNNNNNNNN",
-    "NNNNNNNNNNX XXXX   XNNNNNNNNNN",
-    "NNNNNNNNNNX        XNNNNNNNNNN",
-    "NNNNNNNNNNX        XNNNNNNNNNN",
-    "NNNNNNNNNNX        SNNNNNNNNNN",
-    "NNNNNNNNNNX P      FNNNNNNNNNN",
-    "NNNNNNNNNNXXXXXXXXXXNNNNNNNNNN",
-    "NNNNNNNNNNDDDDDDDDDDNNNNNNNNNN",
-]
 
+LEVEL_9 = [
+    
+
+    "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXGXXXXGXXX       ",
+    "X                CXXX                     XE   E  ",
+    "X                 CXX                     X E     ",
+    "X P                CS                     X      E",
+    "XXXX  Y  YYY    YY  S          YYYY       X       ",
+    "XXXXYYXXXXXXYYYXXX  S       YXXXXXXXXXX   X       ",
+    "XXXXXXXGXXXXXXXXC   S       XXXXXGXXXXX   X       ",
+    "S                   S    YYYXXXC          X       ",
+    "S                   SY  XXXXXXC           X       ",
+    "S   XXY             SX     XXC         XXXX       ",
+    "S    CFY         F  SXXL  YXX             X       ",
+    "S     CFYY      FFFYXXC   XXX   N         X       ",
+    "S Y    CXXXXXXXXXXXXXC  YXXXXYYXXXYYYYYYYYX       ",
+    "SYFY                    XXXXXXXXXXXXXXXXXXX    E  ",
+    "SFFF                  YXXXXXXXXXXXXXXXXXXXX   E   ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
+]
 LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8, LEVEL_9]
 
 # Default width/height based on first level (or dynamic per level load)
