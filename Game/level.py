@@ -194,26 +194,7 @@ LEVEL_1 =  [
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
 
-LEVEL_2 = [
-   
-    "                                         SX ",
-    "    N               G     G              SX ",
-    "   XXX                                   SX ",
-    "        XXX                      YY  YY  SX ",
-    "             X                   XXXXXX  SX ",
-    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
-    "X            SSSS SS                     SX ",
-    "X       G              S              S   X ",
-    "X           S          S    XX  XXXX  S   X ",
-    "S           S          S              S   X ",
-    "S  XXX      S                             X ",
-    "S                    G         YY        YX ",
-    "S          XXXXX        S   S XXXX Y  Y XXXE",
-    "X  P     X              S   S      XXXX   XE",
-    "X XXX    XX   XXXXX   X S                 X ",
-    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
-]
+
 
 
 # LEVEL_2 = [
@@ -241,7 +222,7 @@ LEVEL_2 = [
 # ]
 
 
-LEVEL_3 = [
+LEVEL_2 = [
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX     G  XNNNNNNNNNN",
@@ -255,6 +236,27 @@ LEVEL_3 = [
     "NNNNNNNNNNDDDDDDDDDDNNNNNNNNNN",
 ]
 
+
+LEVEL_3 = [
+   
+    "                                         SX ",
+    "    N               G     G              SX ",
+    "   XXX                                   SX ",
+    "        XXX                      YY  YY  SX ",
+    "             X                   XXXXXX  SX ",
+    "YYYYYYYYYYYYYXX    YYYYY  YYYYYYX        SX ",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX         SX ",
+    "X            SSSS SS                     SX ",
+    "X       G              S              S   X ",
+    "X           S          S    XX  XXXX  S   X ",
+    "S           S          S              S   X ",
+    "S  XXX      S                             X ",
+    "S                    G         YY        YX ",
+    "S          XXXXX        S   S XXXX Y  Y XXXE",
+    "X  P     X              S   S      XXXX   XE",
+    "X XXX    XX   XXXXX   X S                 X ",
+    "XDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDX ",
+]
 
 #  "XXXXXXXXXXXXXXGXXXXXXXXXGXXXXGXXXXXXXXXXXXX       ",
 #     "X                CXXX                     XE   E  ",
