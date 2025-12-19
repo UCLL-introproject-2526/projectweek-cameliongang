@@ -136,7 +136,9 @@ for i, lvl in enumerate(LEVELS):
     row = i // 2
     x = 300 + (col * 350)
     y = 200 + (row * 100)
-    btn = Button(f"Level {i+1}", (x, y))
+    # Use 'name' from dictionary
+    btn_text = lvl.get('name', f"Level {i+1}")
+    btn = Button(btn_text, (x, y))
     level_buttons.append((i, btn))
 
 back_button = Button("Back", (500, 600))
@@ -151,7 +153,6 @@ def draw_levels_menu(surface, font, page=0):
     
     # Draw title
     
-
     # Pagination Logic
     ITEMS_PER_PAGE = 8
     start_idx = page * ITEMS_PER_PAGE
@@ -310,7 +311,7 @@ def draw_pause_menu(surface, font, mute_button):
         
     return command
 
-def draw_loading_screen(surface, font, progress, level_idx=0):
+def draw_loading_screen(surface, font, progress, level_name_or_idx, is_name=False):
     # Background
     surface.fill((0, 0, 0))
     try:
@@ -320,10 +321,10 @@ def draw_loading_screen(surface, font, progress, level_idx=0):
     except:
         # Fallback to main menu if missing
         try:
-             bg = game_background('mainmenu_background.png', menu=True)
-             surface.blit(bg, (0,0))
+            bg = game_background('mainmenu_background.png', menu=True)
+            surface.blit(bg, (0,0))
         except:
-             pass
+            pass
     
     # Overlay for text readability - Slightly darker
     overlay = pg.Surface(surface.get_size(), pg.SRCALPHA)
@@ -331,7 +332,12 @@ def draw_loading_screen(surface, font, progress, level_idx=0):
     surface.blit(overlay, (0,0))
     
     # Text
-    text = font.render(f"Loading Level {level_idx + 1}...", True, (255, 255, 255))
+    if is_name:
+         text_str = f"Loading {level_name_or_idx}..."
+    else:
+         text_str = f"Loading Level {level_name_or_idx + 1}..."
+         
+    text = font.render(text_str, True, (255, 255, 255))
     text_rect = text.get_rect(center=(surface.get_width() // 2, surface.get_height() // 2 - 55)) # Shifted up 5px (50 -> 55)
     surface.blit(text, text_rect)
     

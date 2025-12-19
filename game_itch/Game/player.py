@@ -65,6 +65,11 @@ class Player:
 
 
 
+
+        # Cheat State
+        self.invulnerable = False
+        self.input_cheat_active = False
+
         # Momentum
         self.momentum_x = 0
 
@@ -294,6 +299,15 @@ class Player:
     # Jump held: either UP arrow or W key
         self.jump_held = keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE] or keys[pg.K_z]
 
+        # Cheat: P+M+O for Invulnerability
+        if keys[pg.K_p] and keys[pg.K_m] and keys[pg.K_o]:
+             if not self.input_cheat_active:
+                 self.invulnerable = not self.invulnerable
+                 print(f"CHEAT: Invulnerability {'ON' if self.invulnerable else 'OFF'}")
+                 self.input_cheat_active = True
+        else:
+             self.input_cheat_active = False
+
     # You can also add other continuous input checks here later
     # (for example crouch, dash, etc.)
 
@@ -467,7 +481,7 @@ class Player:
 
         dot = facing_vector[0] * to_tile_vector[0] + facing_vector[1] * to_tile_vector[1]
         if dot <= 0:
-            print("Tile is behind you!")
+                # print("Tile is behind you!")
             return
 
         if not self.can_grapple_to(target_tile):
@@ -570,13 +584,14 @@ class Player:
         
         if self.rect.colliderect(rect):
            if not self.al_geraakt:
-               print("DEBUG: Player took damage! Playing sound.")
-               healthbar.hp -= 10
-               if 'damage' in self.sounds:
-                   self.sounds['damage'].play()
-               else:
-                   print("DEBUG: Damage sound not found in self.sounds")
-               self.al_geraakt = True
+               if not self.invulnerable:
+                   print("DEBUG: Player took damage! Playing sound.")
+                   healthbar.hp -= 10
+                   if 'damage' in self.sounds:
+                       self.sounds['damage'].play()
+                   else:
+                       print("DEBUG: Damage sound not found in self.sounds")
+                   self.al_geraakt = True
         else:
            # reset zodra ze niet meer botsen
            self.al_geraakt = False
@@ -587,9 +602,10 @@ class Player:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
-                    healthbar.hp = 0
-                    if 'death' in self.sounds:
-                        self.sounds['death'].play()
+                    if not self.invulnerable:
+                        healthbar.hp = 0
+                        if 'death' in self.sounds:
+                            self.sounds['death'].play()
                 
             
                 if t_type == 'N':

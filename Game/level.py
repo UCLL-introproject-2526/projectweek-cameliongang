@@ -477,20 +477,35 @@ LEVEL_9 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
 ]
-LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8, LEVEL_9]
+
+
+LEVELS = [
+    {"name": "1.Tutorial", "data": LEVEL_1},
+    {"name": "2.Slime Jump", "data": LEVEL_2},
+    {"name": "3.First Challenge", "data": LEVEL_3},
+    {"name": "4.Graple Swing", "data": LEVEL_4},
+    {"name": "5.Fly Barrage", "data": LEVEL_5},
+    {"name": "6.Vex", "data": LEVEL_6},
+    {"name": "7.TJ", "data": LEVEL_7},
+    {"name": "8.Checkpoints?", "data": LEVEL_8},
+    {"name": "9.(Im)posible", "data": LEVEL_9},
+]
 
 # Default width/height based on first level (or dynamic per level load)
 # But StandardUse uses this constant... we might need to update that too if levels vary significantly?
 # For now, let's keep them dynamic in the class but these global constants might be tricky.
 # We'll rely on the loaded level's dimensions.
-LEVEL_WIDTH = len(LEVELS[0][0]) * TILE_SIZE
-LEVEL_HEIGHT = (len(LEVELS[0]) - 1) * TILE_SIZE
+LEVEL_WIDTH = len(LEVELS[0]['data'][0]) * TILE_SIZE
+LEVEL_HEIGHT = (len(LEVELS[0]['data']) - 1) * TILE_SIZE
 
 class Level:
     def __init__(self, level_index=0):
         self.tiles = []
         self.player_start_pos = (100, 100) # Default
-        self.current_map = LEVELS[level_index]
+        self.level_data = LEVELS[level_index]
+        self.current_map = self.level_data['data']
+        self.name = self.level_data['name']
+        
         # Update globals/instance vars for this specific level
         global LEVEL_WIDTH, LEVEL_HEIGHT
         LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE

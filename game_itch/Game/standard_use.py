@@ -160,6 +160,9 @@ class MuteButton:
         self.muted = not self.muted
         if self.muted:
             pg.mixer.music.set_volume(0)  # Mute music
+            # Mute global effects if possible, or we just handle music for now
+            # pg.mixer.stop() # Only stops active, doesn't prevent new. 
+            # Ideally we set a global volume
             pg.mixer.music.pause()
         else:
             pg.mixer.music.unpause()

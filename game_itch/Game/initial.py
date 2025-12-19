@@ -1,7 +1,6 @@
 import pygame as pg
 import random
 import time
-import asyncio
 from player import Player
 from camera import Camera
 import level as level_module
@@ -14,7 +13,7 @@ camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
 
 # Main game loop function
-async def main():
+def main():
     # Initialization of Pygame and game variables
     pg.init()
     surface = create_main_surface()
@@ -49,7 +48,7 @@ async def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     waiting = False
-        await asyncio.sleep(0) 
+        pg.time.wait(10) 
                     
 
     # No asyncio.sleep here for synchronous desktop version
@@ -113,8 +112,6 @@ async def main():
     menu_click_cooldown = 0
 
     while running:
-        await asyncio.sleep(0)
-
         
         # Decrement cooldown
         if menu_click_cooldown > 0:
@@ -149,6 +146,11 @@ async def main():
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
              pg.display.flip()
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
@@ -167,6 +169,9 @@ async def main():
                  # Reload background to match new level size
                  bg = game_background('background_img.jpg', width=level_module.LEVEL_WIDTH, height=level_module.LEVEL_HEIGHT)
                  
+                 # Re-init enemies for the new level
+                 enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
+                 
              progress = loading_timer / LOADING_DURATION
              draw_loading_screen(surface, font, progress, current_level_idx)
              
@@ -184,6 +189,11 @@ async def main():
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
              
              pg.display.flip()
              clock.tick(60)
@@ -203,7 +213,7 @@ async def main():
                 elif command == 9: # Next Page
                     levels_page += 1
                     menu_click_cooldown = 10
-                elif command > 10:
+                elif command >= 10:
                     current_level_idx = command - 10
                     levels_menu = False
                     loading_menu = True # Go to loading!
@@ -213,31 +223,41 @@ async def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
             
             pg.display.flip()
             clock.tick(60)
             continue
 
-
-
+            
         elif settings_menu:
             command = draw_settings_menu(surface, font, mute_button)
-
+            
             # Handle Mute Button Event explicitly here since it's clickable in this menu
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-                mute_button.handle_event(event)
+                mute_button.handle_event(event) # Keep existing logic
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                    # Mute button toggles via handle_event, but hotkey is good too
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
 
             if menu_click_cooldown == 0:
                 if command == 2: # Back
                     settings_menu = False
                     main_menu = True
                     menu_click_cooldown = 15
-
+            
             pg.display.flip()
             clock.tick(60)
-            continue
+            continue 
 
         elif pause_menu:
              command = draw_pause_menu(surface, font, mute_button)
@@ -264,40 +284,16 @@ async def main():
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_f:
+                        pg.display.toggle_fullscreen()
+                    if event.key == pg.K_m:
+                        mute_button.toggle()
              
              pg.display.flip()
              clock.tick(60)
              continue
-        elif levels_menu:
-             command = draw_levels_menu(surface, font, levels_page) # Pass page arg fix
-             
-             if menu_click_cooldown == 0:
-                 if command >= 10: # Level selected
-                     current_level_idx = command - 10
-                     # Start Loading immediately, defer logic to loading_menu loop
-                     levels_menu = False
-                     loading_menu = True
-                     loading_timer = 0
-                     menu_click_cooldown = 15
-                 elif command == 8: # Prev Page
-                    if levels_page > 0:
-                        levels_page -= 1
-                        menu_click_cooldown = 10
-                 elif command == 9: # Next Page
-                    levels_page += 1
-                    menu_click_cooldown = 10
-                 elif command == 2: # Back
-                     levels_menu = False
-                     main_menu = True
-                     menu_click_cooldown = 15
-                 
-             for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    running = False
-             
-             pg.display.flip()
-             clock.tick(60)
-             continue
+
         else:
             # Handling events
             
@@ -309,16 +305,15 @@ async def main():
 
                 if player.rect.colliderect(enemy.rect):
                     if not enemy.has_hit_player:
-                        health_bar.hp -= enemy.damage
-                        if hasattr(player, 'sounds') and 'damage' in player.sounds:
-                            player.sounds['damage'].play()
-                        enemy.has_hit_player = True
-                        if enemy.hit_cooldown == 0:
-
-
-                            player.velocity_y -= 30
-                            player.momentum_x -= 30
-                            enemy.hit_cooldown = 120
+                        if not player.invulnerable:
+                            health_bar.hp -= enemy.damage
+                            if hasattr(player, 'sounds') and 'damage' in player.sounds:
+                                player.sounds['damage'].play()
+                            enemy.has_hit_player = True
+                            if enemy.hit_cooldown == 0:
+                                player.velocity_y -= 30
+                                player.momentum_x -= 30
+                                enemy.hit_cooldown = 120
 
                 else:
                     # reset zodra ze niet meer botsen
@@ -328,10 +323,10 @@ async def main():
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
-
-                # Handle mute button click (REMOVED from HUD events, only kept M key)
-                # mute_button.handle_event(event) 
-
+                
+                # Handle mute button click
+                mute_button.handle_event(event)
+                
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 3:
                         player.shoot_tongue()
 
@@ -345,13 +340,13 @@ async def main():
                         pause_menu = not pause_menu
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
-
+                    
                     if event.key == pg.K_f:
                         pg.display.toggle_fullscreen()
-
+                        
                     if event.key == pg.K_m:
                         mute_button.toggle()
-
+                        
                     if event.key == pg.K_p:
                         print(f"Player Pos: {player.rect.topleft}, Level: {current_level_idx}")
                         player.print_current_loc()
@@ -523,9 +518,9 @@ async def main():
             
             # Delta time
             dt_ms = clock.tick(60)
+            if dt_ms > 100: dt_ms = 100 # Cap dt to prevent physics explosions/teleporting
             dt_factor = (dt_ms / 1000.0) * 60
             pg.display.flip()
-            await asyncio.sleep(0)
 
 if __name__ == "__main__":
     main()
