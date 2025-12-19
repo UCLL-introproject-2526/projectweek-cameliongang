@@ -407,7 +407,7 @@ LEVEL_8 =  [
     "X           XX           X",
     "X           XX           X",
     "X           XX           X",
-    "X           XX           X",
+    "X       N   XX           X",
     "S XXXXXXXXXXXX           X",
     "X X         XX           X",
     "X X   P   G XXX          X",
