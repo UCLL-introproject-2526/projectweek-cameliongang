@@ -11,6 +11,8 @@ class Button:
         self.pos = pos
         self.button = pg.rect.Rect((self.pos[0], self.pos[1]), (260,50)) # Hitbox
     
+    clicked_state = False # Track previous frame state
+
     def ensure_assets(self):
          # Only try loading if display is initialized (needed for convert_alpha)
          if not pg.display.get_init() or not pg.display.get_surface():
@@ -28,6 +30,14 @@ class Button:
                 # If loading fails (e.g. file missing), set a flag to stop retrying every frame?
                 # Or just pass. Printing every frame causes lag.
                 pass
+         
+         # Load Sound
+         if not hasattr(Button, "snd_click"):
+             try:
+                 Button.snd_click = pg.mixer.Sound('./resources/button_click.wav')
+                 Button.snd_click.set_volume(0.4)
+             except:
+                 Button.snd_click = None
 
     def draw(self, surface, font):
         self.ensure_assets()
@@ -35,6 +45,18 @@ class Button:
         # Determine state
         is_hovered = self.button.collidepoint(pg.mouse.get_pos())
         is_pressed = is_hovered and pg.mouse.get_pressed()[0]
+        
+        # Sound Logic (Rising Edge)
+        if is_pressed and not self.clicked_state:
+            # Just pressed
+            print(f"DEBUG: Button '{self.text}' clicked.")
+            if hasattr(Button, "snd_click") and Button.snd_click:
+                Button.snd_click.play()
+            else:
+                print("DEBUG: Button sound missing or not loaded.")
+            self.clicked_state = True
+        elif not is_pressed:
+            self.clicked_state = False
         
         if Button.img_normal and Button.img_pressed:
             if is_pressed:

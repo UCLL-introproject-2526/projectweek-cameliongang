@@ -173,6 +173,25 @@ class Player:
              self.bush_img.set_colorkey((0, 0, 0))
         except:
              self.bush_img = None
+        
+        # Load Sounds
+        self.sounds = {}
+        try:
+            self.sounds['walk'] = pg.mixer.Sound('./resources/walk.wav')
+            self.sounds['walk'].set_volume(0.3)
+            # Switched to generated WAV to ensure playback
+            self.sounds['damage'] = pg.mixer.Sound('./resources/damage.wav')
+            self.sounds['damage'].set_volume(0.6)
+            self.sounds['death'] = pg.mixer.Sound('./resources/death.mp3')
+            self.sounds['death'].set_volume(0.6)
+            self.sounds['level_complete'] = pg.mixer.Sound('./resources/level_complete.wav')
+            self.sounds['level_complete'].set_volume(0.6)
+            self.sounds['jump'] = pg.mixer.Sound('./resources/jump.wav')
+            self.sounds['jump'].set_volume(0.4)
+        except Exception as e:
+            print(f"Error loading sounds: {e}")
+            
+        self.walk_timer = 0
 
 
     # Coyote reduction
@@ -208,6 +227,8 @@ class Player:
                     return # Do not consume jump if direction is wrong (allow climbing/holding)
 
             # Execute Jump
+            if 'jump' in self.sounds:
+                self.sounds['jump'].play()
             self.velocity_y = self.jump_strength
             self.on_ground = False
             self.on_wall = False
@@ -485,6 +506,17 @@ class Player:
 
         # Horizontal Movement
         self.xcoor += total_dx
+        
+        # Walking Sound Logic
+        if self.on_ground and abs(dx) > 0:
+            self.walk_timer -= 1
+            if self.walk_timer <= 0:
+                if 'walk' in self.sounds:
+                    self.sounds['walk'].play()
+                self.walk_timer = 20 # Loop every 20 frames (~3 times/sec)
+        else:
+            self.walk_timer = 0 # specific reset or immediate start on land? 0 = immediate.
+
         player_rect = pg.Rect(self.xcoor, self.ycoor, self.width, self.height)
 
         # Horizontal collision
@@ -492,7 +524,12 @@ class Player:
         
         if self.rect.colliderect(rect):
            if not self.al_geraakt:
+               print("DEBUG: Player took damage! Playing sound.")
                healthbar.hp -= 10
+               if 'damage' in self.sounds:
+                   self.sounds['damage'].play()
+               else:
+                   print("DEBUG: Damage sound not found in self.sounds")
                self.al_geraakt = True
         else:
            # reset zodra ze niet meer botsen
@@ -505,10 +542,15 @@ class Player:
                 t_type = getattr(tile, 'type', 'X')
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
                     healthbar.hp = 0
+                    if 'death' in self.sounds:
+                        self.sounds['death'].play()
                 
             
                 if t_type == 'N':
-                    self.level_complete = True                                        
+                    if not self.level_complete: # Only play once
+                        if 'level_complete' in self.sounds:
+                            self.sounds['level_complete'].play()
+                        self.level_complete = True                                        
                     
                     
                 if t_type == 'S':
