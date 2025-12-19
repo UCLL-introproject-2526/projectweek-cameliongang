@@ -81,10 +81,13 @@ def main():
     
     # Initialize hints
     hints = [
-        Hints(font, (200, 300), "Press 'D' to move Right"),
-        Hints(font, (400, 300), "Press 'Space' or 'W' to Jump"),
-        Hints(font, (700, 200), "Press 'E' to Shoot Tongue"),
-    ]
+        Hints(font, (128, 128), "Use arrow keys or A/D to move left and right"),
+        Hints(font, (128, 160), "Press 'Space' or 'W' to Jump"),
+        Hints(font, (604, 1408), "While on wall, press jump and move left or right to jump off"),
+        Hints(font, (1344, 576), "Press 'G' or 'Left Mouse' to grapple"),
+        Hints(font, (783, 576), "Let go of grapple early to swing furhter!"),
+        Hints(font, (132, 843), "Click right mouse to shoot tongue"),
+                ]
     
 
     #music playing
@@ -301,6 +304,10 @@ def main():
                         pause_menu = not pause_menu
                     if event.key == pg.K_h:
                         show_hitboxes = not show_hitboxes
+                        
+                    if event.key == pg.K_p:
+                        print(f"Player Pos: {player.rect.topleft}, Level: {current_level_idx}")
+                        player.print_current_loc()
                     
                     if event.key in (pg.K_UP, pg.K_w, pg.K_SPACE):
                         player.request_jump()

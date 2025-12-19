@@ -1,4 +1,5 @@
 import pygame as pg
+
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
@@ -862,4 +863,7 @@ class Player:
 
             
             surface.blit(frame, shifted_rect)
+
+    def print_current_loc(self):
+        print(self.xcoor, self.ycoor)
         

@@ -115,7 +115,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_height = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], TILE_SIZE, spike_height)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], TILE_SIZE, spike_height)
                  
             elif type == 'L':
                  # Left Spike: Yellow left strip
@@ -125,7 +125,7 @@ class Tile(pygame.sprite.Sprite):
                  
                  # Set Rect for Physics
                  spike_width = TILE_SIZE // 4
-                 self.rect = pygame.Rect(pos[0], pos[1], spike_width, TILE_SIZE)
+                 self.rect = pygame.Rect(self.pos[0], self.pos[1], spike_width, TILE_SIZE)
 
             elif type == 'R':
                  # Right Spike: Purple right strip
@@ -142,15 +142,15 @@ class Tile(pygame.sprite.Sprite):
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
 LEVEL_1 =  [
-    #toturial-level
+    #tutorial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
     "X                           XE",
     "X P        Y   Y   YYYY     X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
-    "XXXXXX   SXXXXXXXXXXXXXXXX  X ",
-    "XXXXXXXXSSXXGXXXXXXXXXXXXX  X ",
+    "XXXXXX   XXXXXXXXXXXXXXXXX  X ",
+    "XXXXXXXXXXXXGXXXXXXXXXXXXX  X ",
     "X                   G       X ",
     "X                           X ",
     "X                           X ",
@@ -170,7 +170,7 @@ LEVEL_1 =  [
     "X         XXXXXXXX  S    XXXX ",
     "X                   S    XXXX ",
     "X                   S    XXXX ",
-    "X                   X    XXXXX",
+    "X                   S    XXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
@@ -511,7 +511,9 @@ class Level:
         pixel_y = tile_y * TILE_SIZE
         print(f"you want pixel_x: {pixel_x} and pixel_y: {pixel_y}")
     
-    find_pixel_loc(11,23)
+    find_pixel_loc(2,1)
+
+    
 
 
     
