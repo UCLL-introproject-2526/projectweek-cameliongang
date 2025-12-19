@@ -170,7 +170,7 @@ LEVEL_1 =  [
     "X         XXXXXXXX  S    XXXX ",
     "X                   S    XXXX ",
     "X                   S    XXXX ",
-    "X                   S    XXXXX",
+    "X                   X    XXXXX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
