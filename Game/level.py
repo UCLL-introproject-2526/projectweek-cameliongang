@@ -511,6 +511,7 @@ class Level:
         LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE
         LEVEL_HEIGHT = (len(self.current_map) - 1) * TILE_SIZE
         self.has_enemy=False
+        self.T_location = 0
         self.setup_level()
 
     def setup_level(self):
@@ -547,6 +548,13 @@ class Level:
                 if cell == 'E':
                     self.enemy_spawns.append((x, y))
                     self.has_enemy = True
+                if cell == 'T':
+                    self.tiles.append((x, y))
+                    self.T_location = (x,y)
+                if cell == 't':
+                    self.tiles.append((x, y))
+                    self.T_location = (x,y)
+                
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:
