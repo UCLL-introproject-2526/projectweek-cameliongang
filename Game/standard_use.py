@@ -106,7 +106,7 @@ class Hints:
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 def create_main_surface():
-    screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen_size = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.SCALED | pg.RESIZABLE)
     pg.display.set_caption('Chameleon Quest')
     return screen_size
 
