@@ -1,10 +1,10 @@
-
 import requests
 import json
-import time
 import sys
 import os
 import threading
+from profanity import ProfanityFilter
+
 
 class LeaderboardClient:
     _instance = None
@@ -32,8 +32,8 @@ class LeaderboardClient:
         self.access_token = None
         self.is_offline = True
 
-        # Profanity Filter List (Basic)
-        self.banned_words = ["badword", "admin", "null", "fuck", "shit", "bitch", "ass", "cunt"] 
+        # Initialize Profanity Filter
+        self.profanity_filter = ProfanityFilter()
         
         self.init_client()
         self.initialized = True
@@ -60,12 +60,7 @@ class LeaderboardClient:
             return False
             
     def contains_profanity(self, text):
-        if not text: return False
-        text_lower = text.lower()
-        for word in self.banned_words:
-            if word in text_lower:
-                return True
-        return False
+        return self.profanity_filter.is_profane(text)
 
     def _get_headers(self, authenticated=False):
         headers = {
@@ -103,15 +98,26 @@ class LeaderboardClient:
         try:
             response = requests.post(endpoint, json=payload, headers=self._get_headers())
             
-            data = response.json()
+            # DEBUG: Print exact response from Supabase
+            print(f"[Network] Signup Status: {response.status_code}")
+            print(f"[Network] Signup Response: {response.text}")
+            
+            try:
+                data = response.json()
+            except:
+                data = {}
+                
             if response.status_code == 200:
                 self.user = data.get("user")
                 self.access_token = data.get("access_token")
-                # Store session data if needed
                 return {"success": True, "user": self.user}
             else:
-                return {"error": data.get("msg", data.get("error_description", "Signup Failed"))}
+                # Prioritize "msg" or "error_description"
+                err = data.get("msg", data.get("error_description", "Signup Failed"))
+                # If Supabase sends a raw string in msg, use it
+                return {"error": err}
         except Exception as e:
+            print(f"[Network] Signup Exception: {e}")
             return {"error": str(e)}
 
     def login(self, email, password):
@@ -382,7 +388,13 @@ class LeaderboardClient:
         if self.is_offline: return False
 
         # If user is logged in, include user_id
-        user_id = self.user['id'] if self.user else None
+        # If user is logged in, include user_id. If not, abort (RLS requires auth).
+        if not self.user:
+            print("[Network] Anonymous score submission skipped (Login required).")
+            return False
+
+        user_id = self.user['id']
+
         
         payload = {
             "level_id": level_id,
@@ -463,3 +475,41 @@ class LeaderboardClient:
         except Exception as e:
             print(f"[Network] Fetch Error: {e}")
             return []
+
+    def calculate_and_submit_total(self, total_level_count):
+        """Calculates total time and deaths for all levels and submits to Level 0 (Total Leaderboard).
+           Only submits if ALL levels (1 to total_level_count) have a valid score.
+        """
+        if self.is_offline or not self.user: return
+
+        print("[Network] Calculating Total Score...")
+        
+        total_time = 0.0
+        total_deaths = 0 # This will be sum of deaths in the BEST RUNS (or just sum of deaths record?)
+                         # Plan: Sum of 'deaths' from the specific records that provided the Best Time?
+                         # Or just sum of best deaths?
+                         # Implementation Plan said: "Sum Time (Best Time) and Sum Deaths".
+                         # Let's fetch the "My Score" for each level which returns the Best Record (min deaths, then min time).
+                         # Wait, get_my_score sorts by deaths then time.
+                         # For "Total Speedrun Time", we usually want Best Time regardless of deaths?
+                         # But get_my_score implementation: `order=deaths.asc,time_seconds.asc`
+                         # This means it favors Low Deaths. This is a "Perfect Run" leaderboard.
+                         # If I want "Fastest Time", I should query differently.
+                         # However, for consistency with the per-level leaderboard (which ranks by deaths first),
+                         # we should sum the stats of the "Best Rank" entries.
+                         # So using `get_my_score` is consistent.
+        
+        # We need to verify 1..total_level_count
+        for lvl_idx in range(1, total_level_count + 1):
+             # We can't use get_my_score blindly because it might return None
+             score_entry = self.get_my_score(lvl_idx)
+             if not score_entry:
+                 print(f"[Network] Total Score Aborted: Missing score for Level {lvl_idx}")
+                 return # Abort
+             
+             total_time += score_entry.get('time_seconds', 0.0)
+             total_deaths += score_entry.get('deaths', 0)
+        
+        # If we get here, we have all levels.
+        print(f"[Network] Total Calculated: {total_time:.2f}s, {total_deaths} deaths. Submitting...")
+        self.submit_score(0, total_time, total_deaths, self.get_user_name())

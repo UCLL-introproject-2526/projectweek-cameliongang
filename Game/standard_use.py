@@ -1,5 +1,41 @@
 import pygame as pg
 from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT
+import json
+import os
+
+SETTINGS_FILE = 'settings.json'
+
+def load_settings():
+    global SFX_MUTED
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, 'r') as f:
+                data = json.load(f)
+                SFX_MUTED = data.get('sfx_muted', False)
+                
+                # Apply Music Volume if mixer init
+                if pg.mixer.get_init():
+                    vol = data.get('music_volume', 0.3)
+                    pg.mixer.music.set_volume(vol)
+                    if vol == 0:
+                        pg.mixer.music.pause()
+        except Exception as e:
+            print(f"Error loading settings: {e}")
+
+def save_settings():
+    data = {}
+    data['sfx_muted'] = SFX_MUTED
+    if pg.mixer.get_init():
+        # If paused, volume might not be 0 internally, but effectively is silent?
+        # MuteButton sets volume to 0. 
+        data['music_volume'] = pg.mixer.music.get_volume()
+    
+    try:
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(data, f)
+    except Exception as e:
+        print(f"Error saving settings: {e}")
+
 lvl=Level
 
 #health bar creation
@@ -139,34 +175,60 @@ def game_background(background_img, width=None, height=None, menu=False):
         
     return background
 
+# SFX Global State
+SFX_MUTED = False
+
+def play_sound(sound):
+    """Wrapper to play sounds only if SFX is not muted."""
+    if sound and not SFX_MUTED:
+        sound.play()
+
 class MuteButton:
+    img_on = None
+    img_off = None
+
     def __init__(self, x, y):
+        # Increased size slightly for better touch/click area if needed, or keep 40x40
         self.rect = pg.Rect(x, y, 40, 40)
         self.muted = False
-        self.font = pg.font.SysFont('Arial', 12, bold=True)
+        
+        # Load Images Lazy
+        if MuteButton.img_on is None:
+            try:
+                # Load and Scale
+                raw_on = pg.image.load('./resources/mute_icon_on.png').convert_alpha()
+                raw_off = pg.image.load('./resources/mute_icon_off.png').convert_alpha()
+                MuteButton.img_on = pg.transform.scale(raw_on, (40, 40))
+                MuteButton.img_off = pg.transform.scale(raw_off, (40, 40))
+            except Exception as e:
+                # Fallback if load fails
+                print(f"Failed to load mute icons: {e}")
+                MuteButton.img_on = None
 
     def draw(self, surface):
-        # Draw button background
-        color = (200, 50, 50) if self.muted else (50, 200, 50)
-        pg.draw.rect(surface, color, self.rect, border_radius=5)
-        pg.draw.rect(surface, (255, 255, 255), self.rect, 2, border_radius=5)
-
-        # Draw icon/text
-        text_surf = self.font.render("OFF" if self.muted else "ON", True, (255, 255, 255))
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        surface.blit(text_surf, text_rect)
+        if MuteButton.img_on and MuteButton.img_off:
+            img = MuteButton.img_off if self.muted else MuteButton.img_on
+            surface.blit(img, self.rect)
+        else:
+            # Fallback Drawing
+            color = (200, 50, 50) if self.muted else (50, 200, 50)
+            pg.draw.rect(surface, color, self.rect, border_radius=5)
+            pg.draw.rect(surface, (255, 255, 255), self.rect, 2, border_radius=5)
+            # Text Fallback
+            font = pg.font.SysFont('Arial', 12, bold=True)
+            text_surf = font.render("OFF" if self.muted else "ON", True, (255, 255, 255))
+            text_rect = text_surf.get_rect(center=self.rect.center)
+            surface.blit(text_surf, text_rect)
 
     def toggle(self):
         self.muted = not self.muted
         if self.muted:
-            pg.mixer.music.set_volume(0)  # Mute music
-            # Mute global effects if possible, or we just handle music for now
-            # pg.mixer.stop() # Only stops active, doesn't prevent new. 
-            # Ideally we set a global volume
+            pg.mixer.music.set_volume(0) 
             pg.mixer.music.pause()
         else:
             pg.mixer.music.unpause()
             pg.mixer.music.set_volume(0.3)
+        save_settings()
         return self.muted
 
     def handle_event(self, event):
@@ -175,3 +237,16 @@ class MuteButton:
                 self.toggle()
                 return True
         return False
+
+class SFXButton(MuteButton):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.muted = SFX_MUTED # Sync with global
+    
+    def toggle(self):
+        global SFX_MUTED
+        self.muted = not self.muted
+        SFX_MUTED = self.muted
+        save_settings()
+        # No mixer call needed, play_sound checks the flag
+        return self.muted

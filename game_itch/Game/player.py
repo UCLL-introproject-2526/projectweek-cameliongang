@@ -4,6 +4,7 @@ from level import Level, LEVEL_WIDTH, LEVEL_HEIGHT, TILE_SIZE
 from camera import Camera
 import math
 from time import sleep
+from standard_use import play_sound
 
 # Class to manage the game Player, including position and rendering
 class Player:
@@ -310,7 +311,7 @@ class Player:
 
             # Execute Jump
             if 'jump' in self.sounds:
-                self.sounds['jump'].play()
+                play_sound(self.sounds['jump'])
             self.velocity_y = self.jump_strength
             self.on_ground = False
             self.on_wall = False
@@ -325,7 +326,7 @@ class Player:
         if keys[pg.K_6] and keys[pg.K_7] and not self.emote_active:
              self.emote_active = True
              if 'scream' in self.sounds:
-                 self.sounds['scream'].play()
+                 play_sound(self.sounds['scream'])
         
         # Cancel emote on movement keys
         if self.emote_active:
@@ -355,7 +356,7 @@ class Player:
             self.tongue_timer = 15   # tongue stays visible for 15 frames
             self.tongue_length = 150 # distance in front of player
             if 'yoshi' in self.sounds:
-                self.sounds['yoshi'].play()
+                play_sound(self.sounds['yoshi'])
 
     def update_tongue(self):
         if self.tongue_timer > 0:
@@ -493,7 +494,7 @@ class Player:
     # Set target and start grappling
         try:
             sound =pg.mixer.Sound('.\\resources\\yoshi_sound.mp3')
-            sound.play()
+            play_sound(sound)
         except:
             pass
         self.grapple_target = pos
@@ -621,7 +622,7 @@ class Player:
             self.walk_timer -= 1
             if self.walk_timer <= 0:
                 if 'walk' in self.sounds:
-                    self.sounds['walk'].play()
+                    play_sound(self.sounds['walk'])
                 self.walk_timer = 20 # Loop every 20 frames (~3 times/sec)
         else:
             self.walk_timer = 0 # specific reset or immediate start on land? 0 = immediate.
@@ -637,7 +638,7 @@ class Player:
                    print("DEBUG: Player took damage! Playing sound.")
                    healthbar.hp -= 10
                    if 'damage' in self.sounds:
-                       self.sounds['damage'].play()
+                       play_sound(self.sounds['damage'])
                    else:
                        print("DEBUG: Damage sound not found in self.sounds")
                    self.al_geraakt = True
@@ -654,13 +655,13 @@ class Player:
                     if not self.invulnerable:
                         healthbar.hp = 0
                         if 'death' in self.sounds:
-                            self.sounds['death'].play()
+                            play_sound(self.sounds['death'])
                 
             
                 if t_type == 'N': #Level complete
                     if not self.level_complete: # Only play once
                         if 'level_complete' in self.sounds:
-                            self.sounds['level_complete'].play()
+                            play_sound(self.sounds['level_complete'])
                         self.level_complete = True       
                         self.reset(healthbar)                                 
                     

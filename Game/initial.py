@@ -6,13 +6,12 @@ import os
 from player import Player
 from camera import Camera
 import level as level_module
-from menus import draw_level_complete_menu, show_timer, btn_lc_next, btn_lc_menu, btn_lc_replay, draw_settings_menu, show_username
-from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_settings_menu, draw_login_menu, draw_leaderboard_menu, handle_login_input, login_email_box, show_username, draw_feedback_menu, handle_feedback_input
+import menus # Import module to access globals dynamically
 import threading
-# Import show_username to check toggle state
+from level import Level
+from menus import draw_level_complete_menu, btn_lc_next, btn_lc_menu, btn_lc_replay, draw_settings_menu, draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_login_menu, draw_leaderboard_menu, handle_login_input, login_email_box, draw_feedback_menu, handle_feedback_input
 from network import LeaderboardClient
-from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface, MuteButton
+from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface, MuteButton, SFXButton, play_sound
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
 import json
@@ -216,6 +215,11 @@ def main():
 
     #music playing
     play_music()
+    from standard_use import load_settings
+    load_settings()
+    # Sync initial mute state
+    if pg.mixer.music.get_volume() == 0:
+        mute_button.muted = True
 
     #background
     # Draw Game
@@ -235,6 +239,8 @@ def main():
     
     level_start_time = time.time()
     level_elapsed_time = 0
+    timer_started = False # New Flag
+
 
     while running:
         
@@ -376,7 +382,8 @@ def main():
                  player.reset(health_bar)
                  player.level_complete = False  # CRITICAL: Reset completion flag!
                  # Reset Timer
-                 level_start_time = time.time()
+                 timer_started = False
+                 level_elapsed_time = 0
                  death_counter.previous_level_deaths_snapshot = death_counter.count
              
              # EVENT HANDLING (was missing!)
@@ -425,7 +432,9 @@ def main():
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                 player = Player(lvl, camera)
-                level_start_time = time.time() # Reset Timer on Load Complete  
+                # Reset Timer on Load Complete
+                timer_started = False
+                level_elapsed_time = 0
              # Handle events for loading screen (quit)
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -515,6 +524,11 @@ def main():
                      menu_click_cooldown = 15 # IMPORTANT: Prevent click-through
                  if command == 5: # Restart
                      player.reset(health_bar)
+                     # Full State Reset
+                     timer_started = False
+                     level_elapsed_time = 0
+                     death_counter.reset_level_counter() # Reset "Deaths this Level" to 0
+                     
                      pause_menu = False
                      menu_click_cooldown = 15
              
@@ -533,8 +547,36 @@ def main():
 
         else:
             # Main Gameplay Loop
-            # Update timer continuously
-            level_elapsed_time = time.time() - level_start_time
+            
+            # Timer Start Logic
+            if not timer_started:
+                # Check for input
+                keys = pg.key.get_pressed()
+                mouse = pg.mouse.get_pressed()
+                input_detected = False
+                
+                # Check Movement Keys
+                if keys[pg.K_LEFT] or keys[pg.K_a] or keys[pg.K_RIGHT] or keys[pg.K_d]:
+                    input_detected = True
+                # Check Jump/Action Keys
+                if keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_SPACE] or keys[pg.K_z]:
+                     input_detected = True
+                # Check Grapple/Tongue Keys
+                if keys[pg.K_e] or keys[pg.K_g] or keys[pg.K_q]: # Q is technically left in some layouts but listed in logic
+                     input_detected = True
+                # Check Mouse
+                if mouse[0] or mouse[2]: # Left or Right Click
+                     input_detected = True
+                     
+                if input_detected:
+                    timer_started = True
+                    level_start_time = time.time()
+            
+            # Update timer continuously if started
+            if timer_started:
+                 level_elapsed_time = time.time() - level_start_time
+            else:
+                 level_elapsed_time = 0.0
             
             # Handling events
             
@@ -697,7 +739,7 @@ def main():
                 # "from menus import ..." doesn't give module access.
                 # I will change the logic below to use `menus.show_username` after adding `import menus`.
                 
-                import menus # Lazy import to ensure we see the updated global
+                # Check Toggle (Accessing via proper module import)
                 if not menus.show_username:
                     player_name = "Anonymous"
                     
@@ -713,7 +755,13 @@ def main():
                     # Max level reached = 2.
                     # We also update local max_level_reached to show star immediately!
                     network.update_user_progress(current_level_idx + 2, deaths_to_add=deaths_this_level)
+                    network.update_user_progress(current_level_idx + 2, deaths_to_add=deaths_this_level)
                     print("[Async] Submission Complete")
+                    
+                    # TRIGGER TOTAL SCORE CALCULATION
+                    # Pass the total number of levels to check.
+                    # We are in a thread, so we can call another sync/async network function.
+                    network.calculate_and_submit_total(len(level_module.LEVELS))
 
                 threading.Thread(target=submit_task, daemon=True).start()
                 
@@ -752,11 +800,9 @@ def main():
             if health_bar.hp <= 0:
                 death_counter.count += 1
                 player.reset(health_bar)
-                # Restart timer on death? 
-                # If "Time Per Level" means "Fastest Run", then yes.
-                # If "complete the level eventually", maybe no?
-                # Typical platformers (Celeste/Meat Boy) count time since entering level.
-                # So we DO NOT reset timer on death, we keep counting.
+                # Restart timer on death (Speedrun Rules: Timer resets to 0 for new run)
+                timer_started = False
+                level_elapsed_time = 0
                 pass
 
             # Update Camera
@@ -852,7 +898,7 @@ def main():
             # Draw Timer (HUD)
             # Use module level variable accessed via imported name?
             # Or assume we imported 'show_timer' from menus.
-            if show_timer:
+            if menus.show_timer:
                  # elapsed is calculated every frame
                  # level_elapsed_time is updated at top of loop.
                  # Draw it Top Left

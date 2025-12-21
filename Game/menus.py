@@ -1,5 +1,6 @@
 import pygame as pg
-from standard_use import game_background
+import standard_use
+from standard_use import game_background, play_sound
 
 import csv
 import threading
@@ -60,21 +61,22 @@ class Button:
         if is_pressed and not self.clicked_state:
             # Rising Edge
             if hasattr(Button, "snd_click") and Button.snd_click:
-                Button.snd_click.play()
+                import standard_use
+                standard_use.play_sound(Button.snd_click)
             self.clicked_state = True
             self.just_clicked = True # Signal that a click happened THIS frame
         elif not is_pressed:
             self.clicked_state = False
         
         if Button.img_normal and Button.img_pressed:
-            if is_pressed:
-                img = Button.img_small_press if self.button.width < 100 else Button.img_pressed
-                surface.blit(img, self.button)
-                text_offset_y = 10 
+            base_img = Button.img_pressed if is_pressed else Button.img_normal
+            # Scale to match button rect if different
+            if base_img.get_size() != (self.button.w, self.button.h):
+                img = pg.transform.scale(base_img, (self.button.w, self.button.h))
             else:
-                img = Button.img_small_norm if self.button.width < 100 else Button.img_normal
-                surface.blit(img, self.button)
-                text_offset_y = 7
+                img = base_img
+            surface.blit(img, self.button)
+            text_offset_y = 10 if is_pressed else 7
         else:
             # Fallback
             color = 'dark gray' if is_pressed else 'light gray'
@@ -94,13 +96,15 @@ class Button:
         
 
 def draw_panel(surface, x, y, w, h):
-    # Helper to draw a semi-transparent panel for readability
+    # Improved Panel with Border and nicer colors
     s = pg.Surface((w, h))
-    s.set_alpha(200) # Semi-transparent
-    s.fill((30, 30, 40)) # Dark blue-grey
+    s.set_alpha(220) 
+    s.fill((20, 20, 30)) # Darker, sleek blue-black
     surface.blit(s, (x, y))
-    # Border
-    pg.draw.rect(surface, (200, 200, 200), (x, y, w, h), 2)
+    
+    # Outer Border (Gold/White accents depending on theme? Let's go Slate/White)
+    pg.draw.rect(surface, (100, 100, 120), (x, y, w, h), 3) # Outer thick
+    pg.draw.rect(surface, (200, 200, 200), (x+4, y+4, w-8, h-8), 1) # Inner thin
 
         
 
@@ -297,6 +301,7 @@ quit_pause_button = Button('Quit Game', (850, 600))
 back_settings_button = Button('Back', (500, 600))
 
 def draw_settings_menu(surface, font, mute_button):
+    global show_timer
     surface.fill((0, 0, 0))
     # Reuse background
     try:
@@ -305,54 +310,69 @@ def draw_settings_menu(surface, font, mute_button):
     except:
         pass
         
-    # Draw Mute Button - Center it?
-    # Mute button uses absolute position from init (1230, 60).
-    # User calls for it "in a new menu called settings".
-    # Should we move it to center for this menu?
-    # Or just let it stay at top right?
-    # "mute button ONLY in the main menu in a new menu called settings"
-    # This implies it should be the main feature of this menu.
-    # Let's override its position temporarily or draw a new one?
-    # Better: Update the mute_button.rect before drawing?
-    # No, that affects global state if we switch quickly.
-    # But since we are IN the menu, global state IS this menu.
+    # Standard Panel for Settings
+    panel_w, panel_h = 600, 500
+    panel_x = (surface.get_width() - panel_w) // 2
+    panel_y = (surface.get_height() - panel_h) // 2
+    draw_panel(surface, panel_x, panel_y, panel_w, panel_h)
+
+    # Title
+    title = font.render("Settings", True, "gold")
+    title_rect = title.get_rect(center=(surface.get_width() // 2, panel_y + 40))
+    surface.blit(title, title_rect)
     
-    # Let's rely on the passed mute_button but maybe we move it?
-    # Or we construct a dedicated one?
-    # But `initial.py` owns the instance.
-    # Let's just draw it where it is, OR move it to center.
-    # User said: "mute button only in the main menu in a new menu... and in the pause menu".
-    # This implies it should NOT be on the HUD during gameplay?
-    # I'll handle that in `initial.py` (stop drawing it in HUD).
-    # For now, let's just make sure it draws here.
-    
-    # We'll center it for the settings menu
+    # 1. Mute Button (Center)
+    # Temporarily move mute button to center of this panel
     original_rect = mute_button.rect.copy()
-    mute_button.rect.topleft = (620, 300) # Center-ish
+    
+    # Center horizontally, stick to top section
+    mute_button.rect.centerx = surface.get_width() // 2
+    mute_button.rect.centery = panel_y + 120
     mute_button.draw(surface)
     
-    # Reset for next frame/other menus? 
-    # This is tricky in a loop.
-    # Actually, if we only draw it here and pause menu, we can just keep it at one spot or move it.
-    # Let's move it back after drawing to be safe?
-    # Or just accept it jumps around if we use the same instance.
+    lbl_mute = font.render("Music", True, "white")
+    lbl_rect = lbl_mute.get_rect(center=(surface.get_width() // 2, panel_y + 160))
+    surface.blit(lbl_mute, lbl_rect)
     
-    # Add label
-    lbl = font.render("Mute Music", True, "white")
-    surface.blit(lbl, (620 - 20, 260))
-
-    back_settings_button.draw(surface, font)
-    
-    # Feedback Button
-    btn_open_feedback.draw(surface, font)
-    
-    # Timer Toggle
-    global show_timer
+    # 2. Timer Toggle (Below Mute)
     if show_timer:
         btn_toggle_timer.text = "Timer: ON"
     else:
         btn_toggle_timer.text = "Timer: OFF"
+        
+    # Center buttons
+    btn_toggle_timer.pos = (surface.get_width()//2 - 130, panel_y + 190)
+    btn_toggle_timer.button.topleft = btn_toggle_timer.pos
     btn_toggle_timer.draw(surface, font)
+    
+    # 3. SFX Toggle (NEW) - Below Timer
+    # Label
+    lbl_sfx = font.render("SFX", True, "white")
+    lbl_sfx_rect = lbl_sfx.get_rect(center=(surface.get_width() // 2, panel_y + 250))
+    surface.blit(lbl_sfx, lbl_sfx_rect)
+    
+    # Icon Button
+    # Center horizontally, below label
+    global btn_toggle_sfx
+    if btn_toggle_sfx is None:
+        btn_toggle_sfx = standard_use.SFXButton(0, 0)
+        
+    btn_toggle_sfx.rect.centerx = surface.get_width() // 2
+    btn_toggle_sfx.rect.centery = panel_y + 290
+    # Sync state with global
+    btn_toggle_sfx.muted = standard_use.SFX_MUTED
+    btn_toggle_sfx.draw(surface)
+    
+    # 4. Feedback (Below SFX)
+    btn_open_feedback.pos = (surface.get_width()//2 - 130, panel_y + 330)
+    btn_open_feedback.button.topleft = btn_open_feedback.pos
+    btn_open_feedback.draw(surface, font)
+    
+    # 5. Back Button (Bottom)
+    back_settings_button.pos = (surface.get_width()//2 - 130, panel_y + 400)
+    back_settings_button.button.topleft = back_settings_button.pos
+    back_settings_button.draw(surface, font)
+    
     
     command = 0
     if btn_open_feedback.check_clicked():
@@ -360,13 +380,24 @@ def draw_settings_menu(surface, font, mute_button):
         
     if back_settings_button.check_clicked():
         command = 2 # Back
+        # Restore position immediately? No, do it finally.
 
     if btn_toggle_timer.check_clicked():
         show_timer = not show_timer
         
-    # We must restore rect if we want it to be elsewhere in Pause menu?
-    # Pause menu probably wants it elsewhere (e.g. top right or listed).
-    mute_button.rect = original_rect
+    # Polling logic for SFX Button (Icon)
+    if pg.mouse.get_pressed()[0]:
+         if btn_toggle_sfx.rect.collidepoint(pg.mouse.get_pos()):
+             if not getattr(btn_toggle_sfx, 'was_pressed', False):
+                 btn_toggle_sfx.toggle()
+                 btn_toggle_sfx.was_pressed = True
+    else:
+         btn_toggle_sfx.was_pressed = False
+        
+    # Restore Mute Button Position (Top Right HUD default)
+    # Actually, we should only move it if we are sure.
+    # For now, let's leave it as is.
+    # mute_button.rect = original_rect # Removed to fix hitbox persistence
     
     return command
 
@@ -520,9 +551,14 @@ login_pass_box = InputBox(526, 370, 228, 32, is_password=True)
 # Toggle Box for Anonymous - Move to top right of panel or below title?
 # Let's put it below title (Y=180 is title). So Y=130 (above panel) or Y=200?
 # Maybe top right of the screen? Or just smaller on the panel.
-# Let's put it at Y=140 (above title area inside panel)
+# SFX Toggle Button (Icon based)
+# SFX Toggle Button (Icon based)
+btn_toggle_sfx = None # Lazy init to prevent crash
+
+# Toggle Box for Anonymous
+# Position inside panel, top right relative to panel_x/y
 show_username = True
-btn_toggle_anon = Button('Show Name: ON', (510, 130)) 
+btn_toggle_anon = Button('Show Name: ON', (0, 0)) # Pos set in draw
 
 # Actions
 btn_login_action = Button('Login', (350, 480)) 
@@ -584,36 +620,82 @@ def draw_login_menu(surface, font, network):
     # STEP 0: LOGIN / REGISTER
     # ----------------------------
     if reset_step == 0:
+        # Layout Constants
+        # Center the input boxes in the panel
+        # Panel Width 600. Input Width 228.
+        # Center X = panel_x + (600 - 228) // 2 = panel_x + 186
+        input_x = panel_x + 186 
+        
+        # Labels to the left ? Or above?
+        # User said "everything is a bit of center".
+        # If we put labels on left, we shift the visual weight.
+        # Let's try putting labels ABOVE the inputs for perfect centering.
+        # That's a modern clean look.
+        
+        row_gap = 80
+        start_y = panel_y + 140
+        
+        # Email
         lbl_email = font.render("Email:", True, "white")
-        surface.blit(lbl_email, (526, 230 - 25)) 
+        # Center label over input
+        lbl_email_rect = lbl_email.get_rect(centerx=login_email_box.rect.centerx, bottom=login_email_box.rect.top - 5)
+        surface.blit(lbl_email, lbl_email_rect) 
+        login_email_box.rect.topleft = (input_x, start_y)
         login_email_box.draw(surface, font)
         
+        # Username
         lbl_user = font.render("Username:", True, "white")
-        surface.blit(lbl_user, (526, 300 - 25)) 
+        lbl_user_rect = lbl_user.get_rect(centerx=username_box.rect.centerx, bottom=username_box.rect.top - 5)
+        surface.blit(lbl_user, lbl_user_rect)
+        username_box.rect.topleft = (input_x, start_y + row_gap)
         username_box.draw(surface, font)
         
+        # Password
         lbl_pass = font.render("Password:", True, "white")
-        surface.blit(lbl_pass, (526, 370 - 25)) 
+        lbl_pass_rect = lbl_pass.get_rect(centerx=login_pass_box.rect.centerx, bottom=login_pass_box.rect.top - 5)
+        surface.blit(lbl_pass, lbl_pass_rect)
+        login_pass_box.rect.topleft = (input_x, start_y + row_gap*2)
         login_pass_box.draw(surface, font)
         
-        # Buttons
-        btn_login_action.draw(surface, font)
-        btn_signup_action.draw(surface, font)
-        btn_login_back.draw(surface, font)
-        
-        # Anon Toggle
-        # Update text first
+        # Show Name Toggle (Inside Panel, Top Right)
         global show_username
         if show_username:
             btn_toggle_anon.text = "Show Name: ON"
         else:
             btn_toggle_anon.text = "Show Name: OFF"
-        btn_toggle_anon.pos = (510, 130) # Ensure pos is set if button didn't update
-        btn_toggle_anon.button.topleft = (510, 130)
+            
+        # Position: Centered below panel title?
+        # Panel Title at y+30. Let's put this at y+70.
+        btn_toggle_anon.pos = (panel_x + (panel_w - 180)//2, panel_y + 70)
+        btn_toggle_anon.button.topleft = btn_toggle_anon.pos
+        # Adjust width/size
+        btn_toggle_anon.button.width = 180
+        btn_toggle_anon.button.height = 30
         btn_toggle_anon.draw(surface, font)
         
-        # Forgot Pass
+        # Forgot Pass (Aligned below password)
+        btn_forgot_pass.pos = (input_x, start_y + row_gap*3 - 10)
+        btn_forgot_pass.button.topleft = btn_forgot_pass.pos
+        btn_forgot_pass.button.width = 228 # Match input box
         btn_forgot_pass.draw(surface, font)
+
+        # Action Buttons (Bottom)
+        btn_y = panel_y + panel_h - 100
+        btn_login_action.pos = (panel_x + 50, btn_y)
+        btn_login_action.button.topleft = btn_login_action.pos
+        btn_login_action.button.width = 180
+        btn_login_action.draw(surface, font)
+        
+        btn_signup_action.pos = (panel_x + panel_w - 230, btn_y)
+        btn_signup_action.button.topleft = btn_signup_action.pos
+        btn_signup_action.button.width = 180
+        btn_signup_action.draw(surface, font)
+        
+        # Back Button
+        btn_login_back.pos = (panel_x + (panel_w//2) - 90, btn_y + 60)
+        btn_login_back.button.topleft = btn_login_back.pos
+        btn_login_back.button.width = 180
+        btn_login_back.draw(surface, font)
 
     # ----------------------------
     # STEP 1: ENTER CODE
@@ -836,7 +918,13 @@ def draw_leaderboard_menu(surface, font, network):
     # Header with Navigation
     # Center logic: Title in middle. Buttons flanking it.
     
-    title = font.render(f"Leaderboard - Level {current_lb_level + 1}", True, "gold")
+    
+    if current_lb_level == -1:
+        title_str = "Total Leaderboard"
+    else:
+        title_str = f"Leaderboard - Level {current_lb_level + 1}"
+        
+    title = font.render(title_str, True, "gold")
     title_rect = title.get_rect(center=(surface.get_width()//2, panel_y + 40))
     surface.blit(title, title_rect)
     
@@ -917,8 +1005,13 @@ def draw_leaderboard_menu(surface, font, network):
         
         # Draw Rows
         start_y = h_y + 50
-        for i, score in enumerate(cached_scores[:10]): # Limit to 10 visual
+        for i, score in enumerate(cached_scores[:8]): # Limit to 8 to prevent overlap
             row_y = start_y + (i * 40)
+            
+            # Row Background Striping
+            if i % 2 == 0:
+                pg.draw.rect(surface, (30, 30, 45), (panel_x + 20, row_y - 5, panel_w - 40, 35))
+            
             name = score.get('player_name', 'Unknown')
             deaths = str(score.get('deaths', 0))
             time_s = str(score.get('time_seconds', 0))
@@ -926,7 +1019,7 @@ def draw_leaderboard_menu(surface, font, network):
             color = "white"
             if i == 0: color = "gold"
             elif i == 1: color = "silver"
-            elif i == 2: color = "brown"
+            elif i == 2: color = "#cd7f32" # Bronze
             
             # Rank
             surface.blit(font.render(str(i+1), True, color), (col1_x, row_y))
@@ -1018,13 +1111,15 @@ def draw_leaderboard_menu(surface, font, network):
             threading.Thread(target=task_force, daemon=True).start()
             
     if btn_lb_prev.check_clicked():
-        if current_lb_level > 0:
+        if current_lb_level > -1: # Allow going to -1 (Total)
             current_lb_level -= 1
             cached_scores = [] # Clear cache
             my_cached_score = None
             is_fetching = False # Trigger new auto fetch
             
     if btn_lb_next.check_clicked():
+        # Prevent going beyond max level constraint if needed, but for now allow wrapping or unlimited
+        # as per original design (looping logic or clamped elsewhere).
         current_lb_level += 1
         cached_scores = []
         my_cached_score = None
