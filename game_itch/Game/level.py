@@ -78,6 +78,10 @@ class Tile(pygame.sprite.Sprite):
                 loaded_img = pygame.image.load('./resources/spikes_left.png').convert_alpha()
             elif type == 'R':
                 loaded_img = pygame.image.load('./resources/spikes_right.png').convert_alpha()
+            elif type == 'T':
+                loaded_img = pygame.image.load('./resources/teleportT.png').convert_alpha()
+            elif type == 't':
+                loaded_img = pygame.image.load('./resources/teleport.png').convert_alpha()
 
             else: # 'X'
                 loaded_img = pygame.image.load('./resources/dirt_block.png').convert_alpha()
@@ -164,7 +168,7 @@ LEVEL_1 =  [
     #tutorial-level
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX ",
     "X                 SSSSSS    X ",
-    "X                           X",
+    "X                           X ",
     "X P        Y   Y   YYYY     X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
     "XXXXXS   XXXXXXXXXXXXXXXXX  X ",
@@ -224,10 +228,10 @@ LEVEL_1 =  [
 
 LEVEL_2 = [
     "NNNNNNNNNNX        XNNNNNNNNNN",
-    "NNNNNNNNNNX        XNNNNNNNNNN",
+    "NNNNNNNNNNX     Y  XNNNNNNNNNN",
     "NNNNNNNNNNX     G  XNNNNNNNNNN",
     "NNNNNNNNNNX  N     SNNNNNNNNNN",
-    "NNNNNNNNNNX XXXX   XNNNNNNNNNN",
+    "NNNNNNNNNNX XXXXF  XNNNNNNNNNN",
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX        XNNNNNNNNNN",
     "NNNNNNNNNNX        SNNNNNNNNNN",
@@ -382,80 +386,80 @@ LEVEL_7 = [
     "XXXX             YYYYYYYXYYYYYXYYYYYXXXX",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
-LEVEL_8 =  [
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X           XX           X",
-    "X       N   XX           X",
-    "S XXXXXXXXXXXX           X",
-    "X X         XX           X",
-    "X X   P   G XXX          X",
-    "S X   S     YY X         X",
-    "X  F FS Y       X        X",
-    "   F FS S   Y    X       X",
-    "X    YS S   XY    X      X",
-    "XXXXXXS S   XX     X     X",
-    "X     S     SX     X     X",
-    "X     S S   SX     X     X",
-    "X     XXXXX SX     X     X",
-    "X           SX     X     X",
-    "X           SXY    X     X",
-    "S      G    SX     X     X",
-    "X       Y   SX     X     X",
-    "X YXXY  Y   SX     X     X",
-    "S           XXYY   X     X",
-    "S      XXXX XX     X     X",
-    "S           XX     X     X",
-    "S           XX     X     X",
-    "S           XX     X     X",
-    "X           XX     X     X",
-    "XX          XX     X     X",
-    "X X    YGY  XX     X     X",
-    "X  X   C    XX     X     X",
-    "X   X       XX     X     X",
-    "X    XXX    SX     X     X",
-    "X           XX     X     X",
-    "X      YYYY SX     X     X",
-    "X           XX     X     X",
-    "X           SX     X     X",
-    "X   G   G   XX     X     X",
-    "X           SX     X     X",
-    "S           SX     X     X",
-    "X           SX     X     X",
-    "S           SX     X     X",
-    "X           XN     X     X",
-    "S           SX     X     X",
-    "X           SX     X     X",
-    "S G         XX     X     X",
-    "X           XX     X     X",
-    "S           XX     X     X",
-    "X     P     XX     X     X",
-    "X    XXX    XX     X     X",
-    "DDDDDDDDDDDDDDDDDDDDDDDDDD",
+LEVEL_8 = [
+    " XSSSSSSSSSSSSSSSSSSSSSSSSX",
+    " X                        X",
+    "    FFFFFFFFFXX           X",
+    " X FXXXXXXFFFXX           X",
+    "             XX           X",
+    " X           XX           X",
+    "     S       XX           X",
+    " X   G       XX           X",
+    "     S       XX           X",
+    " X           XX           X",
+    " XY          XX           X",
+    " X      XP   XXXt         X",
+    " X      XXX     X         X",
+    " X        XXXXS  S        X",
+    " X        G  XX  S        X",
+    " X    G      XX  S        X",
+    " X           XX  S        X",
+    " XS          XX  S        X",
+    " XG       F      X        X",
+    " XS    FS FF    X         X",
+    " X  CCCTG  FFXXX          X",
+    " X    YXS    XX           X",
+    " X       F   XX           X",
+    " XYYYYYYY    XX           X",
+    " XXXXXXXX  PXXX           X",
+    " XCCCCCCC  XEXX           X",
+    " X   Y Y  XXEXX           X",
+    " S XXXXXXXXXXXX           X",
+    " X X         XX           X",
+    " X X       G XXX          X",
+    " S X   S     YY X         X",
+    " X  F FS Y       X        X",
+    "    F FS S   Y    X       X",
+    " X    YS S   XY    X      X",
+    " XXXXXXS S   XX     X     X",
+    " X     S     SX     X     X",
+    " X     S S   SX     X     X",
+    " X     XXXXX SX     X     X",
+    " X           SX     X     X",
+    " X           SXY    X     X",
+    " S      G    SX     X     X",
+    " X       Y   SX     X     X",
+    " X YXXY  Y   SX     X     X",
+    " S           XXYY   X     X",
+    " S      XXXX XX     X     X",
+    " S           XX     X     X",
+    " S           XX     X     X",
+    " S           XX     X     X",
+    " X           XX     X     X",
+    " XX          XX     X     X",
+    " X X    YGY  XX     X     X",
+    " X  X   C    XX     X     X",
+    " X   X       XX     X     X",
+    " X    XXX    SX     X     X",
+    " X           XX     X     X",
+    " X      YYYY SX     X     X",
+    " X           XX     X     X",
+    " X           SX     X     X",
+    " X   G   G   XX     X     X",
+    " X           SX     X     X",
+    " S           SX     X     X",
+    " X           SX     X     X",
+    " S           SX     X     X",
+    " X           XN     X     X",
+    " S           SX     X     X",
+    " X           SX     X     X",
+    " S G         XX     X     X",
+    " X           XX     X     X",
+    " S           XX     X     X",
+    " X           XX     X     X",
+    "FX    XXX    XX     X     X",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
-
-
 LEVEL_9 = [
     
 
@@ -477,30 +481,48 @@ LEVEL_9 = [
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX       ",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD       ",
 ]
-LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6, LEVEL_7, LEVEL_8, LEVEL_9]
+
+
+LEVELS = [
+    {"name": "1.Tutorial", "data": LEVEL_1},
+    {"name": "2.Slime Jump", "data": LEVEL_2},
+    {"name": "3.First Challenge", "data": LEVEL_3},
+    {"name": "4.Graple Swing", "data": LEVEL_4},
+    {"name": "5.Fly Barrage", "data": LEVEL_5},
+    {"name": "6.Vex", "data": LEVEL_6},
+    {"name": "7.TJ", "data": LEVEL_7},
+    {"name": "8.Checkpoints?", "data": LEVEL_8},
+    {"name": "9.(Im)posible", "data": LEVEL_9},
+]
 
 # Default width/height based on first level (or dynamic per level load)
 # But StandardUse uses this constant... we might need to update that too if levels vary significantly?
 # For now, let's keep them dynamic in the class but these global constants might be tricky.
 # We'll rely on the loaded level's dimensions.
-LEVEL_WIDTH = len(LEVELS[0][0]) * TILE_SIZE
-LEVEL_HEIGHT = (len(LEVELS[0]) - 1) * TILE_SIZE
+LEVEL_WIDTH = len(LEVELS[0]['data'][0]) * TILE_SIZE
+LEVEL_HEIGHT = (len(LEVELS[0]['data']) - 1) * TILE_SIZE
 
 class Level:
     def __init__(self, level_index=0):
         self.tiles = []
         self.player_start_pos = (100, 100) # Default
-        self.current_map = LEVELS[level_index]
+        self.level_data = LEVELS[level_index]
+        self.current_map = self.level_data['data']
+        self.name = self.level_data['name']
+        
         # Update globals/instance vars for this specific level
         global LEVEL_WIDTH, LEVEL_HEIGHT
         LEVEL_WIDTH = len(self.current_map[0]) * TILE_SIZE
         LEVEL_HEIGHT = (len(self.current_map) - 1) * TILE_SIZE
         self.has_enemy=False
+        self.T_location = 0
+        self.t_location = 0
         self.setup_level()
 
     def setup_level(self):
         self.tiles = []
         self.enemy_spawns = []
+        print(f"DEBUG: Setting up level {self.name}")
         for row_index, row in enumerate(self.current_map):
             for col_index, cell in enumerate(row):
                 x = col_index * TILE_SIZE
@@ -532,6 +554,15 @@ class Level:
                 if cell == 'E':
                     self.enemy_spawns.append((x, y))
                     self.has_enemy = True
+                if cell == 'T':
+                    self.tiles.append(Tile((x, y), 'T'))
+                    self.T_location = (x,y)
+                    print(f"DEBUG: Found T at {self.T_location}")
+                if cell == 't':
+                    self.tiles.append(Tile((x, y), 't'))
+                    self.t_location = (x,y)
+                    print(f"DEBUG: Found t at {self.t_location}")
+                
 
     def render(self, surface, camera, show_hitboxes=False):
         for tile in self.tiles:

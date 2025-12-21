@@ -95,6 +95,11 @@ class Player:
         self.jump_held = False
         self.started_rise = False
         
+        # Teleport Cooldown
+        self.teleport_cooldown = 0
+        self.teleport_active = False # True while inside a teleporter after teleporting
+        self.touching_teleporter = False # Reset every frame
+        
         # Pre-load Sprites
         self.sprites = {}
         self.load_sprites()
@@ -238,6 +243,37 @@ class Player:
             print(f"Error loading sounds/sprites: {e}")
             
         self.walk_timer = 0
+
+    def teleport(self, to_location):
+        print(f"DEBUG: Teleport requested to {to_location}. Cooldown: {self.teleport_cooldown}, Active: {self.teleport_active}")
+        # Only check active state here; cooldown is for re-entry
+        if self.teleport_active:
+             print("DEBUG: Teleport blocked - Already Active")
+             return
+
+        # Check if destination is valid (not 0) -- Level.t_location defaults to 0
+        if to_location == 0:
+            print("DEBUG: Teleport blocked - Invalid Location 0")
+            return
+
+        # Align Player with bottom of the new tile (so feet touch the ground)
+        # Tile is 64x64.
+        center_x_offset = (64 - self.width) // 2
+        
+        self.xcoor = to_location[0] + center_x_offset
+        self.ycoor = to_location[1] + (64 - self.height) - 1 # -1 pixel to ensure touching floor? or just 0
+        
+        # Stop grapple
+        self.grappling = False
+        self.grapple_target = None
+
+        # Update rect immediately so physics doesn't glitch
+        self.rect.topleft = (self.xcoor, self.ycoor)
+        
+        # Mark as active (inside teleporter)
+        self.teleport_active = True
+        
+        # Preserve momentum (Do not reset velocity)
 
 
     # Coyote reduction
@@ -407,6 +443,12 @@ class Player:
             dy = self.grapple_target[1] - self.rect.centery
             dist = math.hypot(dx, dy)
 
+            # Disconnect if too far (User request: range + 50)
+            if dist > self.max_grapple_dist + 50:
+                 self.grappling = False
+                 self.grapple_target = None
+                 return
+
             step = self.grapple_speed * dt
             if dist > step:
                 # Move toward target
@@ -491,6 +533,13 @@ class Player:
         self.grapple_to(target_tile.rect.center)
 
     def update_physics(self, dx, keys, dt, rect,healthbar):
+        # Reset touching flag at start of frame
+        self.touching_teleporter = False
+
+        # Update Teleport Cooldown if not active
+        if self.teleport_cooldown > 0:
+            self.teleport_cooldown -= 1 * dt
+
         #grapling call
         
         if self.grappling and self.grapple_target:
@@ -601,18 +650,19 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
-                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
+                if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:  #Death tiles
                     if not self.invulnerable:
                         healthbar.hp = 0
                         if 'death' in self.sounds:
                             self.sounds['death'].play()
                 
             
-                if t_type == 'N':
+                if t_type == 'N': #Level complete
                     if not self.level_complete: # Only play once
                         if 'level_complete' in self.sounds:
                             self.sounds['level_complete'].play()
-                        self.level_complete = True                                        
+                        self.level_complete = True       
+                        self.reset(healthbar)                                 
                     
                     
                 if t_type == 'S':
@@ -628,6 +678,18 @@ class Player:
                         self.height = self.base_width
                         # Position adjustment handled below by collision correction
 
+                if t_type == 'T' or t_type == 't':
+                    self.touching_teleporter = True
+                    if not self.teleport_active and self.teleport_cooldown <= 0:
+                         if t_type == 'T': 
+                             self.teleport(self.level.t_location)     
+                             break
+                         elif t_type == 't':    
+                             self.teleport(self.level.T_location)     
+                             break     
+                    
+                    # Prevent Teleporters from acting as solid walls
+                    continue 
 
                 if total_dx > 0:  # Moving Right
                     self.xcoor = tile.rect.left - self.width
@@ -692,6 +754,11 @@ class Player:
         for tile in self.tiles:
             if tile.rect.colliderect(player_rect):
                 t_type = getattr(tile, 'type', 'X')
+                
+                # Ignore teleporters for vertical collision (don't stand on them)
+                if t_type == 'T' or t_type == 't':
+                    continue
+
                 if t_type in ['D', 'Y', 'F', 'C', 'L', 'R']:
                     healthbar.hp = 0
                 if t_type == 'N':
@@ -707,7 +774,15 @@ class Player:
                          self.velocity_y = 0
                 if t_type == 'N':
                     self.level_complete = True  
-                    
+                
+                if t_type == 'T' or t_type == 't':
+                    self.touching_teleporter = True
+                    if not self.teleport_active and self.teleport_cooldown <= 0:
+                         if t_type == 'T': 
+                             self.teleport(self.level.t_location)     
+                         elif t_type == 't':    
+                             self.teleport(self.level.T_location)  
+                     
                 elif dy > 0: # Falling / Moving Down
                     # Reset hitbox to horizontal if needed
                     if self.width != self.base_width:
@@ -731,6 +806,11 @@ class Player:
         # Decay jump buffer
         if self.jump_buffer > 0:
             self.jump_buffer -= 1 * dt
+
+        # End of frame: Check if we left the teleporter
+        if not self.touching_teleporter and self.teleport_active:
+             self.teleport_active = False # We left!
+             self.teleport_cooldown = 10 # Start small cooldown buffer
 
         
 

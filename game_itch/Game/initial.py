@@ -1,16 +1,101 @@
 import pygame as pg
 import random
 import time
+import sys
+import os
 from player import Player
 from camera import Camera
 import level as level_module
+from menus import draw_level_complete_menu, show_timer, btn_lc_next, btn_lc_menu, btn_lc_replay, draw_settings_menu, show_username
 from level import Level # Keep Level class import for convenience
-from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_settings_menu
+from menus import draw_mainmenu, draw_levels_menu, draw_pause_menu, draw_loading_screen, draw_settings_menu, draw_login_menu, draw_leaderboard_menu, handle_login_input, login_email_box, show_username, draw_feedback_menu, handle_feedback_input
+import threading
+# Import show_username to check toggle state
+from network import LeaderboardClient
 from standard_use import HealthBar, DeathCounter, Hints, game_background, play_music, create_main_surface, MuteButton
 from enemy import Enemy
 from level import LEVEL_WIDTH, LEVEL_HEIGHT
+import json
+
+# Pre-load Icon (Best Effort before init)
+try:
+    if os.path.exists("resources/app_icon.png"):
+        icon = pg.image.load("resources/app_icon.png")
+        pg.display.set_icon(icon)
+except:
+    pass
+
 camera = Camera(LEVEL_WIDTH, LEVEL_HEIGHT)
 # create_main_surface imported from standard_use
+
+# ============================================
+# LOCAL SCORE STORAGE (NEVER SENT TO SERVER)
+# ============================================
+def _get_local_scores_path():
+    """Get path to local scores file (same directory as executable)."""
+    if getattr(sys, 'frozen', False):
+        # Running as exe
+        exe_dir = os.path.dirname(sys.executable)
+    else:
+        # Running as script
+        exe_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(exe_dir, "local_scores.json")
+
+def load_local_scores():
+    """Load local personal bests from JSON file."""
+    try:
+        with open(_get_local_scores_path(), 'r') as f:
+            return json.load(f)
+    except:
+        return {}  # Empty dict if file doesn't exist
+
+def save_local_scores(scores):
+    """Save local personal bests to JSON file."""
+    try:
+        with open(_get_local_scores_path(), 'w') as f:
+            json.dump(scores, f, indent=2)
+    except Exception as e:
+        print(f"[Local] Failed to save scores: {e}")
+
+def update_local_best(level_id, time_seconds, deaths):
+    """Update local best score for a level (keeps best time AND best deaths)."""
+    scores = load_local_scores()
+    level_key = str(level_id)
+    
+    if level_key not in scores:
+        scores[level_key] = []
+    
+    # Add new score
+    new_score = {"time_seconds": time_seconds, "deaths": deaths}
+    scores[level_key].append(new_score)
+    
+    # Keep only best time and best deaths (max 2 entries)
+    level_scores = scores[level_key]
+    if len(level_scores) > 1:
+        best_time = min(level_scores, key=lambda x: (x['time_seconds'], x['deaths']))
+        best_deaths = min(level_scores, key=lambda x: (x['deaths'], x['time_seconds']))
+        
+        # Keep unique entries
+        keep = [best_time]
+        if best_deaths != best_time:
+            keep.append(best_deaths)
+        scores[level_key] = keep
+    
+    save_local_scores(scores)
+    return scores[level_key]
+
+def get_local_best(level_id):
+    """Get local best score for a level (returns best overall)."""
+    scores = load_local_scores()
+    level_key = str(level_id)
+    
+    if level_key not in scores or not scores[level_key]:
+        return None
+    
+    # Return best deaths, then best time as tiebreaker
+    return min(scores[level_key], key=lambda x: (x['deaths'], x['time_seconds']))
+
+# ============================================
 
 # Main game loop function
 def main():
@@ -57,8 +142,24 @@ def main():
     
     current_level_idx = 0
     lvl = Level(current_level_idx)
+    
+    # Initialize Network Client
+    network = LeaderboardClient()
+    # Try Restore Session
+    network.load_session()
+    
+    # Track Progress
+    max_level_reached = 1
+    if network.user:
+         progress = network.get_user_progress()
+         if progress:
+             max_level_reached = progress.get('max_level_reached', 1)
+             print(f"Cloud Progress Loaded: Max Level {max_level_reached}")
+    
     camera = Camera(level_module.LEVEL_WIDTH, level_module.LEVEL_HEIGHT)
     player = Player(lvl, camera) # Player now takes level and camera
+    
+    game_over = False
     # Initialize enemies from level
     enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
     
@@ -68,10 +169,31 @@ def main():
     running = True
     levels_menu = False
     settings_menu = False
+    leaderboard_menu = False
+    login_menu = False
+    feedback_menu = False
+    
     main_menu = True
     loading_menu = False
     loading_timer = 0
     LOADING_DURATION = 120 # 2 seconds at 60 FPS
+    
+    # App Icon
+    try:
+        if os.path.exists("resources/app_icon.png"):
+            icon = pg.image.load("resources/app_icon.png")
+            pg.display.set_icon(icon)
+    except:
+        pass
+    
+    level_complete_menu = False
+    new_highscore = False
+    deaths_this_level = 0
+    level_elapsed_time = 0.0
+    user_best_score = None  # For displaying personal best on stats screen
+    
+    # App Icon moved to top of file for instance loading
+
     death_menu = False
     pause_menu = False
     font = pg.font.Font('.\\resources\\ARIAL.TTF', 24)
@@ -110,6 +232,9 @@ def main():
     
     # Input Cooldown to prevent button overlap click-through
     menu_click_cooldown = 0
+    
+    level_start_time = time.time()
+    level_elapsed_time = 0
 
     while running:
         
@@ -120,14 +245,18 @@ def main():
         dx = 0
         if main_menu:
              levels_page = 0 # Reset page when returning to main menu
-             command = draw_mainmenu(surface, font)
+             command = draw_mainmenu(surface, font, network)
              
              if menu_click_cooldown == 0:
                 if command == 'q':
                     running = False
                 if command == 2: # Credits (not implemented?)
                     pass
+                if command == 2: # Credits (not implemented?)
+                    pass
                 if command == 3: # Levels
+                    # Pass max_level logic here?
+                    # For now just open menu.
                     main_menu = False
                     levels_menu = True
                     levels_page = 0
@@ -143,6 +272,19 @@ def main():
                     loading_menu = True
                     loading_timer = 0
                     menu_click_cooldown = 15
+                if command == 6: # Leaderboard
+                    main_menu = False
+                    leaderboard_menu = True
+                    menu_click_cooldown = 15
+                if command == 7: # Login
+                    main_menu = False
+                    login_menu = True
+                    menu_click_cooldown = 15
+                if command == 5: # Settings
+                     main_menu = False
+                     settings_menu = True
+                     menu_click_cooldown = 15
+                     
              for event in pg.event.get():
                 if event.type == pg.QUIT:
                     running = False
@@ -155,6 +297,102 @@ def main():
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
              clock.tick(60)
              continue
+             
+        elif login_menu:
+             events = pg.event.get()
+             handle_login_input(events) # Pass events to input boxes
+             
+             command = draw_login_menu(surface, font, network)
+             
+             if menu_click_cooldown == 0:
+                 if command == 2: # Back
+                     login_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
+             
+             for event in events:
+                 if event.type == pg.QUIT: running = False
+            
+             pg.display.flip()
+             clock.tick(60)
+             continue
+
+
+
+        elif feedback_menu:
+             events = pg.event.get()
+             handle_feedback_input(events)
+             command = draw_feedback_menu(surface, font, network)
+             if menu_click_cooldown == 0:
+                 if command == 2: # Back
+                      feedback_menu = False
+                      settings_menu = True
+                      menu_click_cooldown = 15
+             
+             for event in events:
+                 if event.type == pg.QUIT: running = False
+            
+             pg.display.flip()
+             clock.tick(60)
+             continue
+
+        elif leaderboard_menu:
+             command = draw_leaderboard_menu(surface, font, network)
+             
+             if menu_click_cooldown == 0:
+                 if command == 2: # Back
+                     leaderboard_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
+             
+             for event in pg.event.get():
+                 if event.type == pg.QUIT: running = False
+            
+             pg.display.flip()
+             clock.tick(60)
+             continue
+        elif level_complete_menu:
+             cmd = draw_level_complete_menu(surface, font, current_level_idx, level_elapsed_time, deaths_this_level, new_highscore, user_best_score)
+            
+             # 3=Menu, 4=Next, 5=Replay
+             if cmd == 3: # Main Menu
+                 level_complete_menu = False
+                 main_menu = True
+                 player.reset(health_bar)
+                 current_level_idx = 0 
+                
+             elif cmd == 4: # Next Level
+                 level_complete_menu = False
+                 current_level_idx += 1
+                 if current_level_idx >= len(level_module.LEVELS):
+                     current_level_idx = 0
+                     main_menu = True
+                 else:
+                     loading_menu = True
+                     loading_timer = 0
+                    
+             elif cmd == 5: # Replay
+                 level_complete_menu = False
+                 player.reset(health_bar)
+                 player.level_complete = False  # CRITICAL: Reset completion flag!
+                 # Reset Timer
+                 level_start_time = time.time()
+                 death_counter.previous_level_deaths_snapshot = death_counter.count
+             
+             # EVENT HANDLING (was missing!)
+             for event in pg.event.get():
+                 if event.type == pg.QUIT:
+                     running = False
+                 if event.type == pg.KEYDOWN:
+                     if event.key == pg.K_f:
+                         pg.display.toggle_fullscreen()
+                     if event.key == pg.K_m:
+                         mute_button.toggle()
+             
+             pg.display.flip()
+             clock.tick(60)
+             continue
+
         elif loading_menu:
             # ... loading logic ... (abbreviated for context match)
              loading_timer += 1
@@ -173,9 +411,11 @@ def main():
                  enemies = [Enemy(pos[0], pos[1]) for pos in lvl.enemy_spawns]
                  
              progress = loading_timer / LOADING_DURATION
-             draw_loading_screen(surface, font, progress, current_level_idx)
+             # Use lvl.name if available, otherwise fallback
+             lvl_name = getattr(lvl, 'name', f"Level {current_level_idx + 1}")
+             draw_loading_screen(surface, font, progress, lvl_name, is_name=True)
              
-             draw_loading_screen(surface, font, progress, current_level_idx)
+
              
              if loading_timer >= LOADING_DURATION:
                 # Reset level-specific deaths for new level
@@ -185,6 +425,7 @@ def main():
                   # Game starts now - Initialize Player here to cover the load time
                  # Ensure lvl/camera are ready (they should be from timer==5)
                 player = Player(lvl, camera)
+                level_start_time = time.time() # Reset Timer on Load Complete  
              # Handle events for loading screen (quit)
              for event in pg.event.get():
                 if event.type == pg.QUIT:
@@ -200,34 +441,30 @@ def main():
              continue
 
         elif levels_menu:
-            command = draw_levels_menu(surface, font, levels_page)
+            command = draw_levels_menu(surface, font, levels_page, max_level_reached)
             if menu_click_cooldown == 0:
-                if command == 2:
+                if command == 2: # Back
                     levels_menu = False
                     main_menu = True
                     menu_click_cooldown = 15
-                elif command == 8: # Prev Page
-                    if levels_page > 0:
-                        levels_page -= 1
-                        menu_click_cooldown = 10
-                elif command == 9: # Next Page
+                if command == 8: # Prev Page
+                    if levels_page > 0: levels_page -= 1
+                    menu_click_cooldown = 15
+                if command == 9: # Next Page
                     levels_page += 1
-                    menu_click_cooldown = 10
-                elif command >= 10:
-                    current_level_idx = command - 10
+                    menu_click_cooldown = 15
+                if command >= 10: # Level Selection
+                    lvl_idx = command - 10
+                    # No Lock Check as requested
+                    current_level_idx = lvl_idx
                     levels_menu = False
-                    loading_menu = True # Go to loading!
+                    player.reset(health_bar)
+                    loading_menu = True
                     loading_timer = 0
                     menu_click_cooldown = 15
             
             for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    running = False
-                if event.type == pg.KEYDOWN:
-                    if event.key == pg.K_f:
-                        pg.display.toggle_fullscreen()
-                    if event.key == pg.K_m:
-                        mute_button.toggle()
+                if event.type == pg.QUIT: running = False
             
             pg.display.flip()
             clock.tick(60)
@@ -295,6 +532,10 @@ def main():
              continue
 
         else:
+            # Main Gameplay Loop
+            # Update timer continuously
+            level_elapsed_time = time.time() - level_start_time
+            
             # Handling events
             
             # Enemy spawning from level (static) - No longer random spawning
@@ -409,21 +650,114 @@ def main():
             player.update_physics(dx, keys, dt_factor, pg.Rect(0,0,0,0), health_bar)
                         # Check for level completion
             if player.level_complete:
-                current_level_idx += 1
-                if current_level_idx >= len(level_module.LEVELS):
-                    # All levels completed! Back to main menu or victory screen
-                    current_level_idx = 0  # Loop back, or set main_menu = True
-                    main_menu = True
-                else:
-                    # Load next level
-                    loading_menu = True
-                    loading_timer = 0
+                # Capture Time
+                level_elapsed_time = time.time() - level_start_time
+                # Submit Score
+                # Assuming deaths is tracked in death_counter.count?
+                # Actually death_counter tracks TOTAL deaths, or per level?
+                # It has `reset_level_counter`.
+                # We need deaths for THIS level attempt? Or cumulative?
+                # User said "leaderboard of deaths and time per level".
+                # Usually means "Failed attempts before success"?
+                # Let's use death_counter.count - death_counter.previous_level_deaths_snapshot
+                
+                deaths_this_level = death_counter.count - death_counter.previous_level_deaths_snapshot
+                
+                deaths_this_level = death_counter.count - death_counter.previous_level_deaths_snapshot
+                
+                # Determine Player Name
+                # If logged in, use part of email. If anonymous toggle is ON, use "Anonymous".
+                # Wait, logic check: "Show Name: ON" means show it. OFF means Anonymous.
+                
+                # We need to access the toggle from menus.py. Imported `show_username`.
+                # BUT `show_username` is a global in menus.py. Does `from menus import show_username` update?
+                # No, standard python import copies the value. We need to access `menus.show_username`.
+                # Let's adjust import to `import menus` or access via module if possible?
+                # Actually, better: `import menus` is already done partially? No `from menus import ...`.
+                # Let's import menus module fully to access dynamic global?
+                # Or better, just fix the import above to `import menus` and change calls. 
+                # OR let's look at how I imported it. `from menus import ...`.
+                # If I change `from menus import ...` to include `show_username` it might be stale.
+                # BETTER: Add a helper `menus.get_username_toggle()`?
+                # Or just `import menus` on top and use `menus.show_username`.
+                
+                # Let's assume I fix the import in the first chunk to `import menus`.
+                # Actually I'll just do `import menus` nicely.
+                
+                player_name = "Player"
+                if network.user:
+                     email = network.user.get('email', '')
+                     if email:
+                         player_name = email.split('@')[0] # Use part before @
+                
+                # Check Toggle (Accessing via re-import inside function or verify import)
+                # I will use a fresh import inside the loop or change top level.
+                # Let's change top level to `import menus` as well?
+                # Or just access it via the property on the module if I imported module.
+                # "from menus import ..." doesn't give module access.
+                # I will change the logic below to use `menus.show_username` after adding `import menus`.
+                
+                import menus # Lazy import to ensure we see the updated global
+                if not menus.show_username:
+                    player_name = "Anonymous"
+                    
+                print(f"Level Complete! Time: {level_elapsed_time:.2f}s, Deaths: {deaths_this_level}, Name: {player_name}")
+                
+                # ASYNC SUBMISSION
+                def submit_task():
+                    network.submit_score(current_level_idx + 1, level_elapsed_time, deaths_this_level, player_name=player_name)
+                    # Update Cloud Progress
+                    # Unlock next level logic:
+                    # current_level_idx is 0-based. 
+                    # If we beat lvl 0, we played lvl 1. Next is lvl 2.
+                    # Max level reached = 2.
+                    # We also update local max_level_reached to show star immediately!
+                    network.update_user_progress(current_level_idx + 2, deaths_to_add=deaths_this_level)
+                    print("[Async] Submission Complete")
+
+                threading.Thread(target=submit_task, daemon=True).start()
+                
+                # Update Local Progress for Stars
+                # If we beat level 1 (idx 0), max_level becomes 2.
+                if (current_level_idx + 2) > max_level_reached:
+                    max_level_reached = current_level_idx + 2
+                
+                if (current_level_idx + 2) > max_level_reached:
+                     max_level_reached = current_level_idx + 2
+                
+                # Check Highscore & Fetch Personal Best
+                # Update LOCAL score (always, for offline tracking - NEVER sent to server)
+                update_local_best(current_level_idx + 1, level_elapsed_time, deaths_this_level)
+                
+                # Fetch user's ONLINE best score for this level for display
+                user_best_score = network.get_my_score(current_level_idx + 1)
+                
+                # Fallback to local best if no online score (offline or not logged in)
+                if not user_best_score:
+                    local_best = get_local_best(current_level_idx + 1)
+                    if local_best:
+                        user_best_score = local_best  # Use local best for display
+                
+                new_highscore = False 
+                
+                # Trigger Level Complete Menu INSTEAD of immediate next level
+                level_complete_menu = True
+                loading_menu = False
+                
+                # current_level_idx is NOT incremented yet.
+                # It will be incremented when "Next Level" is clicked.
 
 
 
             if health_bar.hp <= 0:
                 death_counter.count += 1
                 player.reset(health_bar)
+                # Restart timer on death? 
+                # If "Time Per Level" means "Fastest Run", then yes.
+                # If "complete the level eventually", maybe no?
+                # Typical platformers (Celeste/Meat Boy) count time since entering level.
+                # So we DO NOT reset timer on death, we keep counting.
+                pass
 
             # Update Camera
             player.camera.update(player)
@@ -514,6 +848,23 @@ def main():
             if current_level_idx == 0:
                 for hint in hints:
                     hint.draw(surface, camera)
+            
+            # Draw Timer (HUD)
+            # Use module level variable accessed via imported name?
+            # Or assume we imported 'show_timer' from menus.
+            if show_timer:
+                 # elapsed is calculated every frame
+                 # level_elapsed_time is updated at top of loop.
+                 # Draw it Top Left
+                 t_str = f"Time: {level_elapsed_time:.1f}s"
+                 # Draw with shadow?
+                 tsurf = font.render(t_str, True, "white")
+                 tsurf_sh = font.render(t_str, True, "black")
+                 # Position: topright aligned, y=45 (beneath Total Deaths at y=15)
+                 t_rect = tsurf.get_rect(topright=(1260, 45))
+                 t_rect_sh = tsurf_sh.get_rect(topright=(1262, 47)) # Shadow offset
+                 surface.blit(tsurf_sh, t_rect_sh)
+                 surface.blit(tsurf, t_rect)
                 
             
             # Delta time

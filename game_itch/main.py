@@ -18,4 +18,4 @@ from initial import main
 
 if __name__ == "__main__":
     print("Starting main.py...")
-    asyncio.run(main())
+    main()
