@@ -10,7 +10,7 @@
 >
 > 3. **SOURCE OF TRUTH**: Do not edit files inside `game_itch/` directly. Edit in `Game/` and sync them over.
 >
-> 4. **WEB BUILD STATUS**: The Web (HTML5) version is **DEPRECATED**. Do not suggest or build it unless specifically asked.
+> 4. **WEB BUILD STATUS**: The Web (HTML5) version is a **PROMOTIONAL DEMO**. It has been stripped of online features (Login/Leaderboards) to push users to Desktop.
 >
 > 5. **MAINTAIN MEMORY**: If you change the project structure, add major systems, or alter the deployment flow, **YOU MUST UPDATE THIS FILE** immediately to keep future AIs informed.
 
@@ -28,11 +28,19 @@
 
 * **resources/**: **SOURCE OF TRUTH** for assets.
 
-* **game_itch/**: **DEPLOYMENT & BUILD STAGING**.
-
+* `game_itch/`: **DEPLOYMENT & BUILD STAGING (WINDOWS)**.
   * Contains specific build scripts (`build_executable.bat`) and the production entry point `main.py`.
-
   * **Rule**: Content here is overwritten by `Game/` during the sync process.
+
+* `game_web/`: **DEPLOYMENT & BUILD STAGING (WEB)**.
+  * **Status**: Separate Async-compatible fork of the game.
+  * **Build Script**: `python game_web/clean_build_script.py`. Creates `release_build/web`.
+  * **Key Differences**:
+    * **Async Loop**: Uses `asyncio` loop (see `initial.py`).
+    * **Platform Checks**: `sys.platform == 'emscripten'` used to disable features.
+    * **UX**: Quit button hidden. Login/Leaderboard replaced with "Download Desktop" messages.
+    * **Performance**: `dt` (Delta Time) is capped at 40ms to prevent physics clipping.
+
 
 * **LevelBuilder/**: Web-based level editor.
 
@@ -72,21 +80,20 @@
 
    * *Command*: `butler push game_itch/dist/CamelionGang.exe chameleon-quest/chameleon-quest:windows`
 
-### ⚠️ Legacy / On-Request Workflow (Web Build)
+### ⚠️ Web Build Workflow (Promotional Demo)
 
-> **NOTE**: The web version is no longer the primary target. Only perform this if the user asks for a "Web Build" or "HTML5 Export".
+ 1. **Codebase**: Work primarily in `game_web/`.
 
-1. **Sync Files** (same as above).
+ 2. **Build Web**:
 
-2. **Build Web**:
+    * Run `python game_web/clean_build_script.py`.
 
-   * Run `python game_itch/clean_build_script.py`.
+    * *Action*: Runs `pygbag`, downloads runtime assets, patches `index.html`.
+    * *Output*: `game_web/release_build/web`.
 
-   * *Action*: Runs `pygbag`, patches `index.html` (removes CDN links, fixes regex), zips to `build/web`.
+ 3. **Upload Web**:
 
-3. **Upload Web**:
-
-   * *Command*: `butler push game_itch/build/web chameleon-quest/chameleon-quest:web`
+    * *Command*: `butler push game_web/release_build/web chameleon-quest/chameleon-quest:web`
 
 ## 🔐 Authentication & Database (Supabase)
 

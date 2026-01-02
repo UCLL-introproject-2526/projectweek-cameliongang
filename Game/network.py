@@ -29,7 +29,10 @@ class LeaderboardClient:
         
         self.session = None
         self.user = None
+        self.session = None
+        self.user = None
         self.access_token = None
+        self.refresh_token = None # Store refresh token
         self.is_offline = True
 
         # Initialize Profanity Filter
@@ -110,6 +113,7 @@ class LeaderboardClient:
             if response.status_code == 200:
                 self.user = data.get("user")
                 self.access_token = data.get("access_token")
+                self.refresh_token = data.get("refresh_token")
                 return {"success": True, "user": self.user}
             else:
                 # Prioritize "msg" or "error_description"
@@ -133,6 +137,7 @@ class LeaderboardClient:
             data = response.json()
             if response.status_code == 200:
                 self.access_token = data.get("access_token")
+                self.refresh_token = data.get("refresh_token")
                 self.user = data.get("user")
                 return {"success": True, "user": self.user}
             else:
@@ -148,6 +153,7 @@ class LeaderboardClient:
             except:
                 pass
         self.access_token = None
+        self.refresh_token = None
         self.user = None
         # Clear session file
         try:
@@ -264,6 +270,7 @@ class LeaderboardClient:
             with open(self._get_session_path(), "w") as f:
                 json.dump({
                     "access_token": self.access_token,
+                    "refresh_token": self.refresh_token,
                     "user": self.user
                 }, f)
         except Exception as e:
@@ -275,18 +282,53 @@ class LeaderboardClient:
             with open(self._get_session_path(), "r") as f:
                 data = json.load(f)
                 self.access_token = data.get("access_token")
+                self.refresh_token = data.get("refresh_token")
                 self.user = data.get("user")
                 
-                # Verify token is still valid (simple User call)
+                # Verify token is still valid
                 endpoint = f"{self.url}/auth/v1/user"
                 response = requests.get(endpoint, headers=self._get_headers(authenticated=True))
+                
                 if response.status_code == 200:
                     print(f"[Network] Session Restored for {self.user['email']}")
                     return True
                 else:
-                    print("[Network] Session Expired")
-                    self.logout() # Clear bad session
-                    return False
+                    print("[Network] Session Expired. Attempting Refresh...")
+                    if self._refresh_session():
+                         print("[Network] Session Refreshed Successfully!")
+                         self.save_session()
+                         return True
+                    else:
+                        print("[Network] Refresh Failed. Logging out.")
+                        self.logout()
+                        return False
+        except FileNotFoundError:
+            return False
+        except Exception as e:
+            print(f"[Network] Session Load Error: {e}")
+            return False
+
+    def _refresh_session(self):
+        """Attempts to refresh the session using the refresh_token."""
+        if not self.refresh_token: return False
+        
+        endpoint = f"{self.url}/auth/v1/token?grant_type=refresh_token"
+        try:
+            response = requests.post(endpoint, json={
+                "refresh_token": self.refresh_token
+            }, headers=self._get_headers())
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.access_token = data.get("access_token")
+                self.refresh_token = data.get("refresh_token")
+                self.user = data.get("user")
+                return True
+            else:
+                 print(f"[Network] Refresh Error: {response.text}")
+                 return False
+            print(f"[Network] Refresh Exception: {e}")
+            return False
         except FileNotFoundError:
             return False
         except Exception as e:

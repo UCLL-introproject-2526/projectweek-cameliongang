@@ -115,6 +115,8 @@ levels_button = Button('Choose Level', (500, 400))
 leaderboard_button = Button('Leaderboard', (500, 500))
 settings_button = Button('Settings', (800, 300)) 
 credits_button = Button('Credits', (200, 400))
+tips_button = Button('Tips', (200, 500)) # New Button
+tutorial_button = Button('Play Tutorial', (800, 610)) # New Tutorial Button for Tips Menu
 exit_button = Button('Quit Game', (800, 400))
 
 # Dynamic button for login/logout
@@ -135,6 +137,7 @@ def draw_mainmenu(surface, font, network):
     leaderboard_button.draw(surface, font)
     settings_button.draw(surface, font) 
     credits_button.draw(surface, font)
+    tips_button.draw(surface, font)
     exit_button.draw(surface, font)
     
     # Login Button Logic
@@ -166,6 +169,8 @@ def draw_mainmenu(surface, font, network):
         command = 4
     if settings_button.check_clicked():
         command = 5
+    if tips_button.check_clicked():
+        command = 30 # Tips Menu
     if leaderboard_button.check_clicked():
         command = 6 # Leaderboard
     if login_button.check_clicked():
@@ -439,6 +444,104 @@ def draw_pause_menu(surface, font, mute_button):
         command = 5 # Restart
         
     return command
+
+    return command
+
+def draw_tips_menu(surface, font):
+    surface.fill((0, 0, 0))
+    try:
+        bg = game_background('mainmenu_background.png', menu=True)
+        surface.blit(bg, (0, 0))
+    except:
+        pass
+        
+    draw_panel(surface, 100, 50, 1120, 620)
+    
+    title = font.render("Controls & Tips", True, "gold")
+    title_rect = title.get_rect(center=(surface.get_width() // 2, 80))
+    surface.blit(title, title_rect)
+    
+    # Left Column: Controls
+    pg.draw.line(surface, "white", (640, 150), (640, 600), 2)
+    
+    lbl_ctrl = font.render("Controls", True, "cyan")
+    surface.blit(lbl_ctrl, (350, 130))
+    
+    controls = [
+        ("Move", "A / D / Arrows (Q / D)"),
+        ("Jump", "Space / W / Up (Z)"),
+        ("Grapple", "G / Left Click"),
+        ("Tongue Attack", "E / Right Click"),
+        ("Fullscreen", "F"),
+        ("Mute", "M")
+    ]
+    
+    y = 180
+    for action, key in controls:
+        a_surf = font.render(action, True, "white")
+        k_surf = font.render(key, True, "yellow")
+        surface.blit(a_surf, (240, y))
+        surface.blit(k_surf, (400, y))
+        y += 50
+        
+    # Right Column: Tips
+    lbl_tips = font.render("Tips", True, "cyan")
+    surface.blit(lbl_tips, (750, 130))
+    
+    # Tips with Icons Logic
+    # We'll render tip by tip. If it has {ICON}, we draw icon.
+    tips_data = [
+        ("Killing flies(with tongue attack)gives HP!", None),
+        ("Grapple to ", "grapple_block.png"),
+        ("Stick to slimes in any direction!", "slime_block.png"),
+        ("DON'T TRY LEVEL 8 (for your sanity).", None),
+        ("Use Momentum when grappling!", None)
+    ]
+    
+    y = 180
+    
+    # Helper to load/draw icon
+    def draw_icon_tip(text, icon_file, y_pos):
+        # Text
+        bullet = font.render("-", True, "white")
+        surface.blit(bullet, (660, y_pos))
+        
+        t_surf = font.render(text, True, "white")
+        surface.blit(t_surf, (680, y_pos))
+        
+        if icon_file:
+             try:
+                 # Load/Scale on fly (cached ideally, but menu is low freq)
+                 # We assume ./resources/ path
+                 img = pg.image.load(f'./resources/{icon_file}').convert_alpha()
+                 img = pg.transform.scale(img, (32, 32))
+                 
+                 icon_x = 680 + t_surf.get_width() + 10
+                 surface.blit(img, (icon_x, y_pos - 5))
+             except:
+                 pass
+
+    for text, icon_name in tips_data:
+        draw_icon_tip(text, icon_name, y)
+        y += 60 
+        
+    # Back Button
+    # Reuse btn_login_back but ensure position reset
+    btn_login_back.pos = (507, 610)
+    btn_login_back.button.topleft = btn_login_back.pos
+    btn_login_back.draw(surface, font)
+    
+    # Tutorial Button
+    tutorial_button.pos = (750, 610)
+    tutorial_button.button.topleft = tutorial_button.pos
+    tutorial_button.draw(surface, font)
+
+    if tutorial_button.check_clicked():
+        return 31 # Play Tutorial Command
+
+    if btn_login_back.check_clicked():
+        return 2 # Back
+    return 0
 
 def draw_loading_screen(surface, font, progress, level_name_or_idx, is_name=False):
     # Background
@@ -1173,6 +1276,16 @@ def draw_level_complete_menu(surface, font, level_idx, time_taken, deaths, new_h
         surface.blit(hs_txt, (panel_rect.x + 50, panel_rect.y + 200))
 
     # Buttons
+    # If Tutorial (level_idx == 9), change "Next Level" text to "Start for Real"
+    if level_idx == 9:
+        btn_lc_next.text = "Start for Real"
+        # Also add hint about loading
+        hint = font.render("Tip: Spam SPACE on loading screen to load quicker!", True, "cyan")
+        h_rect = hint.get_rect(center=(surface.get_width()//2, 450))
+        surface.blit(hint, h_rect)
+    else:
+        btn_lc_next.text = "Next Level"
+
     btn_lc_menu.draw(surface, font)
     btn_lc_replay.draw(surface, font)
     btn_lc_next.draw(surface, font)

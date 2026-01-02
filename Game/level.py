@@ -145,24 +145,24 @@ class Tile(pygame.sprite.Sprite):
                 self.image.fill((139, 69, 19)) # Brown
                 pygame.draw.rect(self.image, (100, 50, 0), (0, 0, TILE_SIZE, TILE_SIZE), 2)
 
-# LEVEL_0 = [
-#     "                              ",
-#     "                              ",
-#     "                              ",
-#     "                              ",
-#     "                              ",
-#     "                              ",
-#     "                              ",
-#     "X              S              ",
-#     "X              S         G    ",
-#     "X              S              ",
-#     "X              S         XXXX ",
-#     "X              S         CCCC ",
-#     "X          Y   XL  F          ",
-#     "XXXXXXX  XXXXXXXXXXXXXXXX     ",
-#     "                              ",
-#     "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
-# ]
+LEVEL_0 = [
+    "                              ",
+    "                              ",
+    "                              ",
+    "                              ",
+    "                              ",
+    "                              ",
+    "                              ",
+    "X              S              ",
+    "X              S         G    ",
+    "X              S              ",
+    "X       P      S         XXXX ",
+    "X              S         CCCC ",
+    "X          Y   XL  F          ",
+    "XXXXXXX  XXXXXXXXXXXXXXXX     ",
+    "                              ",
+    "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+]
 
 LEVEL_1 =  [
     #tutorial-level
@@ -398,7 +398,7 @@ LEVEL_8 = [
     "     S       XX           X",
     " X           XX           X",
     " XY          XX           X",
-    " X      XP   XXXt         X",
+    " X      X    XXXt         X",
     " X      XXX     X         X",
     " X        XXXXS  S        X",
     " X        G  XX  S        X",
@@ -456,7 +456,7 @@ LEVEL_8 = [
     " S G         XX     X     X",
     " X           XX     X     X",
     " S           XX     X     X",
-    " X           XX     X     X",
+    " X     P     XX     X     X",
     "FX    XXX    XX     X     X",
     "DDDDDDDDDDDDDDDDDDDDDDDDDDD",
 ]
@@ -493,6 +493,7 @@ LEVELS = [
     {"name": "7.TJ", "data": LEVEL_7},
     {"name": "8.Checkpoints?", "data": LEVEL_8},
     {"name": "9.(Im)posible", "data": LEVEL_9},
+    {"name": "0.Playground", "data": LEVEL_0},
 ]
 
 # Default width/height based on first level (or dynamic per level load)

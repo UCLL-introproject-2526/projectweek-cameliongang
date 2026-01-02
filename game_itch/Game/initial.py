@@ -3,6 +3,7 @@ import random
 import time
 import sys
 import os
+import webbrowser
 from player import Player
 from camera import Camera
 import level as level_module
@@ -171,6 +172,7 @@ def main():
     leaderboard_menu = False
     login_menu = False
     feedback_menu = False
+    tips_menu = False
     
     main_menu = True
     loading_menu = False
@@ -202,15 +204,29 @@ def main():
     mute_button = MuteButton(1230, 60)
     shoot=False
     
+    # Init Mobile Controls
+    mobile_ctrl = None
+    if sys.platform == "emscripten":
+        mobile_ctrl = MobileInterface(surface.get_width(), surface.get_height())
+    
     # Initialize hints
-    hints = [
+    # Initialize hints
+    hints_lvl1 = [
         Hints(font, (128, 128), "Use arrow keys or A/D to move left and right"),
         Hints(font, (128, 160), "Press 'Space' or 'W' to Jump"),
         Hints(font, (604, 1408), "While on wall, press jump and move left or right to jump off"),
         Hints(font, (1344, 576), "Press 'G' or 'Left Mouse' to grapple"),
         Hints(font, (783, 576), "Let go of grapple early to swing furhter!"),
         Hints(font, (132, 843), "Click right mouse to shoot tongue"),
-                ]
+    ]
+    
+    hints_playground = [
+        Hints(font, (100, 100), "Welcome to the Playground!"),
+        Hints(font, (100, 140), "Try everything: Move, Jump, Grapple!"),
+        Hints(font, (500, 300), "Green blocks are sticky! (Hold Up/Z)"),
+        Hints(font, (500, 400), "Grapple to Blue Blocks! (G/Click)"),
+        Hints(font, (800, 600), "Spikes hurt! Watch out!"),
+    ]
     
 
     #music playing
@@ -254,12 +270,22 @@ def main():
              command = draw_mainmenu(surface, font, network)
              
              if menu_click_cooldown == 0:
+                if command == 30: # Tips
+                    main_menu = False
+                    tips_menu = True
+                    menu_click_cooldown = 15
+                if command == 31: # Play Tutorial (Playground)
+                     main_menu = False
+                     current_level_idx = 9 # Playground Index
+                     player.reset(health_bar)
+                     loading_menu = True
+                     loading_timer = 0
+                     menu_click_cooldown = 15
                 if command == 'q':
                     running = False
-                if command == 2: # Credits (not implemented?)
-                    pass
-                if command == 2: # Credits (not implemented?)
-                    pass
+                if command == 2: # Credits
+                    webbrowser.open("https://www.youtube.com/@ChameleonQuestGame")
+                    menu_click_cooldown = 15
                 if command == 3: # Levels
                     # Pass max_level logic here?
                     # For now just open menu.
@@ -301,6 +327,33 @@ def main():
                         mute_button.toggle()
              pg.display.flip()
              # Still tick clock to keep menu framing consistent, but we don't need dt for menu logic yet
+             clock.tick(60)
+             continue
+             clock.tick(60)
+             continue
+             
+        elif tips_menu: 
+             # Safety for Windows port
+             command = menus.draw_tips_menu(surface, font)
+             
+             if menu_click_cooldown == 0:
+                 if command == 2: # Back
+                     tips_menu = False
+                     main_menu = True
+                     menu_click_cooldown = 15
+                 elif command == 31: # Play Tutorial
+                     tips_menu = False
+                     current_level_idx = 9 # Playground Index
+                     main_menu = False
+                     player.reset(health_bar)
+                     loading_menu = True
+                     loading_timer = 0
+                     menu_click_cooldown = 15
+             
+             for event in pg.event.get():
+                 if event.type == pg.QUIT: running = False
+                 
+             pg.display.flip()
              clock.tick(60)
              continue
              
@@ -369,8 +422,13 @@ def main():
                 
              elif cmd == 4: # Next Level
                  level_complete_menu = False
-                 current_level_idx += 1
-                 if current_level_idx >= len(level_module.LEVELS):
+                 # Tutorial Logic (Index 9)
+                 if current_level_idx == 9:
+                     current_level_idx = 0 # Go to Level 1
+                 else:
+                     current_level_idx += 1
+                     
+                 if current_level_idx >= len(level_module.LEVELS) and current_level_idx != 9: # End of game (Tutorial excluded from flow loop)
                      current_level_idx = 0
                      main_menu = True
                  else:
@@ -419,7 +477,12 @@ def main():
                  
              progress = loading_timer / LOADING_DURATION
              # Use lvl.name if available, otherwise fallback
-             lvl_name = getattr(lvl, 'name', f"Level {current_level_idx + 1}")
+             if loading_timer >= 5:
+                  # lvl should be init
+                  lvl_name = getattr(lvl, 'name', f"Level {current_level_idx + 1}")
+             else:
+                  lvl_name = f"Level {current_level_idx + 1}"
+
              draw_loading_screen(surface, font, progress, lvl_name, is_name=True)
              
 
@@ -499,6 +562,9 @@ def main():
                 if command == 2: # Back
                     settings_menu = False
                     main_menu = True
+                    menu_click_cooldown = 15
+                if command == 20: # Feedback
+                    webbrowser.open("https://docs.google.com/forms/d/e/1FAIpQLSeU92DVTyy0zD0knsGqsKa4Dgf7KI8J9655kASvvkHofYD2yg/viewform?usp=dialog")
                     menu_click_cooldown = 15
             
             pg.display.flip()
@@ -614,9 +680,15 @@ def main():
                         player.shoot_tongue()
 
                 if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:  # Grapple key pressed
-                    target_tile = player.find_nearest_grapple_tile()
-                    if target_tile:
-                        player.try_grapple(target_tile)
+                    # Prevent UI touches from grappling
+                    is_ui_touch = False
+                    if mobile_ctrl and mobile_ctrl.hit_test(event.pos):
+                         is_ui_touch = True
+                    
+                    if not is_ui_touch:
+                        target_tile = player.find_nearest_grapple_tile()
+                        if target_tile:
+                            player.try_grapple(target_tile)
 
                 elif event.type == pg.KEYDOWN:
                     if event.key == pg.K_ESCAPE:
@@ -689,7 +761,20 @@ def main():
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             # Update Physics (now takes keys for wall behavior and jump-cut gating)
             # Pass dummy rect for enemy collision (handled in loop above)
-            player.update_physics(dx, keys, dt_factor, pg.Rect(0,0,0,0), health_bar)
+            jump_override = False
+            up_override = False
+            down_override = False
+            
+            # Mobile logic (only active if mobile_ctrl exists)
+            if mobile_ctrl:
+                if mobile_ctrl.state['jump']: jump_override = True
+                if mobile_ctrl.state.get('up'): up_override = True
+                if mobile_ctrl.state.get('down'): down_override = True
+                
+            player.update_physics(dx, keys, dt_factor, pg.Rect(0,0,0,0), health_bar, 
+                                  jump_held_override=jump_override,
+                                  up_override=up_override,
+                                  down_override=down_override)
                         # Check for level completion
             if player.level_complete:
                 # Capture Time
@@ -892,7 +977,10 @@ def main():
             # mute_button.draw(surface) # REMOVED from HUD
             # Draw hints
             if current_level_idx == 0:
-                for hint in hints:
+                for hint in hints_lvl1:
+                    hint.draw(surface, camera)
+            elif current_level_idx == 9: # Playground
+                for hint in hints_playground:
                     hint.draw(surface, camera)
             
             # Draw Timer (HUD)

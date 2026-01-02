@@ -533,7 +533,7 @@ class Player:
 
         self.grapple_to(target_tile.rect.center)
 
-    def update_physics(self, dx, keys, dt, rect,healthbar):
+    def update_physics(self, dx, keys, dt, rect,healthbar, jump_held_override=False, up_override=False, down_override=False):
         # Reset touching flag at start of frame
         self.touching_teleporter = False
 
@@ -718,15 +718,15 @@ class Player:
         
         if self.on_wall:
             # Wall Climb
-            if keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_z]:
+            if keys[pg.K_UP] or keys[pg.K_w] or keys[pg.K_z] or up_override:
                 dy = -5 * dt
                 self.wall_facing_down = False
-            elif keys[pg.K_DOWN] or keys[pg.K_s] or keys[pg.K_s]:
+            elif keys[pg.K_DOWN] or keys[pg.K_s] or keys[pg.K_s] or down_override:
                 dy = 5 * dt
                 self.wall_facing_down = True
         elif self.hanging:
             # Ceiling Stick
-            if keys[pg.K_DOWN] or keys[pg.K_s]:
+            if keys[pg.K_DOWN] or keys[pg.K_s] or down_override:
                 self.hanging = False # Drop
                 dy = 5 * dt
             # UP does nothing while hanging? Or maybe clamber?
@@ -740,7 +740,9 @@ class Player:
                 self.started_rise = True
     
             # Jump cut
-            if self.started_rise and not self.jump_held and self.velocity_y < 0:
+            # Check keys OR override
+            is_jump_held = self.jump_held or jump_held_override
+            if self.started_rise and not is_jump_held and self.velocity_y < 0:
                 self.velocity_y = max(self.velocity_y, self.jump_cut)
                 # Recalculate dy with new velocity? Or just let it take effect next frame?
                 # Better to use updated velocity for consistency, but physics engines vary.
